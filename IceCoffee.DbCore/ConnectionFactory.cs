@@ -8,82 +8,80 @@ using System.Data;
 using System.Data.SQLite;
 using System.Collections;
 using IceCoffee.DbCore.Primitives;
-
 using System.Threading;
+using System.Data.Common;
+using System.Collections.Concurrent;
+using System.Data.SqlClient;
+using IceCoffee.DbCore.Domain;
+using System.Diagnostics;
 
 namespace IceCoffee.DbCore
 {
-    internal static class ConnectionFactory<TDbConnection> where TDbConnection : IDbConnection, new()
+    internal static class ConnectionFactory
     {
-        //SQLite线程安全条件：各线程不能共用一个数据库连接
-
-
-        /// <summary>
-        /// ThreadLocal连接字典
-        /// </summary>
-        private static readonly Dictionary<string, ThreadLocal<TDbConnection>> threadLocalConDict;
-
         /// <summary>
         /// 连接池字典 
         /// </summary>
-        private static readonly Dictionary<string, DbConnectionPool<TDbConnection>> connectionPoolDict;
+        private static readonly ConcurrentDictionary<string, DbConnectionPool> connectionPoolDict;
 
         static ConnectionFactory()
         {
-            threadLocalConDict = new Dictionary<string, ThreadLocal<TDbConnection>>();
-            connectionPoolDict = new Dictionary<string, DbConnectionPool<TDbConnection>>();
-        }
-
-        /// <summary>
-        /// 从ThreadLocal连接字典中获得一个数据库连接的存储容器
-        /// </summary>
-        /// <param name="connectionString"></param>
-        /// <returns></returns>
-        internal static ThreadLocal<TDbConnection> GetConnectionFromThreadLocal(string connectionString)
-        {
-            if (threadLocalConDict.ContainsKey(connectionString) == false)
-            {
-                threadLocalConDict.Add(connectionString, new ThreadLocal<TDbConnection>(() =>
-                {
-                    TDbConnection dbConnection = new TDbConnection
-                    {
-                        ConnectionString = connectionString
-                    };
-                    return dbConnection;
-                }, true));
-            }
-            return threadLocalConDict[connectionString];
+            connectionPoolDict = new ConcurrentDictionary<string, DbConnectionPool>();
         }
 
         /// <summary>
         /// 从连接池中获得一个数据库连接
         /// </summary>
         /// <returns></returns>
-        internal static TDbConnection GetConnectionFromPool(string connectionString)
+        internal static DbConnection GetConnectionFromPool(DbConnectionInfo dbConnectionInfo)
         {
-            if (connectionPoolDict.ContainsKey(connectionString) == false)
+            string connStr = dbConnectionInfo.ConnectionString;
+            if (connectionPoolDict.TryGetValue(connStr, out DbConnectionPool pool))
             {
-                var sqliteConnectionPool = new DbConnectionPool<TDbConnection>(connectionString);
-                connectionPoolDict.Add(connectionString, sqliteConnectionPool);
+                return pool.Take();
             }
+            else
+            {
+                DbProviderFactory factory = null;
+                switch (dbConnectionInfo.DatabaseType)
+                {
+                    case DatabaseType.SQLite:
+                        factory = SQLiteFactory.Instance;
+                        break;
+                    case DatabaseType.SQLServer:
+                        factory = SqlClientFactory.Instance;
+                        break;
+                    case DatabaseType.MySQL:
+                        break;
+                    case DatabaseType.Oracle:
+                        break;
+                    default:
+                        Debug.Assert(false, "未定义的数据库类型");
+                        break;
+                }
 
-            return connectionPoolDict[connectionString].Take();
+                DbConnectionPool newPool = new DbConnectionPool(connStr, factory);
+                connectionPoolDict.TryAdd(connStr, newPool);
+
+                return newPool.Take();
+            }
         }
 
 
         /// <summary>
         /// 回收数据库连接到连接池
         /// </summary>
-        internal static void CollectDbConnectionToPool(TDbConnection dbConnection)
+        internal static void CollectDbConnectionToPool(DbConnection dbConnection)
         {
-            if (connectionPoolDict.ContainsKey(dbConnection.ConnectionString))
+            if (connectionPoolDict.TryGetValue(dbConnection.ConnectionString, out DbConnectionPool pool))
             {
-                connectionPoolDict[dbConnection.ConnectionString].Add(dbConnection);
+                if(pool.Put(dbConnection))
+                {
+                    return;
+                }
             }
-            else
-            {
-                dbConnection.Dispose();
-            }
+
+            dbConnection.Dispose();
         }
     }
 }

@@ -5,7 +5,6 @@ using System.Data.SQLite;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Configuration;
 using Dapper;
 using IceCoffee.DbCore.Primitives;
 using PostSharp.Aspects;
@@ -32,16 +31,6 @@ namespace IceCoffee.DbCore.Utils
             {
                 System.IO.File.Delete(path);
             }
-        }
-
-        /// <summary>
-        /// 从配置文件加载数据库连接串
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        public static string LoadConnectString(string name)
-        {
-            return ConfigurationManager.ConnectionStrings[name].ConnectionString;
         }
 
         /// <summary>

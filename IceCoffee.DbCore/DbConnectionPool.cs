@@ -1,48 +1,104 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using IceCoffee.Common;
+using IceCoffee.Common.Pools;
 
 namespace IceCoffee.DbCore
 {
-    public class DbConnectionPool<TDbConnection> : ObjectPool<TDbConnection> where TDbConnection : IDbConnection, new()
+    public class DbConnectionPool : ConnectionPool<DbConnection>
     {
-        private readonly uint maxConnectionCount;
+        private readonly string _connectionString;
 
-        private readonly string connectionString;
+        private readonly DbProviderFactory _factory;
 
-        public DbConnectionPool(string connectionString, uint maxConnectionCount = 50)
+        /// <summary>
+        /// 连接字符串
+        /// </summary>
+        public string ConnectionString => _connectionString;
+
+        public DbConnectionPool(string connectionString, DbProviderFactory factory, int maxConnectionCount = 1000)
         {
-            this.connectionString = connectionString;
-            this.maxConnectionCount = maxConnectionCount;
-        }
+            this._connectionString = connectionString;
+            this._factory = factory;
 
-        protected override TDbConnection Create()
-        {
-            TDbConnection dbConnection = new TDbConnection
+            Min = Environment.ProcessorCount;
+            if (Min < 2)
             {
-                ConnectionString = connectionString
-            };
-            return dbConnection;
-        }
-
-        public override void Add(TDbConnection item)
-        {
-            if(item == null)
+                Min = 2;
+            }
+            if (Min > 8)
             {
-                return;
+                Min = 8;
             }
 
-            if (base.Count > maxConnectionCount)
+            Max = maxConnectionCount;
+
+            IdleTime = 30;
+            AllIdleTime = 180;
+        }
+
+        protected override DbConnection Create()
+        {
+            var conn = _factory?.CreateConnection();
+            if (conn == null)
             {
-                item.Dispose();
+                var msg = "连接创建失败！请检查驱动是否正常";
+
+                throw new Exception(Name + " " + msg);
             }
-            else if(item.State != ConnectionState.Open)// 返回是否有效。无效对象将会被抛弃
+
+            conn.ConnectionString = ConnectionString;
+
+            try
             {
-                base.Add(item);
+                conn.Open();
+            }
+            catch (DbException)
+            {
+                throw;
+            }
+
+            return conn;
+        }
+
+        /// <summary>申请时检查是否打开</summary>
+        public override DbConnection Take()
+        {
+            var conn = base.Take();
+            if (conn.State == ConnectionState.Closed)
+            {
+                conn.Open();
+            }
+
+            return conn;
+        }
+
+        /// <summary>释放时，返回是否有效。无效对象将会被抛弃</summary>
+        /// <param name="value"></param>
+        protected override bool OnPut(DbConnection value)
+        {
+            return value.State == ConnectionState.Open;
+        }
+
+        /// <summary>借一个连接执行指定操作</summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="callback"></param>
+        /// <returns></returns>
+        public T Execute<T>(Func<DbConnection, T> callback)
+        {
+            var conn = Take();
+            try
+            {
+                return callback(conn);
+            }
+            finally
+            {
+                Put(conn);
             }
         }
     }

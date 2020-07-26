@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -17,29 +18,18 @@ namespace IceCoffee.DbCore.Primitives.Repository
     /// <summary>
     /// SQLite数据库仓储
     /// </summary>
-    public class SQLiteRepositoryStr<TEntity> : RepositoryBaseStr<TEntity, SQLiteConnection> where TEntity : EntityBase<string>
+    public class SQLiteRepositoryStr<TEntity> : RepositoryBase<TEntity, string> where TEntity : EntityBase<string>
     {
-        new protected SQLiteConnection Connection;
-
         public SQLiteRepositoryStr(DbConnectionInfo dbConnectionInfo)
-            : this(dbConnectionInfo.ConnectionString, dbConnectionInfo.UseConnectionPool)
         {
-            if(dbConnectionInfo.DatabaseType != DatabaseType.SQLite)
-            {
-                throw new Exception("数据库类型不匹配");
-            }
+            Debug.Assert(dbConnectionInfo.DatabaseType == DatabaseType.SQLite, "数据库类型不匹配");
         }
 
-        public SQLiteRepositoryStr(string connectionString, bool useConnectionPool) : base(connectionString, useConnectionPool)
-        {
-            Connection = base.Connection as SQLiteConnection;
-        }
-
-        public override IEnumerable<TEntity> QueryListPaged(int pageNumber, int rowsPerPage,
-            string conditions = null, string orderby = null, object param = null)
-        {
-            throw new NotImplementedException();
-        }
+        //public override IEnumerable<TEntity> QueryListPaged(int pageNumber, int rowsPerPage,
+        //    string conditions = null, string orderby = null, object param = null)
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 }
 

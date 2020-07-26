@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Diagnostics;
 using System.Reflection;
 using IceCoffee.DbCore.Primitives;
 using PostSharp.Aspects;
@@ -18,7 +19,7 @@ namespace IceCoffee.DbCore.UnitOfWork
         /// <summary>
         /// 数据库操作会话
         /// </summary>
-        private IDbSession dbSession;
+        private DbSession dbSession;
 
         public UnitOfWorkAttribute()
         {
@@ -27,12 +28,19 @@ namespace IceCoffee.DbCore.UnitOfWork
         }
 
         public override void OnEntry(MethodExecutionArgs args)
-        {           
-            dbSession = args.Instance as IDbSession;            
+        {
+            Debug.Assert(args.Arguments.Count > 0, "仓储接口参数个数应大于0");
+
+            dbSession = args.Arguments[args.Arguments.Count - 1] as DbSession;
+
+            Debug.Assert(dbSession != null, "数据库操作会话不能为空");
+
+            (args.Instance as Primitives.Repository.IRepositoryBase).GetThreadLocal == true
+
             try
             {
                 dbSession.Connection.Open();
-                dbSession.Transaction = dbSession.Connection.BeginTransaction();
+                dbSession.transaction = dbSession.connection.BeginTransaction();
             }
             catch (Exception e)
             {

@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -10,6 +11,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
+using IceCoffee.Common.Pools;
+using IceCoffee.DbCore.Domain;
 using IceCoffee.DbCore.OptionalAttributes;
 using IceCoffee.DbCore.Primitives.Entity;
 
@@ -17,23 +20,24 @@ namespace IceCoffee.DbCore.Primitives.Repository
 {
     /// <summary>
     /// 通用仓储基类
-    /// <para>ExecuteAsync、QueryAsync实际上调用DbCommand.ExecuteNonQueryAsync 方法，是同步</para>
+    /// <para>ExecuteAsync、QueryAsync实际上调用DbCommand.ExecuteNonQueryAsync 方法，是同步执行</para>
     /// <para>https://docs.microsoft.com/zh-cn/dotnet/api/system.data.common.dbcommand.executenonqueryasync</para>
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
-    public abstract partial class RepositoryBase<TEntity, TKey> : IRepositoryBase<TEntity, TKey> where TEntity : EntityBase<TKey>
+    public abstract partial class RepositoryBase<TEntity, TKey> : IRepositoryBase, IRepositoryBase<TEntity, TKey> where TEntity : EntityBase<TKey>
     {
-        /// <summary>
-        /// sql语句缓存字典
-        /// </summary>
-        //protected static readonly ConcurrentDictionary<string, string> sqlStatementCache = new ConcurrentDictionary<string, string>();
-
         #region 内部保护属性
-        internal protected abstract IDbConnection Connection { get; }
+
+        private readonly DbConnectionInfo _dbConnectionInfo;
+
+        //internal protected abstract IDbConnection Connection { get; }
         /// <summary>
         /// 表示要在数据源上执行的事务，由AOP切面提供
         /// </summary>
-        internal protected IDbTransaction Transaction { get; set; }
+        //internal protected IDbTransaction Transaction { get; set; }
+
+        private ThreadLocal<bool> useUnitOfWork;
+
         #endregion
 
         #region 公共静态属性
@@ -130,158 +134,187 @@ namespace IceCoffee.DbCore.Primitives.Repository
         }
         #endregion
 
-        //private static string GetSqlFromCache([CallerMemberName]string callerMethodName = "")
+        public int Execute(string sql, object param = null, bool useTransaction = false)
+        {
+            if(useUnitOfWork.Value == true)
+            {
+                
+            }
+
+            DbConnection conn = null;
+            IDbTransaction transaction = null;
+            try
+            {
+                conn = ConnectionFactory.GetConnectionFromPool(_dbConnectionInfo);
+                if (useTransaction)
+                {
+                    transaction = conn.BeginTransaction();
+                }
+
+                int result = conn.Execute(sql, param, transaction, commandType: CommandType.Text);
+                if (useTransaction)
+                {
+                    transaction.Commit();
+                }
+
+                return result;
+            }
+            catch
+            {
+                if (useTransaction)
+                {
+                    transaction.Rollback();
+                }
+
+                throw;
+            }
+            finally
+            {
+                if (conn != null)
+                {
+                    ConnectionFactory.CollectDbConnectionToPool(conn);
+                }
+            }
+        }
+
+        //#region Insert
+        public virtual int InsertOne(TEntity entity, DbSession dbSession = null)
+        {
+            return dbSession.connection.Execute(Insert_Statement_Fixed, entity, dbSession.transaction);
+        }
+        //public virtual int InsertList(IEnumerable<TEntity> entitys)
         //{
-        //    if(sqlStatementCache.TryGetValue(callerMethodName, out string sql))
+        //    return Connection.Execute(Insert_Statement_Fixed, entitys, Transaction);
+        //}
+        //#endregion
+
+        //#region Delete
+        //public virtual int DeleteAny(string conditions, object param = null)
+        //{
+        //    string sql = string.Format("DELETE FROM {0} {1}", TableName, conditions == null ? null : "WHERE " + conditions);
+        //    return Connection.Execute(sql, param, Transaction);
+        //}
+        //public virtual int DeleteOne(TEntity entity)
+        //{
+        //    string sql = string.Format("DELETE FROM {0} WHERE {1}=@Key", TableName, KeyName);
+        //    return Connection.Execute(sql, entity, Transaction);
+        //}
+        //public virtual int DeleteList(IEnumerable<TEntity> entitys)
+        //{
+        //    string sql = string.Format("DELETE FROM {0} WHERE {1}=@Key", TableName, KeyName);
+        //    return Connection.Execute(sql, entitys, Transaction);
+        //}
+        //public virtual int DeleteOneByKey(TKey key)
+        //{
+        //    string sql = string.Format("DELETE FROM {0} WHERE {1}=@Key", TableName, KeyName);
+        //    return Connection.Execute(sql, new { Key = key }, Transaction);
+        //}
+        //public virtual int DeleteListByKeys(IEnumerable<TKey> keys)
+        //{
+        //    string sql = string.Format("DELETE FROM {0} WHERE {1}=@Key", TableName, KeyName);
+        //    List<object> param = new List<object>();
+        //    foreach (var key in keys)
         //    {
-        //        return sql;
+        //        param.Add(new { Key = key });
         //    }
-        //    return null;
+        //    return Connection.Execute(sql, param, Transaction);
         //}
-        //private static string CacheSql(string sql, [CallerMemberName]string callerMethodName = "")
+        //public virtual int DeleteOneById<TId>(TId id, string idColumnName)
         //{
-        //    sqlStatementCache[callerMethodName] = sql;
-        //    return sql;
+        //    string sql = string.Format("DELETE FROM {0} WHERE {1}=@Id", TableName, idColumnName);
+        //    return Connection.Execute(sql, new { Id = id }, Transaction);
         //}
+        //public virtual int DeleteListByIds<TId>(IEnumerable<TId> ids, string idColumnName)
+        //{
+        //    string sql = string.Format("DELETE FROM {0} WHERE {1}=@Id", TableName, idColumnName);
+        //    List<object> param = new List<object>();
+        //    foreach (var id in ids)
+        //    {
+        //        param.Add(new { Id = id });
+        //    }
+        //    return Connection.Execute(sql, param, Transaction);
+        //}
+        //public virtual int DeleteAll()
+        //{
+        //    string sql = string.Format("DELETE FROM {0}", TableName);
+        //    return Connection.Execute(sql, null, Transaction);
+        //}
+        //#endregion
 
-        #region Insert
-        public virtual int InsertOne(TEntity entity)
-        {
-            return Connection.Execute(Insert_Statement_Fixed, entity, Transaction);
-        }
-        public virtual int InsertList(IEnumerable<TEntity> entitys)
-        {
-            return Connection.Execute(Insert_Statement_Fixed, entitys, Transaction);
-        }
-        #endregion
+        //#region Query
+        //public virtual IEnumerable<TEntity> QueryAny(string columnNames, string conditions, string orderby, object param = null)
+        //{
+        //    string sql = string.Format("SELECT {0} FROM {1} {2} {3}", columnNames, TableName, conditions == null ? null : "WHERE " + conditions, orderby);
+        //    return Connection.Query<TEntity>(sql, param, Transaction);
+        //}
+        //public virtual TEntity QueryOneByKey(TKey key)
+        //{
+        //    string sql = string.Format("SELECT {0} FROM {1} WHERE {2}=@Key", Select_Statement, TableName, KeyName);
+        //    return Connection.QueryFirstOrDefault<TEntity>(sql, new { Key = key }, Transaction);
+        //}
+        //public virtual IEnumerable<TEntity> QueryListByKeys(IEnumerable<TKey> keys)
+        //{
+        //    string sql = string.Format("SELECT {0} FROM {1} WHERE {2}=@Key", Select_Statement, TableName, KeyName);
+        //    List<object> param = new List<object>();
+        //    foreach (var key in keys)
+        //    {
+        //        param.Add(new { Key = key });
+        //    }
+        //    return Connection.Query<TEntity>(sql, param, Transaction);
+        //}
+        //public virtual IEnumerable<TEntity> QueryAll(string orderby = null)
+        //{
+        //    string sql = string.Format("SELECT {0} FROM {1}{2}", Select_Statement, TableName, orderby == null ? null : " ORDER BY " + orderby);
+        //    return Connection.Query<TEntity>(sql, null, Transaction);
+        //}
+        //public virtual TEntity QueryOneById<TId>(TId id, string idColumnName)
+        //{
+        //    string sql = string.Format("SELECT {0} FROM {1} WHERE {2}=@Id", Select_Statement, TableName, idColumnName);
+        //    return Connection.QueryFirstOrDefault<TEntity>(sql, new { Id = id }, Transaction);
+        //}
+        //public virtual IEnumerable<TEntity> QueryListById<TId>(TId id, string idColumnName)
+        //{
+        //    string sql = string.Format("SELECT {0} FROM {1} WHERE {2}=@Id", Select_Statement, TableName, idColumnName);
+        //    return Connection.Query<TEntity>(sql, new { Id = id }, Transaction);
+        //}       
+        //public virtual long QueryRecordCount(string conditions = null, object param = null)
+        //{
+        //    string sql = string.Format("SELECT COUNT(*) AS Total FROM {0} {1}", TableName, conditions == null ? null : "WHERE " + conditions);
+        //    return Connection.QueryFirstOrDefault(sql, param, Transaction).Total;
+        //}
+        //#region 待实现
+        //public abstract IEnumerable<TEntity> QueryListPaged(int pageNumber, int rowsPerPage,
+        //   string conditions = null, string orderby = null, object param = null);
+        //#endregion
+        //#endregion
 
-        #region Delete
-        public virtual int DeleteAny(string conditions, object param = null)
-        {
-            string sql = string.Format("DELETE FROM {0} {1}", TableName, conditions == null ? null : "WHERE " + conditions);
-            return Connection.Execute(sql, param, Transaction);
-        }
-        public virtual int DeleteOne(TEntity entity)
-        {
-            string sql = string.Format("DELETE FROM {0} WHERE {1}=@Key", TableName, KeyName);
-            return Connection.Execute(sql, entity, Transaction);
-        }
-        public virtual int DeleteList(IEnumerable<TEntity> entitys)
-        {
-            string sql = string.Format("DELETE FROM {0} WHERE {1}=@Key", TableName, KeyName);
-            return Connection.Execute(sql, entitys, Transaction);
-        }
-        public virtual int DeleteOneByKey(TKey key)
-        {
-            string sql = string.Format("DELETE FROM {0} WHERE {1}=@Key", TableName, KeyName);
-            return Connection.Execute(sql, new { Key = key }, Transaction);
-        }
-        public virtual int DeleteListByKeys(IEnumerable<TKey> keys)
-        {
-            string sql = string.Format("DELETE FROM {0} WHERE {1}=@Key", TableName, KeyName);
-            List<object> param = new List<object>();
-            foreach (var key in keys)
-            {
-                param.Add(new { Key = key });
-            }
-            return Connection.Execute(sql, param, Transaction);
-        }
-        public virtual int DeleteOneById<TId>(TId id, string idColumnName)
-        {
-            string sql = string.Format("DELETE FROM {0} WHERE {1}=@Id", TableName, idColumnName);
-            return Connection.Execute(sql, new { Id = id }, Transaction);
-        }
-        public virtual int DeleteListByIds<TId>(IEnumerable<TId> ids, string idColumnName)
-        {
-            string sql = string.Format("DELETE FROM {0} WHERE {1}=@Id", TableName, idColumnName);
-            List<object> param = new List<object>();
-            foreach (var id in ids)
-            {
-                param.Add(new { Id = id });
-            }
-            return Connection.Execute(sql, param, Transaction);
-        }
-        public virtual int DeleteAll()
-        {
-            string sql = string.Format("DELETE FROM {0}", TableName);
-            return Connection.Execute(sql, null, Transaction);
-        }
-        #endregion
-
-        #region Query
-        public virtual IEnumerable<TEntity> QueryAny(string columnNames, string conditions, string orderby, object param = null)
-        {
-            string sql = string.Format("SELECT {0} FROM {1} {2} {3}", columnNames, TableName, conditions == null ? null : "WHERE " + conditions, orderby);
-            return Connection.Query<TEntity>(sql, param, Transaction);
-        }
-        public virtual TEntity QueryOneByKey(TKey key)
-        {
-            string sql = string.Format("SELECT {0} FROM {1} WHERE {2}=@Key", Select_Statement, TableName, KeyName);
-            return Connection.QueryFirstOrDefault<TEntity>(sql, new { Key = key }, Transaction);
-        }
-        public virtual IEnumerable<TEntity> QueryListByKeys(IEnumerable<TKey> keys)
-        {
-            string sql = string.Format("SELECT {0} FROM {1} WHERE {2}=@Key", Select_Statement, TableName, KeyName);
-            List<object> param = new List<object>();
-            foreach (var key in keys)
-            {
-                param.Add(new { Key = key });
-            }
-            return Connection.Query<TEntity>(sql, param, Transaction);
-        }
-        public virtual IEnumerable<TEntity> QueryAll(string orderby = null)
-        {
-            string sql = string.Format("SELECT {0} FROM {1}{2}", Select_Statement, TableName, orderby == null ? null : " ORDER BY " + orderby);
-            return Connection.Query<TEntity>(sql, null, Transaction);
-        }
-        public virtual TEntity QueryOneById<TId>(TId id, string idColumnName)
-        {
-            string sql = string.Format("SELECT {0} FROM {1} WHERE {2}=@Id", Select_Statement, TableName, idColumnName);
-            return Connection.QueryFirstOrDefault<TEntity>(sql, new { Id = id }, Transaction);
-        }
-        public virtual IEnumerable<TEntity> QueryListById<TId>(TId id, string idColumnName)
-        {
-            string sql = string.Format("SELECT {0} FROM {1} WHERE {2}=@Id", Select_Statement, TableName, idColumnName);
-            return Connection.Query<TEntity>(sql, new { Id = id }, Transaction);
-        }       
-        public virtual long QueryRecordCount(string conditions = null, object param = null)
-        {
-            string sql = string.Format("SELECT COUNT(*) AS Total FROM {0} {1}", TableName, conditions == null ? null : "WHERE " + conditions);
-            return Connection.QueryFirstOrDefault(sql, param, Transaction).Total;
-        }
-        #region 待实现
-        public abstract IEnumerable<TEntity> QueryListPaged(int pageNumber, int rowsPerPage,
-           string conditions = null, string orderby = null, object param = null);
-        #endregion
-        #endregion
-
-        #region Update
-        public virtual int UpdateAny(string setClause, string conditions, object param)
-        {
-            string sql = string.Format("UPDATE {0} SET {1} {2}", TableName, setClause, conditions == null ? null : "WHERE " + conditions);
-            return Connection.Execute(sql, param, Transaction);
-        }
-        public virtual int UpdateOne(TEntity entity)
-        {
-            string sql = string.Format("UPDATE {0} SET {1} WHERE {2}=@Key", TableName, UpdateSet_Statement, KeyName);
-            return Connection.Execute(sql, entity, Transaction);
-        }
-        public virtual int UpdateList(IEnumerable<TEntity> entitys)
-        {
-            string sql = string.Format("UPDATE {0} SET {1} WHERE {2}=@Key", TableName, UpdateSet_Statement, KeyName);
-            return Connection.Execute(sql, entitys, Transaction);
-        }
-        public virtual int UpdateById<TId>(TEntity entity, TId id, string idColumnName)
-        {
-            string sql = string.Format("UPDATE {0} SET {1} WHERE {2}=@Id", TableName, UpdateSet_Statement, idColumnName);
-            return Connection.Execute(sql, new { Id = id }, Transaction);
-        }
-        public virtual int UpdateOneColById<TId, TValue>(TId id, TValue value, string idColumnName, string valueColumnName)
-        {
-            string sql = string.Format("UPDATE {0} SET {1}=@Value WHERE {2}=@Id", TableName, valueColumnName, idColumnName);
-            return Connection.Execute(sql, new { Id = id, Value = value }, Transaction);
-        }
-        #endregion
+        //#region Update
+        //public virtual int UpdateAny(string setClause, string conditions, object param)
+        //{
+        //    string sql = string.Format("UPDATE {0} SET {1} {2}", TableName, setClause, conditions == null ? null : "WHERE " + conditions);
+        //    return Connection.Execute(sql, param, Transaction);
+        //}
+        //public virtual int UpdateOne(TEntity entity)
+        //{
+        //    string sql = string.Format("UPDATE {0} SET {1} WHERE {2}=@Key", TableName, UpdateSet_Statement, KeyName);
+        //    return Connection.Execute(sql, entity, Transaction);
+        //}
+        //public virtual int UpdateList(IEnumerable<TEntity> entitys)
+        //{
+        //    string sql = string.Format("UPDATE {0} SET {1} WHERE {2}=@Key", TableName, UpdateSet_Statement, KeyName);
+        //    return Connection.Execute(sql, entitys, Transaction);
+        //}
+        //public virtual int UpdateById<TId>(TEntity entity, TId id, string idColumnName)
+        //{
+        //    string sql = string.Format("UPDATE {0} SET {1} WHERE {2}=@Id", TableName, UpdateSet_Statement, idColumnName);
+        //    return Connection.Execute(sql, new { Id = id }, Transaction);
+        //}
+        //public virtual int UpdateOneColById<TId, TValue>(TId id, TValue value, string idColumnName, string valueColumnName)
+        //{
+        //    string sql = string.Format("UPDATE {0} SET {1}=@Value WHERE {2}=@Id", TableName, valueColumnName, idColumnName);
+        //    return Connection.Execute(sql, new { Id = id, Value = value }, Transaction);
+        //}
+        //#endregion
 
 
         #region Old
