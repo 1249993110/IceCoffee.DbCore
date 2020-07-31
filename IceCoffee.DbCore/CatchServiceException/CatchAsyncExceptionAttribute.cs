@@ -33,12 +33,12 @@ namespace IceCoffee.DbCore.CatchServiceException
 
         public override void OnException(MethodExecutionArgs args)
         {          
-            if (args.Instance is IExceptionCaughtSignal instance)
+            if (args.Instance is IExceptionCaught instance)
             {
                 if(instance.IsAutoHandleAsyncServiceException)
                 {
                     args.FlowBehavior = FlowBehavior.Return;
-                    instance.EmitAsyncExceptionCaughtSignal(instance, new ServiceException(Error, args.Exception));
+                    instance.EmitSignal(instance, new ServiceException(Error, args.Exception));
                 }
                 else
                 {

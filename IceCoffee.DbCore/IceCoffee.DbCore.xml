@@ -1,0 +1,780 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>IceCoffee.DbCore</name>
+    </assembly>
+    <members>
+        <member name="T:IceCoffee.DbCore.CatchServiceException.AsyncExceptionCaughtEventHandler">
+            <summary>
+            异步服务层异常事件处理器
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="T:IceCoffee.DbCore.CatchServiceException.CatchAsyncExceptionAttribute">
+            <summary>
+            捕获异步方法异常
+            </summary>
+        </member>
+        <member name="P:IceCoffee.DbCore.CatchServiceException.CatchAsyncExceptionAttribute.Error">
+            <summary>
+            错误信息
+            </summary>
+        </member>
+        <member name="T:IceCoffee.DbCore.CatchServiceException.CatchSyncExceptionAttribute">
+            <summary>
+            捕获同步方法异常
+            </summary>
+        </member>
+        <member name="P:IceCoffee.DbCore.CatchServiceException.CatchSyncExceptionAttribute.Error">
+            <summary>
+            错误信息
+            </summary>
+        </member>
+        <member name="M:IceCoffee.DbCore.CatchServiceException.IExceptionCaughtSignal.EmitAsyncExceptionCaughtSignal(System.Object,IceCoffee.DbCore.CatchServiceException.ServiceException)">
+            <summary>
+            发射异常捕获信号
+            </summary>
+            <param name="e"></param>
+        </member>
+        <member name="P:IceCoffee.DbCore.CatchServiceException.IExceptionCaughtSignal.IsAutoHandleAsyncServiceException">
+            <summary>
+            是否自动处理异步服务层异常
+            </summary>
+        </member>
+        <member name="F:IceCoffee.DbCore.ConnectionFactory.connectionPoolDict">
+            <summary>
+            连接池字典 
+            </summary>
+        </member>
+        <member name="M:IceCoffee.DbCore.ConnectionFactory.GetConnectionFromPool(IceCoffee.DbCore.Domain.DbConnectionInfo)">
+            <summary>
+            从连接池中获得一个数据库连接
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.ConnectionFactory.CollectDbConnectionToPool(System.Data.IDbConnection)">
+            <summary>
+            回收数据库连接到连接池
+            </summary>
+        </member>
+        <member name="P:IceCoffee.DbCore.DbConnectionPool.ConnectionString">
+            <summary>
+            连接字符串
+            </summary>
+        </member>
+        <member name="M:IceCoffee.DbCore.DbConnectionPool.Take">
+            <summary>申请时检查是否打开</summary>
+        </member>
+        <member name="M:IceCoffee.DbCore.DbConnectionPool.OnPut(System.Data.IDbConnection)">
+            <summary>释放时，返回是否有效。无效对象将会被抛弃</summary>
+            <param name="value"></param>
+        </member>
+        <member name="M:IceCoffee.DbCore.DbConnectionPool.Execute``1(System.Func{System.Data.IDbConnection,``0})">
+            <summary>借一个连接执行指定操作</summary>
+            <typeparam name="T"></typeparam>
+            <param name="callback"></param>
+            <returns></returns>
+        </member>
+        <member name="F:IceCoffee.DbCore.Domain.DatabaseType.SQLite">
+            <summary>
+            SQLite数据库
+            </summary>
+        </member>
+        <member name="F:IceCoffee.DbCore.Domain.DatabaseType.SQLServer">
+            <summary>
+            SQL Server数据库
+            </summary>
+        </member>
+        <member name="F:IceCoffee.DbCore.Domain.DatabaseType.MySQL">
+            <summary>
+            MySQL数据库
+            </summary>
+        </member>
+        <member name="F:IceCoffee.DbCore.Domain.DatabaseType.Oracle">
+            <summary>
+            Oracle数据库
+            </summary>
+        </member>
+        <member name="P:IceCoffee.DbCore.Domain.DbConnectionInfo.ConnectionString">
+            <summary>
+            连接串
+            </summary>
+        </member>
+        <member name="P:IceCoffee.DbCore.Domain.DbConnectionInfo.DatabaseType">
+            <summary>
+            数据库类型
+            </summary>
+        </member>
+        <member name="M:IceCoffee.DbCore.Domain.DbConnectionInfo.GetDbConnection">
+            <summary>
+            从连接信息得到一个数据库连接
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:IceCoffee.DbCore.OptionalAttributes.ColumnAttribute.Name">
+            <summary>
+            列名
+            </summary>
+        </member>
+        <member name="P:IceCoffee.DbCore.OptionalAttributes.TableAttribute.Name">
+            <summary>
+            表名
+            </summary>
+        </member>
+        <member name="P:IceCoffee.DbCore.Primitives.Dto.DtoBase`1.Key">
+            <summary>
+            唯一查询标识，对应表主键
+            </summary>
+        </member>
+        <member name="T:IceCoffee.DbCore.Primitives.Entity.EntityBase`1">
+            <summary>
+            仓储基于主键Key进行CRUD的实现基础，实体必须继承此类
+            </summary>
+            <typeparam name="TKey"></typeparam>
+        </member>
+        <member name="P:IceCoffee.DbCore.Primitives.Entity.EntityBase`1.Key">
+            <summary>
+            主键
+            </summary>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Entity.EntityBase`1.GenerateKey">
+            <summary>
+            生成主键
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Entity.EntityBase`1.Init">
+            <summary>
+            初始化，生成主键
+            </summary>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Entity.EntityBase`1.Create``1">
+            <summary>
+            创建一个实体，调用Init方法
+            </summary>
+        </member>
+        <member name="P:IceCoffee.DbCore.Primitives.Entity.EntityBaseGuid.Key">
+            <summary>
+            主键
+            </summary>
+        </member>
+        <member name="P:IceCoffee.DbCore.Primitives.Entity.EntityBaseGuid.CreatedDate">
+            <summary>
+            创建日期
+            </summary>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Entity.EntityBaseGuid.GenerateKey">
+            <summary>
+            生成主键
+            </summary>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Entity.EntityBaseGuid.Init">
+            <summary>
+            初始化，生成主键和创建日期
+            </summary>
+        </member>
+        <member name="T:IceCoffee.DbCore.Primitives.Entity.EntityBaseStr">
+            <summary>
+            EntityBase泛型参数为string的默认实现
+            </summary>
+        </member>
+        <member name="P:IceCoffee.DbCore.Primitives.Entity.EntityBaseStr.Key">
+            <summary>
+            主键
+            </summary>
+        </member>
+        <member name="P:IceCoffee.DbCore.Primitives.Entity.EntityBaseStr.CreatedDate">
+            <summary>
+            创建日期
+            </summary>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Entity.EntityBaseStr.GenerateKey">
+            <summary>
+            生成主键
+            </summary>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Entity.EntityBaseStr.Init">
+            <summary>
+            初始化，生成主键和创建日期
+            </summary>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Entity.IEntity.Init">
+            <summary>
+            初始化
+            </summary>
+        </member>
+        <member name="P:IceCoffee.DbCore.Primitives.Entity.IEntity`1.Key">
+            <summary>
+            主键
+            </summary>
+        </member>
+        <member name="T:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2">
+            <summary>
+            使用Task.Run的执行异步操作
+            </summary>
+            <typeparam name="TEntity"></typeparam>
+            <typeparam name="TKey"></typeparam>
+        </member>
+        <member name="P:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.UnitOfWork">
+            <summary>
+            工作单元
+            </summary>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.Insert(`0)">
+            <summary>
+            插入一条记录
+            </summary>
+            <param name="entity"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.InsertBatch(System.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            插入多条记录
+            </summary>
+            <param name="entitys"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.DeleteAny(System.String,System.Object)">
+            <summary>
+            根据条件和匿名对象执行任意删除语句
+            </summary>
+            <param name="whereBy"></param>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.Delete(`0)">
+            <summary>
+            根据默认主键删除记录
+            </summary>
+            <param name="entity"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.DeleteBatch(System.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            根据默认主键删除多条记录
+            </summary>
+            <param name="entitys"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.DeleteByKey(`1)">
+            <summary>
+            根据主键删除记录
+            </summary>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.DeleteBatchByKeys(System.Collections.Generic.IEnumerable{`1})">
+            <summary>
+            根据多个主键删除多条记录
+            </summary>
+            <param name="keys"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.DeleteById``1(``0,System.String)">
+            <summary>
+            根据ID删除记录
+            </summary>
+            <typeparam name="TId"></typeparam>
+            <param name="id"></param>
+            <param name="idColumnName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.DeleteBatchByIds``1(System.Collections.Generic.IEnumerable{``0},System.String)">
+            <summary>
+            根据多个ID删除多条记录
+            </summary>
+            <typeparam name="TId"></typeparam>
+            <param name="ids"></param>
+            <param name="idColumnName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.DeleteAll">
+            <summary>
+            删除关联表的所有记录
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.QueryAny(System.String,System.String,System.String,System.Object)">
+            <summary>
+            根据条件、顺序字符串和匿名对象执行任意查询语句
+            </summary>
+            <param name="columnNames"></param>
+            <param name="whereBy"></param>
+            <param name="orderby"></param>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.QueryByKey(`1)">
+            <summary>
+            根据主键获取一条记录
+            </summary>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.QueryByKeys(System.Collections.Generic.IEnumerable{`1})">
+            <summary>
+            根据多个主键获取多条记录
+            </summary>
+            <param name="keys"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.QueryAll(System.String)">
+            <summary>
+            查询关联表的所有记录
+            </summary>
+            <param name="orderby"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.QueryById``1(``0,System.String)">
+            <summary>
+            根据ID获取记录
+            </summary>
+            <typeparam name="TId"></typeparam>
+            <param name="id"></param>
+            <param name="idColumnName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.QueryPaged(System.Int32,System.Int32,System.String,System.String,System.Object)">
+            <summary>
+            获取与条件匹配的所有记录的分页列表
+            </summary>
+            <param name="pageNumber">页码</param>
+            <param name="rowsPerPage">每页数量</param>
+            <param name="whereBy">where条件字符串</param>
+            <param name="orderby">顺序字符串</param>
+            <param name="param">带参数的匿名对象</param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.QueryRecordCount(System.String,System.Object)">
+            <summary>
+            获取与条件匹配的所有记录的计数
+            </summary>
+            <param name="whereBy"></param>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.UpdateAny(System.String,System.String,System.Object)">
+            <summary>
+            根据set子句、条件和匿名对象执行任意更新语句
+            </summary>
+            <param name="setClause"></param>
+            <param name="whereBy"></param>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.Update(`0)">
+            <summary>
+            根据默认主键更新记录
+            </summary>
+            <param name="entity"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.UpdateBatch(System.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            根据默认主键更新多条记录
+            </summary>
+            <param name="entitys"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.UpdateById``1(`0,``0,System.String)">
+            <summary>
+            根据ID更新记录
+            </summary>
+            <typeparam name="TId"></typeparam>
+            <param name="entity"></param>
+            <param name="id"></param>
+            <param name="idColumnName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.UpdateColumnById``2(``0,``1,System.String,System.String)">
+            <summary>
+            根据ID更新记录的一列
+            </summary>
+            <typeparam name="TId"></typeparam>
+            <typeparam name="TValue"></typeparam>
+            <param name="id"></param>
+            <param name="value"></param>
+            <param name="idColumnName"></param>
+            <param name="valueColumnName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.InsertAsync(`0)">
+            <summary>
+            插入一条记录
+            </summary>
+            <param name="entity"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.InsertBatchAsync(System.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            插入多条记录
+            </summary>
+            <param name="entitys"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.DeleteAnyAsync(System.String,System.Object)">
+            <summary>
+            根据条件和匿名对象执行任意删除语句
+            </summary>
+            <param name="whereBy"></param>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.DeleteAsync(`0)">
+            <summary>
+            根据默认主键删除记录
+            </summary>
+            <param name="entity"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.DeleteBatchAsync(System.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            根据默认主键删除多条记录
+            </summary>
+            <param name="entitys"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.DeleteByKeyAsync(`1)">
+            <summary>
+            根据主键删除记录
+            </summary>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.DeleteBatchByKeysAsync(System.Collections.Generic.IEnumerable{`1})">
+            <summary>
+            根据多个主键删除多条记录
+            </summary>
+            <param name="keys"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.DeleteByIdAsync``1(``0,System.String)">
+            <summary>
+            根据ID删除记录
+            </summary>
+            <typeparam name="TId"></typeparam>
+            <param name="id"></param>
+            <param name="idColumnName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.DeleteBatchByIdsAsync``1(System.Collections.Generic.IEnumerable{``0},System.String)">
+            <summary>
+            根据多个ID删除多条记录
+            </summary>
+            <typeparam name="TId"></typeparam>
+            <param name="ids"></param>
+            <param name="idColumnName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.DeleteAllAsync">
+            <summary>
+            删除关联表的所有记录
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.QueryAnyAsync(System.String,System.String,System.String,System.Object)">
+            <summary>
+            根据条件、顺序字符串和匿名对象执行任意查询语句
+            </summary>
+            <param name="columnNames"></param>
+            <param name="whereBy"></param>
+            <param name="orderby"></param>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.QueryByKeyAsync(`1)">
+            <summary>
+            根据主键获取一条记录
+            </summary>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.QueryBatchByKeysAsync(System.Collections.Generic.IEnumerable{`1})">
+            <summary>
+            根据多个主键获取多条记录
+            </summary>
+            <param name="keys"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.QueryAllAsync(System.String)">
+            <summary>
+            查询关联表的所有记录
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.QueryByIdAsync``1(``0,System.String)">
+            <summary>
+            根据ID获取多条记录
+            </summary>
+            <typeparam name="TId"></typeparam>
+            <param name="id"></param>
+            <param name="idColumnName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.QueryPagedAsync(System.Int32,System.Int32,System.String,System.String,System.Object)">
+            <summary>
+            获取与条件匹配的所有记录的分页列表
+            </summary>
+            <param name="pageNumber">页码</param>
+            <param name="rowsPerPage">每页数量</param>
+            <param name="whereBy">where条件字符串</param>
+            <param name="orderby">顺序字符串</param>
+            <param name="param">带参数的匿名对象</param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.QueryRecordCountAsync(System.String,System.Object)">
+            <summary>
+            获取与条件匹配的所有记录的计数
+            </summary>
+            <param name="whereBy"></param>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.UpdateAnyAsync(System.String,System.String,System.Object)">
+            <summary>
+            根据set子句、条件和匿名对象执行任意更新语句
+            </summary>
+            <param name="whereBy"></param>
+            <param name="param"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.UpdateAsync(`0)">
+            <summary>
+            根据默认主键更新记录
+            </summary>
+            <param name="entity"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.UpdateBatchAsync(System.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            根据默认主键更新多条记录
+            </summary>
+            <param name="entitys"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.UpdateByIdAsync``1(`0,``0,System.String)">
+            <summary>
+            根据ID更新记录
+            </summary>
+            <typeparam name="TId"></typeparam>
+            <param name="entity"></param>
+            <param name="id"></param>
+            <param name="idColumnName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Repository.IRepositoryBase`2.UpdateColumnByIdAsync``2(``0,``1,System.String,System.String)">
+            <summary>
+            根据ID更新记录的一列
+            </summary>
+            <typeparam name="TId"></typeparam>
+            <typeparam name="TValue"></typeparam>
+            <param name="id"></param>
+            <param name="value"></param>
+            <param name="idColumnName"></param>
+            <param name="valueColumnName"></param>
+            <returns></returns>
+        </member>
+        <member name="T:IceCoffee.DbCore.Primitives.Repository.RepositoryBase`2">
+            <summary>
+            通用仓储基类
+            <para>ExecuteAsync、QueryAsync实际上调用DbCommand.ExecuteNonQueryAsync 方法，是同步执行</para>
+            <para>https://docs.microsoft.com/zh-cn/dotnet/api/system.data.common.dbcommand.executenonqueryasync</para>
+            </summary>
+            <typeparam name="TEntity"></typeparam>
+        </member>
+        <member name="P:IceCoffee.DbCore.Primitives.Repository.RepositoryBase`2.KeyName">
+            <summary>
+            主键列名
+            </summary>
+        </member>
+        <member name="P:IceCoffee.DbCore.Primitives.Repository.RepositoryBase`2.TableName">
+            <summary>
+            表名
+            </summary>
+        </member>
+        <member name="P:IceCoffee.DbCore.Primitives.Repository.RepositoryBase`2.Insert_Statement_Fixed">
+            <summary>
+            基于实体上列名的插入语句_固定的
+            </summary>
+        </member>
+        <member name="P:IceCoffee.DbCore.Primitives.Repository.RepositoryBase`2.Select_Statement">
+            <summary>
+            基于实体上列名的选择语句
+            </summary>
+        </member>
+        <member name="P:IceCoffee.DbCore.Primitives.Repository.RepositoryBase`2.UpdateSet_Statement">
+            <summary>
+            基于实体上列名的更新语句
+            </summary>Select
+        </member>
+        <member name="T:IceCoffee.DbCore.Primitives.Repository.SQLiteRepositoryStr`1">
+            <summary>
+            SQLite数据库仓储
+            </summary>
+        </member>
+        <member name="T:IceCoffee.DbCore.Primitives.Repository.SqlServerRepositoryGuid`1">
+            <summary>
+            SqlServer数据库仓储
+            </summary>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Service.IServiceBase`2.Insert(`0)">
+            <summary>
+            插入数据
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Service.IServiceBase`2.Remove(`0)">
+            <summary>
+            删除数据
+            </summary>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Service.IServiceBase`2.GetById``1(``0,System.String)">
+            <summary>
+            通过ID获取数据
+            </summary>
+            <typeparam name="TId"></typeparam>
+            <param name="id"></param>
+            <param name="idColumnName"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Service.IServiceBase`2.GetAll(System.String)">
+            <summary>
+            获取全部数据
+            </summary>
+            <param name="orderBy"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Service.IServiceBase`2.GetRecordCount">
+            <summary>
+            获取全部记录条数
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Service.IServiceBase`2.Update(`0)">
+            <summary>
+            更新数据
+            </summary>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Service.IServiceBase`2.InsertAsync(`0)">
+            <summary>
+            插入数据
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Service.IServiceBase`2.RemoveAsync(`0)">
+            <summary>
+            删除数据
+            </summary>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Service.IServiceBase`2.RemoveAllAsync">
+            <summary>
+            删除全部数据
+            </summary>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Service.IServiceBase`2.GetAllAsync(System.String)">
+            <summary>
+            获取全部数据
+            </summary>
+            <param name="orderBy"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Service.IServiceBase`2.UpdateAsync(`0)">
+            <summary>
+            更新数据
+            </summary>
+        </member>
+        <member name="P:IceCoffee.DbCore.Primitives.Service.ServiceBase`4.Repository">
+            <summary>
+            仓储
+            </summary>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Service.ServiceBase`4.EntityToDto(`0)">
+            <summary>
+            将实体转换为Dto
+            </summary>
+            <param name="entity"></param>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.Primitives.Service.ServiceBase`4.DtoToEntity(`2)">
+            <summary>
+            将Dto转换为实体
+            </summary>
+            <param name="dto"></param>
+            <returns></returns>
+        </member>
+        <member name="E:IceCoffee.DbCore.Primitives.Service.ServiceBase`4.AsyncExceptionCaught">
+            <summary>
+            捕获异步服务层异常
+            </summary>
+        </member>
+        <member name="P:IceCoffee.DbCore.Primitives.Service.ServiceBase`4.IsAutoHandleAsyncServiceException">
+            <summary>
+            是否自动处理异步服务层异常
+            </summary>
+        </member>
+        <member name="T:IceCoffee.DbCore.UnitWork.IUnitOfWork">
+            <summary>
+            工作单元
+            提供一个进入当前线程工作单元上下文和保存方法，它可以对调用层公开，减少连库次数
+            确保在单个线程中使用工作单元
+            </summary>
+        </member>
+        <member name="M:IceCoffee.DbCore.UnitWork.IUnitOfWork.EnterContext(IceCoffee.DbCore.Domain.DbConnectionInfo)">
+            <summary>
+            进入工作单元上下文
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:IceCoffee.DbCore.UnitWork.IUnitOfWork.SaveChanges">
+            <summary>
+            保存到数据库
+            </summary>
+        </member>
+        <member name="P:IceCoffee.DbCore.UnitWork.IUnitOfWork.UseUnitOfWork">
+            <summary>
+            使用工作单元
+            </summary>
+        </member>
+        <member name="T:IceCoffee.DbCore.UnitWork.UnitOfWorkAttribute">
+            <summary>
+            工作单元，使用AOP切面完成数据库事务操作
+            </summary>
+        </member>
+        <member name="F:IceCoffee.DbCore.UnitWork.UnitOfWorkAttribute._unitOfWork">
+            <summary>
+            数据库工作单元
+            </summary>
+        </member>
+        <member name="M:IceCoffee.DbCore.Utils.DBHelper.CreateSQLiteDB(System.String)">
+            <summary>
+            创建SQLite数据库
+            </summary>
+        </member>
+        <member name="M:IceCoffee.DbCore.Utils.DBHelper.DeleteSQLiteDB(System.String)">
+            <summary>
+            删除SQLite数据库
+            </summary>
+        </member>
+        <member name="M:IceCoffee.DbCore.Utils.DBHelper.ExecuteSQlite(IceCoffee.DbCore.Domain.DbConnectionInfo,System.String)">
+            <summary>
+            获取当前线程的数据库连接，以执行sql语句
+            </summary>
+            <param name="sql"></param>
+        </member>
+        <member name="M:IceCoffee.DbCore.Utils.DBHelper.CreateTable(IceCoffee.DbCore.Domain.DbConnectionInfo,System.String,System.String[])">
+            <summary>
+            创建表
+            </summary>
+            <param name="dbConnectionInfo"></param>
+            <param name="tableName"></param>
+            <param name="propertyList"></param>
+        </member>
+        <member name="M:IceCoffee.DbCore.Utils.DBHelper.DropTable(IceCoffee.DbCore.Domain.DbConnectionInfo,System.String)">
+            <summary>
+            删除表
+            </summary>
+            <param name="tableName"></param>
+        </member>
+    </members>
+</doc>

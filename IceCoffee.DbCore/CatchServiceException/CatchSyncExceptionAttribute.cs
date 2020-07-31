@@ -12,7 +12,7 @@ namespace IceCoffee.DbCore.CatchServiceException
     /// </summary>
     [Serializable]
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
-    public sealed class CatchSyncExceptionAttribute : OnExceptionAspect
+    public sealed class CatchSyncExceptionAttribute : OnMethodBoundaryAspect
     {
         /// <summary>
         /// 错误信息

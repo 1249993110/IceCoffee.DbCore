@@ -19,7 +19,7 @@ namespace IceCoffee.DbCore.Primitives.Entity
         /// <summary>
         /// 主键
         /// </summary>
-        [Key]
+        [PrimaryKey]
         public abstract TKey Key { get; set; }
 
         protected EntityBase(TKey key)

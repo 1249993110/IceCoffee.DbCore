@@ -21,13 +21,13 @@ namespace IceCoffee.DbCore.Primitives.Service
         void Remove(TDto dto);
 
         /// <summary>
-        /// 通过ID获取一条数据
+        /// 通过ID获取数据
         /// </summary>
         /// <typeparam name="TId"></typeparam>
         /// <param name="id"></param>
         /// <param name="idColumnName"></param>
         /// <returns></returns>
-        TDto GetOneById<TId>(TId id, string idColumnName);
+        List<TDto> GetById<TId>(TId id, string idColumnName);
 
         /// <summary>
         /// 获取全部数据

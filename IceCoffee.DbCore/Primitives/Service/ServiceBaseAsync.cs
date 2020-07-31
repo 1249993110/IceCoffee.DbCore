@@ -10,7 +10,7 @@ using IceCoffee.DbCore.Primitives.Dto;
 
 namespace IceCoffee.DbCore.Primitives.Service
 {
-    public abstract partial class ServiceBase<TEntity, TKey, TDto, TQuery> : IServiceBase<TDto, TQuery>, IDbSession, IDisposable, IExceptionCaughtSignal
+    public abstract partial class ServiceBase<TEntity, TKey, TDto, TQuery> : IServiceBase<TDto, TQuery>, IExceptionCaught
         where TDto : DtoBase<TQuery>, new()
         where TEntity : EntityBase<TKey>, new()
     {
@@ -19,7 +19,7 @@ namespace IceCoffee.DbCore.Primitives.Service
         /// </summary>
         public static event AsyncExceptionCaughtEventHandler AsyncExceptionCaught;
 
-        void IExceptionCaughtSignal.EmitAsyncExceptionCaughtSignal(object sender, ServiceException e)
+        void IExceptionCaught.EmitSignal(object sender, ServiceException e)
         {
             AsyncExceptionCaught?.Invoke(this, e);
         }
@@ -36,13 +36,13 @@ namespace IceCoffee.DbCore.Primitives.Service
         {
             TEntity entity = DtoToEntity(dto);
             entity.Init();
-            await Repository.InsertOneAsync(entity);
+            await Repository.InsertAsync(entity);
         }
 
         [CatchAsyncException("删除数据异常")]
         public async Task RemoveAsync(TDto dto)
         {
-            await Repository.DeleteOneAsync(DtoToEntity(dto));
+            await Repository.DeleteAsync(DtoToEntity(dto));
         }
 
         [CatchAsyncException("删除全部数据异常")]
@@ -56,17 +56,13 @@ namespace IceCoffee.DbCore.Primitives.Service
         {
             List<TDto> dtos = new List<TDto>();
             var entitys = await Repository.QueryAllAsync(orderBy);
-            foreach (var item in entitys)
-            {
-                dtos.Add(EntityToDto(item));
-            }
-            return dtos;
+            return EntityToDto(entitys);
         }
 
         [CatchAsyncException("更新数据异常")]
         public async Task UpdateAsync(TDto dto)
         {
-            await Repository.UpdateOneAsync(DtoToEntity(dto));
+            await Repository.UpdateAsync(DtoToEntity(dto));
         }
         #endregion
     }

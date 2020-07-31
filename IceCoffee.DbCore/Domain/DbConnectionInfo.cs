@@ -32,9 +32,9 @@ namespace IceCoffee.DbCore.Domain
         /// 从连接信息得到一个数据库连接
         /// </summary>
         /// <returns></returns>
-        public DbConnection GetDbConnection()
+        public IDbConnection GetDbConnection()
         {
-            return ConnectionFactory.GetConnectionFromPool(this); ;
+            return ConnectionFactory.GetConnectionFromPool(this);
         }
     }
 }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace IceCoffee.DbCore.OptionalAttributes
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-    public class KeyAttribute : Attribute
+    public class PrimaryKeyAttribute : Attribute
     {
     }
 }

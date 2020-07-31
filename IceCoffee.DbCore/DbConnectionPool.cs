@@ -10,7 +10,7 @@ using IceCoffee.Common.Pools;
 
 namespace IceCoffee.DbCore
 {
-    public class DbConnectionPool : ConnectionPool<DbConnection>
+    public class DbConnectionPool : ConnectionPool<IDbConnection>
     {
         private readonly string _connectionString;
 
@@ -42,7 +42,7 @@ namespace IceCoffee.DbCore
             AllIdleTime = 180;
         }
 
-        protected override DbConnection Create()
+        protected override IDbConnection Create()
         {
             var conn = _factory?.CreateConnection();
             if (conn == null)
@@ -67,7 +67,7 @@ namespace IceCoffee.DbCore
         }
 
         /// <summary>申请时检查是否打开</summary>
-        public override DbConnection Take()
+        public override IDbConnection Take()
         {
             var conn = base.Take();
             if (conn.State == ConnectionState.Closed)
@@ -80,7 +80,7 @@ namespace IceCoffee.DbCore
 
         /// <summary>释放时，返回是否有效。无效对象将会被抛弃</summary>
         /// <param name="value"></param>
-        protected override bool OnPut(DbConnection value)
+        protected override bool OnPut(IDbConnection value)
         {
             return value.State == ConnectionState.Open;
         }
@@ -89,7 +89,7 @@ namespace IceCoffee.DbCore
         /// <typeparam name="T"></typeparam>
         /// <param name="callback"></param>
         /// <returns></returns>
-        public T Execute<T>(Func<DbConnection, T> callback)
+        public T Execute<T>(Func<IDbConnection, T> callback)
         {
             var conn = Take();
             try

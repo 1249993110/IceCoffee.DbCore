@@ -13,4 +13,12 @@ namespace IceCoffee.DbCore.Primitives.Entity
         /// </summary>
         void Init();
     }
+
+    public interface IEntity<out TKey> : IEntity
+    {
+        /// <summary>
+        /// 主键
+        /// </summary>
+        TKey Key { get; }
+    }
 }

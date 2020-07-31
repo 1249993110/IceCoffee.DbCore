@@ -33,7 +33,7 @@ namespace IceCoffee.DbCore
         /// 从连接池中获得一个数据库连接
         /// </summary>
         /// <returns></returns>
-        internal static DbConnection GetConnectionFromPool(DbConnectionInfo dbConnectionInfo)
+        internal static IDbConnection GetConnectionFromPool(DbConnectionInfo dbConnectionInfo)
         {
             string connStr = dbConnectionInfo.ConnectionString;
             if (connectionPoolDict.TryGetValue(connStr, out DbConnectionPool pool))
@@ -71,7 +71,7 @@ namespace IceCoffee.DbCore
         /// <summary>
         /// 回收数据库连接到连接池
         /// </summary>
-        internal static void CollectDbConnectionToPool(DbConnection dbConnection)
+        internal static void CollectDbConnectionToPool(IDbConnection dbConnection)
         {
             if (connectionPoolDict.TryGetValue(dbConnection.ConnectionString, out DbConnectionPool pool))
             {

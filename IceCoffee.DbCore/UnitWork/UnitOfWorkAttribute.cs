@@ -2,12 +2,15 @@
 using System.Data;
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using IceCoffee.DbCore.Primitives;
+using IceCoffee.DbCore.Primitives.Repository;
+using IceCoffee.DbCore.Primitives.Service;
 using PostSharp.Aspects;
 using PostSharp.Constraints;
 
 
-namespace IceCoffee.DbCore.UnitOfWork
+namespace IceCoffee.DbCore.UnitWork
 {
     /// <summary>
     /// 工作单元，使用AOP切面完成数据库事务操作
@@ -17,9 +20,11 @@ namespace IceCoffee.DbCore.UnitOfWork
     public sealed class UnitOfWorkAttribute : OnMethodBoundaryAspect
     {
         /// <summary>
-        /// 数据库操作会话
+        /// 数据库工作单元
         /// </summary>
-        private DbSession dbSession;
+        private IUnitOfWork _unitOfWork;
+
+        private IDbConnection _dbConnection;
 
         public UnitOfWorkAttribute()
         {
@@ -29,39 +34,34 @@ namespace IceCoffee.DbCore.UnitOfWork
 
         public override void OnEntry(MethodExecutionArgs args)
         {
-            Debug.Assert(args.Arguments.Count > 0, "仓储接口参数个数应大于0");
+            Debug.Assert(args.Method.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) == null, "工作单元无法标记异步方法");
 
-            dbSession = args.Arguments[args.Arguments.Count - 1] as DbSession;
+            ServiceBase service = args.Instance as ServiceBase;
 
-            Debug.Assert(dbSession != null, "数据库操作会话不能为空");
+            Debug.Assert(service != null, "服务必须继承ServiceBase");
 
-            (args.Instance as Primitives.Repository.IRepositoryBase).GetThreadLocal == true
+            _unitOfWork = RepositoryBase.unitWork.Value;
 
-            try
-            {
-                dbSession.Connection.Open();
-                dbSession.transaction = dbSession.connection.BeginTransaction();
-            }
-            catch (Exception e)
-            {
-                throw new Exception("数据库事务操作异常", e);
-            }
+            _unitOfWork.EnterContext(service.DbConnectionInfo);
+            
+            _dbConnection = _unitOfWork.DbConnection;
         }
 
         public override void OnSuccess(MethodExecutionArgs args)
         {
-            dbSession.Transaction.Commit();
+            _unitOfWork.SaveChanges();
         }
 
         public override void OnException(MethodExecutionArgs args)
         {
-            dbSession.Transaction.Rollback();
             args.FlowBehavior = FlowBehavior.RethrowException;
+
+            _unitOfWork.DbTransaction.Rollback();
         }
 
         public override void OnExit(MethodExecutionArgs args)
         {
-            dbSession.Transaction = null;
+            ConnectionFactory.CollectDbConnectionToPool(_dbConnection);
         }
     }
 }

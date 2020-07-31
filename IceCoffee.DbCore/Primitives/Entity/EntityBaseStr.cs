@@ -16,7 +16,7 @@ namespace IceCoffee.DbCore.Primitives.Entity
         /// <summary>
         /// 主键
         /// </summary>
-        [Column("GUID"), IgnoreUpdate]
+        [Column("ID"), IgnoreUpdate]
         public override string Key { get; set; }
 
         /// <summary>
