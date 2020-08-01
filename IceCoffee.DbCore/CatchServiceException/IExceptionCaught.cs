@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace IceCoffee.DbCore.CatchServiceException
+﻿namespace IceCoffee.DbCore.CatchServiceException
 {
     public interface IExceptionCaught
     {
         /// <summary>
         /// 发射异常捕获信号
         /// </summary>
+        /// <param name="sender"></param>
         /// <param name="ex"></param>
         void EmitSignal(object sender, ServiceException ex);
 

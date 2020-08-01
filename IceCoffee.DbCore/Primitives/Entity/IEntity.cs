@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace IceCoffee.DbCore.Primitives.Entity
+﻿namespace IceCoffee.DbCore.Primitives.Entity
 {
     public interface IEntity
     {

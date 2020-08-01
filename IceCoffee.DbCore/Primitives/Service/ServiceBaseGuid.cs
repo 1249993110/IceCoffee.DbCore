@@ -3,10 +3,6 @@ using IceCoffee.DbCore.Primitives.Dto;
 using IceCoffee.DbCore.Primitives.Entity;
 using IceCoffee.DbCore.Primitives.Repository;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IceCoffee.DbCore.Primitives.Service
 {
@@ -16,7 +12,6 @@ namespace IceCoffee.DbCore.Primitives.Service
     {
         public ServiceBaseGuid(IRepositoryBase<TEntity, Guid> repository) : base(repository)
         {
-
         }
 
         protected override TDto EntityToDto(TEntity entity)
@@ -35,7 +30,7 @@ namespace IceCoffee.DbCore.Primitives.Service
 
         protected override TEntity DtoToEntity(TDto dto)
         {
-            if(dto == null)
+            if (dto == null)
             {
                 return null;
             }

@@ -1,4 +1,9 @@
-﻿using System;
+﻿using Dapper;
+using IceCoffee.DbCore.Domain;
+using IceCoffee.DbCore.OptionalAttributes;
+using IceCoffee.DbCore.Primitives.Entity;
+using IceCoffee.DbCore.UnitWork;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
@@ -6,11 +11,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using Dapper;
-using IceCoffee.DbCore.Domain;
-using IceCoffee.DbCore.OptionalAttributes;
-using IceCoffee.DbCore.Primitives.Entity;
-using IceCoffee.DbCore.UnitWork;
 
 namespace IceCoffee.DbCore.Primitives.Repository
 {
@@ -31,7 +31,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
             unitWork = new ThreadLocal<IUnitOfWork>(func);
         }
 
-        internal protected readonly DbConnectionInfo dbConnectionInfo;
+        protected internal readonly DbConnectionInfo dbConnectionInfo;
 
         public RepositoryBase(DbConnectionInfo dbConnectionInfo)
         {
@@ -48,29 +48,36 @@ namespace IceCoffee.DbCore.Primitives.Repository
     public abstract partial class RepositoryBase<TEntity, TKey> : RepositoryBase, IRepositoryBase<TEntity, TKey> where TEntity : EntityBase<TKey>
     {
         #region 公共静态属性
+
         /// <summary>
         /// 主键列名
         /// </summary>
         public static string KeyName { get; private set; }
+
         /// <summary>
         /// 表名
         /// </summary>
         public static string TableName { get; private set; }
+
         /// <summary>
         /// 基于实体上列名的插入语句_固定的
         /// </summary>
         public static string Insert_Statement_Fixed { get; private set; }
+
         /// <summary>
         /// 基于实体上列名的选择语句
         /// </summary>
         public static string Select_Statement { get; private set; }
+
         /// <summary>
         /// 基于实体上列名的更新语句
         /// </summary>Select
         public static string UpdateSet_Statement { get; private set; }
-        #endregion
+
+        #endregion 公共静态属性
 
         #region 构造
+
         static RepositoryBase()
         {
             PropertyInfo[] properties = typeof(TEntity).GetProperties(BindingFlags.Instance | BindingFlags.Public)
@@ -88,7 +95,6 @@ namespace IceCoffee.DbCore.Primitives.Repository
             StringBuilder stringBuilder2 = new StringBuilder();
             StringBuilder stringBuilder3 = new StringBuilder();
             StringBuilder stringBuilder4 = new StringBuilder();
-
 
             foreach (PropertyInfo prop in properties)
             {
@@ -145,8 +151,8 @@ namespace IceCoffee.DbCore.Primitives.Repository
         public RepositoryBase(DbConnectionInfo dbConnectionInfo) : base(dbConnectionInfo)
         {
         }
-        #endregion
 
+        #endregion 构造
 
         public virtual IUnitOfWork UnitOfWork => unitWork.Value;
 
@@ -234,39 +240,47 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 }
             }
         }
-        
+
         #region Insert
+
         public virtual int Insert(TEntity entity)
         {
             return Execute(Insert_Statement_Fixed, entity);
         }
+
         public virtual int InsertBatch(IEnumerable<TEntity> entitys)
         {
             return Execute(Insert_Statement_Fixed, entitys, true);
         }
-        #endregion
+
+        #endregion Insert
 
         #region Delete
+
         public virtual int DeleteAny(string whereBy, object param = null, bool useTransaction = false)
         {
             string sql = string.Format("DELETE FROM {0} {1}", TableName, whereBy == null ? string.Empty : "WHERE " + whereBy);
             return Execute(sql, param, useTransaction);
         }
+
         public virtual int Delete(TEntity entity)
         {
             string sql = string.Format("DELETE FROM {0} WHERE {1}=@Key", TableName, KeyName);
             return Execute(sql, entity);
         }
+
         public virtual int DeleteBatch(IEnumerable<TEntity> entitys)
         {
             string sql = string.Format("DELETE FROM {0} WHERE {1}=@Key", TableName, KeyName);
             return Execute(sql, entitys, true);
         }
+
         public virtual int DeleteById<TId>(TId id, string idColumnName)
         {
             string sql = string.Format("DELETE FROM {0} WHERE {1}=@Id", TableName, idColumnName);
             return Execute(sql, new { Id = id });
         }
+
         public virtual int DeleteBatchByIds<TId>(IEnumerable<TId> ids, string idColumnName)
         {
             string sql = string.Format("DELETE FROM {0} WHERE {1}=@Id", TableName, idColumnName);
@@ -277,29 +291,35 @@ namespace IceCoffee.DbCore.Primitives.Repository
             }
             return Execute(sql, param, true);
         }
+
         public virtual int DeleteAll()
         {
             string sql = string.Format("DELETE FROM {0}", TableName);
             return Execute(sql);
         }
-        #endregion
+
+        #endregion Delete
 
         #region Query
+
         public virtual IEnumerable<TEntity> QueryAny(string columnNames, string whereBy, string orderby, object param = null)
         {
             string sql = string.Format("SELECT {0} FROM {1} {2} {3}", columnNames, TableName, whereBy == null ? null : "WHERE " + whereBy, orderby);
             return Query(sql, param);
         }
+
         public virtual IEnumerable<TEntity> QueryAll(string orderby = null)
         {
             string sql = string.Format("SELECT {0} FROM {1} {2}", Select_Statement, TableName, orderby == null ? string.Empty : "ORDER BY " + orderby);
             return Query(sql, null);
         }
+
         public virtual IEnumerable<TEntity> QueryById<TId>(TId id, string idColumnName)
         {
             string sql = string.Format("SELECT {0} FROM {1} WHERE {2}=@Id", Select_Statement, TableName, idColumnName);
             return Query(sql, new { Id = id });
         }
+
         public virtual IEnumerable<TEntity> QueryByIds<TId>(IEnumerable<TId> ids, string idColumnName)
         {
             string sql = string.Format("SELECT {0} FROM {1} WHERE {2}=@Id", Select_Statement, TableName, idColumnName);
@@ -310,44 +330,54 @@ namespace IceCoffee.DbCore.Primitives.Repository
             }
             return Query(sql, param);
         }
+
         public virtual long QueryRecordCount(string whereBy = null, object param = null)
         {
             string sql = string.Format("SELECT COUNT(*) AS Total FROM {0} {1}", TableName, whereBy == null ? null : "WHERE " + whereBy);
             return QueryDynamic(sql, param).FirstOrDefault().Total;
         }
+
         #region 待实现
+
         public abstract IEnumerable<TEntity> QueryPaged(int pageNumber, int rowsPerPage,
            string whereBy = null, string orderby = null, object param = null);
-        #endregion
-        #endregion
+
+        #endregion 待实现
+
+        #endregion Query
 
         #region Update
+
         public virtual int UpdateAny(string setClause, string whereBy, object param, bool useTransaction = false)
         {
             string sql = string.Format("UPDATE {0} SET {1} {2}", TableName, setClause, whereBy == null ? null : "WHERE " + whereBy);
             return Execute(sql, param, useTransaction);
         }
+
         public virtual int Update(TEntity entity)
         {
             string sql = string.Format("UPDATE {0} SET {1} WHERE {2}=@Key", TableName, UpdateSet_Statement, KeyName);
             return Execute(sql, entity);
         }
+
         public virtual int UpdateBatch(IEnumerable<TEntity> entitys)
         {
             string sql = string.Format("UPDATE {0} SET {1} WHERE {2}=@Key", TableName, UpdateSet_Statement, KeyName);
             return Execute(sql, entitys, true);
         }
+
         public virtual int UpdateById<TId>(TEntity entity, TId id, string idColumnName)
         {
             string sql = string.Format("UPDATE {0} SET {1} WHERE {2}=@Id", TableName, UpdateSet_Statement, idColumnName);
             return Execute(sql, new { Id = id });
         }
+
         public virtual int UpdateColumnById<TId, TValue>(TId id, TValue value, string idColumnName, string valueColumnName)
         {
             string sql = string.Format("UPDATE {0} SET {1}=@Value WHERE {2}=@Id", TableName, valueColumnName, idColumnName);
             return Execute(sql, new { Id = id, Value = value });
         }
-        #endregion
-    }
 
+        #endregion Update
+    }
 }

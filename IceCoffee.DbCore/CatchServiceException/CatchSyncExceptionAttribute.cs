@@ -1,9 +1,5 @@
 ﻿using PostSharp.Aspects;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IceCoffee.DbCore.CatchServiceException
 {
@@ -17,11 +13,11 @@ namespace IceCoffee.DbCore.CatchServiceException
         /// <summary>
         /// 错误信息
         /// </summary>
-        public string Error { get; set; }
+        public string ErrorMessage { get; set; }
 
-        public CatchSyncExceptionAttribute(string error)
+        public CatchSyncExceptionAttribute(string errorMessage)
         {
-            Error = error;
+            ErrorMessage = errorMessage;
         }
 
         public override void OnException(MethodExecutionArgs args)
@@ -32,7 +28,7 @@ namespace IceCoffee.DbCore.CatchServiceException
             }
             else
             {
-                throw new ServiceException(Error, args.Exception);
+                throw new ServiceException(ErrorMessage, args.Exception);
             }
         }
     }

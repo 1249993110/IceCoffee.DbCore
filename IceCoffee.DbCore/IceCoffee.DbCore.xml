@@ -44,7 +44,7 @@
         </member>
         <member name="F:IceCoffee.DbCore.ConnectionFactory.connectionPoolDict">
             <summary>
-            连接池字典 
+            连接池字典
             </summary>
         </member>
         <member name="M:IceCoffee.DbCore.ConnectionFactory.GetConnectionFromPool(IceCoffee.DbCore.Domain.DbConnectionInfo)">

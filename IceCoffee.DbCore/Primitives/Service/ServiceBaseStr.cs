@@ -1,11 +1,6 @@
 ﻿using IceCoffee.DbCore.Primitives.Dto;
 using IceCoffee.DbCore.Primitives.Entity;
 using IceCoffee.DbCore.Primitives.Repository;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IceCoffee.DbCore.Primitives.Service
 {
@@ -15,7 +10,6 @@ namespace IceCoffee.DbCore.Primitives.Service
     {
         public ServiceBaseStr(IRepositoryBase<TEntity, string> repository) : base(repository)
         {
-            
         }
     }
 }

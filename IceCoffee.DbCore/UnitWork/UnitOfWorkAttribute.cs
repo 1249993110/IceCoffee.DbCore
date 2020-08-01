@@ -1,14 +1,11 @@
-﻿using System;
+﻿using IceCoffee.DbCore.Primitives.Repository;
+using IceCoffee.DbCore.Primitives.Service;
+using PostSharp.Aspects;
+using System;
 using System.Data;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using IceCoffee.DbCore.Primitives;
-using IceCoffee.DbCore.Primitives.Repository;
-using IceCoffee.DbCore.Primitives.Service;
-using PostSharp.Aspects;
-using PostSharp.Constraints;
-
 
 namespace IceCoffee.DbCore.UnitWork
 {
@@ -43,7 +40,7 @@ namespace IceCoffee.DbCore.UnitWork
             _unitOfWork = RepositoryBase.unitWork.Value;
 
             _unitOfWork.EnterContext(service.DbConnectionInfo);
-            
+
             _dbConnection = _unitOfWork.DbConnection;
         }
 

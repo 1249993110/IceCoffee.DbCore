@@ -1,12 +1,4 @@
-﻿using Dapper;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace IceCoffee.DbCore.Internal
+﻿namespace IceCoffee.DbCore.Internal
 {
     //class GuidTypeHandler : SqlMapper.TypeHandler<Guid>
     //{

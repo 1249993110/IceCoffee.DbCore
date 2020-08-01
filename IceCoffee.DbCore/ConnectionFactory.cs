@@ -1,18 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using IceCoffee.DbCore.Utils;
-using System.Data;
-using System.Data.SQLite;
-using System.Collections;
-using IceCoffee.DbCore.Primitives;
-using System.Threading;
-using System.Data.Common;
+﻿using IceCoffee.DbCore.Domain;
 using System.Collections.Concurrent;
+using System.Data;
+using System.Data.Common;
 using System.Data.SqlClient;
-using IceCoffee.DbCore.Domain;
+using System.Data.SQLite;
 using System.Diagnostics;
 
 namespace IceCoffee.DbCore
@@ -20,7 +11,7 @@ namespace IceCoffee.DbCore
     internal static class ConnectionFactory
     {
         /// <summary>
-        /// 连接池字典 
+        /// 连接池字典
         /// </summary>
         private static readonly ConcurrentDictionary<string, DbConnectionPool> connectionPoolDict;
 
@@ -48,13 +39,17 @@ namespace IceCoffee.DbCore
                     case DatabaseType.SQLite:
                         factory = SQLiteFactory.Instance;
                         break;
+
                     case DatabaseType.SQLServer:
                         factory = SqlClientFactory.Instance;
                         break;
+
                     case DatabaseType.MySQL:
                         break;
+
                     case DatabaseType.Oracle:
                         break;
+
                     default:
                         Debug.Assert(false, "未定义的数据库类型");
                         break;
@@ -67,7 +62,6 @@ namespace IceCoffee.DbCore
             }
         }
 
-
         /// <summary>
         /// 回收数据库连接到连接池
         /// </summary>
@@ -75,7 +69,7 @@ namespace IceCoffee.DbCore
         {
             if (connectionPoolDict.TryGetValue(dbConnection.ConnectionString, out DbConnectionPool pool))
             {
-                if(pool.Put(dbConnection))
+                if (pool.Put(dbConnection))
                 {
                     return;
                 }

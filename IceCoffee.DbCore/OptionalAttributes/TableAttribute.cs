@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IceCoffee.DbCore.OptionalAttributes
 {
@@ -13,6 +9,7 @@ namespace IceCoffee.DbCore.OptionalAttributes
         {
             Name = tableName;
         }
+
         /// <summary>
         /// 表名
         /// </summary>

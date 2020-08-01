@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Dapper;
+﻿using Dapper;
 using IceCoffee.DbCore.UnitWork;
+using System;
+using System.Collections.Generic;
 
 namespace IceCoffee.DbCore.Primitives.Service
 {
@@ -59,6 +56,7 @@ namespace IceCoffee.DbCore.Primitives.Service
         {
             return unitOfWork.DbConnection.Query(sql, map, param, unitOfWork.DbTransaction, splitOn: splitOn);
         }
+
         /// <summary>
         /// 多表插入、修改、删除
         /// </summary>

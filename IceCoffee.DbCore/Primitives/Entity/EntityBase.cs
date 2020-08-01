@@ -1,12 +1,4 @@
-﻿using Dapper;
-using IceCoffee.DbCore.Internal;
-using IceCoffee.DbCore.OptionalAttributes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+﻿using IceCoffee.DbCore.OptionalAttributes;
 
 namespace IceCoffee.DbCore.Primitives.Entity
 {
@@ -50,7 +42,9 @@ namespace IceCoffee.DbCore.Primitives.Entity
             entity.Init();
             return entity;
         }
+
         #region 重载 备用
+
         //public override int GetHashCode()
         //{
         //    int result;
@@ -106,6 +100,7 @@ namespace IceCoffee.DbCore.Primitives.Entity
         //{
         //    return !(entity1 == entity2);
         //}
-        #endregion
+
+        #endregion 重载 备用
     }
 }

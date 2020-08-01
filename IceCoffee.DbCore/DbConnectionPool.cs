@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using IceCoffee.Common.Pools;
+using System;
 using System.Data;
 using System.Data.Common;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using IceCoffee.Common;
-using IceCoffee.Common.Pools;
 
 namespace IceCoffee.DbCore
 {
@@ -38,7 +33,7 @@ namespace IceCoffee.DbCore
 
             Max = maxConnectionCount;
 
-            IdleTime = 30;
+            IdleTime = 60;
             AllIdleTime = 180;
         }
 

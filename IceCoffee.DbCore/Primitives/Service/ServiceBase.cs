@@ -1,14 +1,10 @@
-﻿using System;
-using IceCoffee.DbCore.Primitives;
-using System.Data;
+﻿using IceCoffee.Common;
+using IceCoffee.DbCore.CatchServiceException;
+using IceCoffee.DbCore.Domain;
+using IceCoffee.DbCore.Primitives.Dto;
 using IceCoffee.DbCore.Primitives.Entity;
 using IceCoffee.DbCore.Primitives.Repository;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using IceCoffee.DbCore.CatchServiceException;
-using IceCoffee.DbCore.Primitives.Dto;
-using IceCoffee.Common;
-using IceCoffee.DbCore.Domain;
 
 namespace IceCoffee.DbCore.Primitives.Service
 {
@@ -16,11 +12,13 @@ namespace IceCoffee.DbCore.Primitives.Service
     {
         public abstract DbConnectionInfo DbConnectionInfo { get; }
     }
+
     public abstract partial class ServiceBase<TEntity, TKey, TDto, TQuery> : ServiceBase, IServiceBase<TDto, TQuery>, IExceptionCaught
-        where TDto : DtoBase<TQuery>, new() 
+        where TDto : DtoBase<TQuery>, new()
         where TEntity : EntityBase<TKey>, new()
     {
         #region 字段&属性
+
         private readonly IRepositoryBase<TEntity, TKey> _repository;
 
         /// <summary>
@@ -37,8 +35,8 @@ namespace IceCoffee.DbCore.Primitives.Service
         {
             _repository = repository;
         }
-        #endregion
 
+        #endregion 字段&属性
 
         #region 默认实现
 
@@ -85,7 +83,8 @@ namespace IceCoffee.DbCore.Primitives.Service
         {
             Repository.Update(DtoToEntity(dto));
         }
-        #endregion
+
+        #endregion 默认实现
 
         /// <summary>
         /// 将实体转换为Dto
@@ -139,5 +138,4 @@ namespace IceCoffee.DbCore.Primitives.Service
             return entitys;
         }
     }
-
 }

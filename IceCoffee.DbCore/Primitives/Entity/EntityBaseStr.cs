@@ -1,10 +1,5 @@
 ﻿using IceCoffee.DbCore.OptionalAttributes;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IceCoffee.DbCore.Primitives.Entity
 {
@@ -27,12 +22,10 @@ namespace IceCoffee.DbCore.Primitives.Entity
 
         public EntityBaseStr() : base(string.Empty)
         {
-            
         }
 
         protected EntityBaseStr(string key) : base(key)
         {
-            
         }
 
         /// <summary>

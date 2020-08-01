@@ -1,16 +1,10 @@
 ﻿using IceCoffee.DbCore.Domain;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IceCoffee.DbCore.UnitWork
 {
     public class UnitOfWork : IUnitOfWork
-    {        
+    {
         private bool _useSameUnitOfWork;
 
         private IDbConnection _dbConnection;
@@ -37,7 +31,7 @@ namespace IceCoffee.DbCore.UnitWork
         public virtual void SaveChanges()
         {
             // 防止多次执行
-            if(_useSameUnitOfWork == true)
+            if (_useSameUnitOfWork == true)
             {
                 _useSameUnitOfWork = false;
                 _dbTransaction.Commit();

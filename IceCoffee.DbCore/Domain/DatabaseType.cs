@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace IceCoffee.DbCore.Domain
+﻿namespace IceCoffee.DbCore.Domain
 {
     public enum DatabaseType
     {
+        /// <summary>
+        /// 未知的数据库类型
+        /// </summary>
+        Unknown,
+
         /// <summary>
         /// SQLite数据库
         /// </summary>
@@ -26,6 +25,11 @@ namespace IceCoffee.DbCore.Domain
         /// <summary>
         /// Oracle数据库
         /// </summary>
-        Oracle
+        Oracle,
+
+        /// <summary>
+        /// Aceess数据库
+        /// </summary>
+        Aceess
     }
 }

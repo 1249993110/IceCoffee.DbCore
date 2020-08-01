@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using IceCoffee.Common;
+using System.Configuration;
 using System.Data;
-using System.Data.Common;
-using System.Data.SQLite;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 
 namespace IceCoffee.DbCore.Domain
 {
@@ -21,6 +15,44 @@ namespace IceCoffee.DbCore.Domain
         /// 数据库类型
         /// </summary>
         public DatabaseType DatabaseType { get; set; }
+
+
+        /// <summary>
+        /// 数据库连接串的key
+        /// </summary>
+        /// <param name="connectionStringKey"></param>
+        public DbConnectionInfo(string connectionStringKey)
+        {
+            var connStrSetting = ConfigurationManager.ConnectionStrings[connectionStringKey];
+
+            DatabaseType databaseType = DatabaseType.Unknown;
+
+            switch (connStrSetting.ProviderName)
+            {
+                case "System.Data.SQLite":
+                    databaseType = DatabaseType.SQLite;
+                    break;
+                case "System.Data.SqlClient":
+                    databaseType = DatabaseType.SQLServer;
+                    break;
+                case "System.Data.Odbc":
+                    databaseType = DatabaseType.MySQL;
+                    break;
+                case "System.Data.OracleClient":
+                case "Oracle.DataAccess.Client":
+                    databaseType = DatabaseType.Oracle;
+                    break;
+                case "System.Data.OleDb":
+                    databaseType = DatabaseType.Aceess;
+                    break;
+                default:
+                    break;
+            }
+
+            ConnectionString = connStrSetting.ConnectionString;
+            DatabaseType = databaseType;
+        }
+
 
         public DbConnectionInfo(string connectionString, DatabaseType databaseType)
         {

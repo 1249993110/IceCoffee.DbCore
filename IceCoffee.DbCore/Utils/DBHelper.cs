@@ -1,14 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SQLite;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Dapper;
-using IceCoffee.DbCore.Primitives;
-using PostSharp.Aspects;
+﻿using Dapper;
 using IceCoffee.DbCore.Domain;
+using System.Data.SQLite;
 
 namespace IceCoffee.DbCore.Utils
 {
@@ -38,7 +30,7 @@ namespace IceCoffee.DbCore.Utils
         /// </summary>
         /// <param name="sql"></param>
         public static int ExecuteSQlite(DbConnectionInfo dbConnectionInfo, string sql)
-        {                 
+        {
             return dbConnectionInfo.GetDbConnection().Execute(sql);
         }
 
@@ -52,6 +44,7 @@ namespace IceCoffee.DbCore.Utils
         {
             dbConnectionInfo.GetDbConnection().Execute(string.Format("CREATE TABLE IF NOT EXISTS {0}({1})", tableName, string.Join(",", propertyList)));
         }
+
         /// <summary>
         /// 删除表
         /// </summary>
@@ -60,6 +53,5 @@ namespace IceCoffee.DbCore.Utils
         {
             dbConnectionInfo.GetDbConnection().Execute(string.Format("DROP TABLE IF EXISTS {0}", tableName));
         }
-
     }
 }

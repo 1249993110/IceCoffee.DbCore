@@ -1,17 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SQLite;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Dapper;
-using IceCoffee.DbCore.Domain;
-using IceCoffee.DbCore.Primitives;
+﻿using IceCoffee.DbCore.Domain;
 using IceCoffee.DbCore.Primitives.Entity;
-using IceCoffee.DbCore.Primitives.Repository;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace IceCoffee.DbCore.Primitives.Repository
 {
@@ -32,4 +23,3 @@ namespace IceCoffee.DbCore.Primitives.Repository
         }
     }
 }
-

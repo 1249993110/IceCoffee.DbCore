@@ -1,12 +1,8 @@
-﻿using System;
-using IceCoffee.DbCore.Primitives;
-using System.Data;
-using IceCoffee.DbCore.Primitives.Entity;
-using IceCoffee.DbCore.Primitives.Repository;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using IceCoffee.DbCore.CatchServiceException;
+﻿using IceCoffee.DbCore.CatchServiceException;
 using IceCoffee.DbCore.Primitives.Dto;
+using IceCoffee.DbCore.Primitives.Entity;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace IceCoffee.DbCore.Primitives.Service
 {
@@ -29,7 +25,7 @@ namespace IceCoffee.DbCore.Primitives.Service
         /// </summary>
         public bool IsAutoHandleAsyncServiceException { get; set; } = true;
 
-        #region 默认实现        
+        #region 默认实现
 
         [CatchAsyncException("插入数据异常")]
         public async Task InsertAsync(TDto dto)
@@ -64,6 +60,7 @@ namespace IceCoffee.DbCore.Primitives.Service
         {
             await Repository.UpdateAsync(DtoToEntity(dto));
         }
-        #endregion
+
+        #endregion 默认实现
     }
 }
