@@ -1,4 +1,5 @@
-﻿using IceCoffee.DbCore.Primitives.Dto;
+﻿using IceCoffee.Common;
+using IceCoffee.DbCore.Primitives.Dto;
 using IceCoffee.DbCore.Primitives.Entity;
 using IceCoffee.DbCore.Primitives.Repository;
 

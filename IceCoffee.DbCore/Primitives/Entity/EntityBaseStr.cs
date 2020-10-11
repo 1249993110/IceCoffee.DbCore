@@ -11,13 +11,13 @@ namespace IceCoffee.DbCore.Primitives.Entity
         /// <summary>
         /// 主键
         /// </summary>
-        [Column("ID"), IgnoreUpdate]
+        [Column("GUID"), IgnoreUpdate]
         public override string Key { get; set; }
 
         /// <summary>
         /// 创建日期
         /// </summary>
-        [IgnoreUpdate]
+        [IgnoreUpdate, IgnoreInsert]
         public DateTime? CreatedDate { get; set; }
 
         public EntityBaseStr() : base(string.Empty)
@@ -37,12 +37,12 @@ namespace IceCoffee.DbCore.Primitives.Entity
         }
 
         /// <summary>
-        /// 初始化，生成主键和创建日期
+        /// 初始化，默认生成主键，不生成创建日期，应由数据库生成
         /// </summary>
         public override void Init()
         {
             base.Init();
-            CreatedDate = DateTime.Now;
+            // CreatedDate = DateTime.Now;
         }
     }
 }

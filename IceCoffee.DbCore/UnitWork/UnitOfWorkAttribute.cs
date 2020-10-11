@@ -37,7 +37,7 @@ namespace IceCoffee.DbCore.UnitWork
 
             Debug.Assert(service != null, "服务必须继承ServiceBase");
 
-            _unitOfWork = RepositoryBase.unitWork.Value;
+            _unitOfWork = RepositoryBase.UnitOfWork;
 
             _unitOfWork.EnterContext(service.DbConnectionInfo);
 
@@ -58,7 +58,7 @@ namespace IceCoffee.DbCore.UnitWork
 
         public override void OnExit(MethodExecutionArgs args)
         {
-            ConnectionFactory.CollectDbConnectionToPool(_dbConnection);
+            DbConnectionFactory.CollectDbConnectionToPool(_dbConnection);
         }
     }
 }

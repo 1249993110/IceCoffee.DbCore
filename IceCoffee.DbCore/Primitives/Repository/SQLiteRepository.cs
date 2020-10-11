@@ -9,9 +9,9 @@ namespace IceCoffee.DbCore.Primitives.Repository
     /// <summary>
     /// SQLite数据库仓储
     /// </summary>
-    public class SQLiteRepositoryStr<TEntity> : RepositoryBase<TEntity, string> where TEntity : EntityBase<string>
+    public class SQLiteRepository<TEntity, TKey> : RepositoryBase<TEntity, TKey> where TEntity : EntityBase<TKey>
     {
-        public SQLiteRepositoryStr(DbConnectionInfo dbConnectionInfo) : base(dbConnectionInfo)
+        public SQLiteRepository(DbConnectionInfo dbConnectionInfo) : base(dbConnectionInfo)
         {
             Debug.Assert(dbConnectionInfo.DatabaseType == DatabaseType.SQLite, "数据库类型不匹配");
         }

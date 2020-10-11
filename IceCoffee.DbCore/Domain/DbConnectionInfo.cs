@@ -4,6 +4,9 @@ using System.Data;
 
 namespace IceCoffee.DbCore.Domain
 {
+    /// <summary>
+    /// 数据库连接信息
+    /// </summary>
     public sealed class DbConnectionInfo
     {
         /// <summary>
@@ -66,7 +69,7 @@ namespace IceCoffee.DbCore.Domain
         /// <returns></returns>
         public IDbConnection GetDbConnection()
         {
-            return ConnectionFactory.GetConnectionFromPool(this);
+            return DbConnectionFactory.GetConnectionFromPool(this);
         }
     }
 }

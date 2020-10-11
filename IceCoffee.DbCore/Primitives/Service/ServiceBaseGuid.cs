@@ -12,34 +12,7 @@ namespace IceCoffee.DbCore.Primitives.Service
     {
         public ServiceBaseGuid(IRepositoryBase<TEntity, Guid> repository) : base(repository)
         {
-        }
-
-        protected override TDto EntityToDto(TEntity entity)
-        {
-            if (entity == null)
-            {
-                return null;
-            }
-            else
-            {
-                TDto dto = ObjectClone<TEntity, TDto>.ShallowCopy(entity);
-                dto.Key = entity.Key.ToString();
-                return dto;
-            }
-        }
-
-        protected override TEntity DtoToEntity(TDto dto)
-        {
-            if (dto == null)
-            {
-                return null;
-            }
-            else
-            {
-                TEntity entity = ObjectClone<TDto, TEntity>.ShallowCopy(dto);
-                entity.Key = dto.Key == null ? Guid.Empty : new Guid(dto.Key);
-                return entity;
-            }
+            
         }
     }
 }

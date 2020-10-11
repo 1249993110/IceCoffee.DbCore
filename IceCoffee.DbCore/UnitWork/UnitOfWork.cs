@@ -5,13 +5,13 @@ namespace IceCoffee.DbCore.UnitWork
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private bool _useSameUnitOfWork;
+        private bool _isExplicitSubmit;
 
         private IDbConnection _dbConnection;
 
         internal IDbTransaction _dbTransaction;
 
-        public bool UseUnitOfWork => _useSameUnitOfWork;
+        public bool IsExplicitSubmit => _isExplicitSubmit;
 
         public IDbConnection DbConnection { get => _dbConnection; set => _dbConnection = value; }
 
@@ -20,10 +20,10 @@ namespace IceCoffee.DbCore.UnitWork
         public virtual void EnterContext(DbConnectionInfo dbConnectionInfo)
         {
             // 防止多次执行
-            if (_useSameUnitOfWork == false)
+            if (_isExplicitSubmit == false)
             {
-                _useSameUnitOfWork = true;
-                _dbConnection = ConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
+                _isExplicitSubmit = true;
+                _dbConnection = DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
                 _dbTransaction = _dbConnection.BeginTransaction();
             }
         }
@@ -31,9 +31,9 @@ namespace IceCoffee.DbCore.UnitWork
         public virtual void SaveChanges()
         {
             // 防止多次执行
-            if (_useSameUnitOfWork == true)
+            if (_isExplicitSubmit == true)
             {
-                _useSameUnitOfWork = false;
+                _isExplicitSubmit = false;
                 _dbTransaction.Commit();
 
                 _dbConnection = null;

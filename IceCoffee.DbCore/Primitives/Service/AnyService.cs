@@ -60,7 +60,6 @@ namespace IceCoffee.DbCore.Primitives.Service
         /// <summary>
         /// 多表插入、修改、删除
         /// </summary>
-        /// <param name="dbSession"></param>
         /// <param name="trans"></param>
         /// <returns></returns>
         public static int ExecuteNonQuery(IUnitOfWork unitOfWork, List<Tuple<string, object>> trans)

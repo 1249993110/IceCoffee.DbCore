@@ -1,5 +1,7 @@
 ﻿using Dapper;
 using IceCoffee.DbCore.Domain;
+using System;
+using System.Data;
 using System.Data.SQLite;
 
 namespace IceCoffee.DbCore.Utils
@@ -26,12 +28,28 @@ namespace IceCoffee.DbCore.Utils
         }
 
         /// <summary>
-        /// 获取当前线程的数据库连接，以执行sql语句
+        /// 从连接池中获取数据库连接，以执行sql语句
         /// </summary>
         /// <param name="sql"></param>
         public static int ExecuteSQlite(DbConnectionInfo dbConnectionInfo, string sql)
         {
-            return dbConnectionInfo.GetDbConnection().Execute(sql);
+            IDbConnection connection = null;
+            try
+            {
+                connection = dbConnectionInfo.GetDbConnection();
+                return connection.Execute(sql);
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                if(connection != null)
+                {
+                    DbConnectionFactory.CollectDbConnectionToPool(connection);
+                }
+            }            
         }
 
         /// <summary>

@@ -9,9 +9,9 @@ namespace IceCoffee.DbCore.Primitives.Repository
     /// <summary>
     /// SqlServer数据库仓储
     /// </summary>
-    public class SqlServerRepositoryGuid<TEntity> : RepositoryBase<TEntity, Guid> where TEntity : EntityBase<Guid>
+    public class SqlServerRepository<TEntity, TKey> : RepositoryBase<TEntity, TKey> where TEntity : EntityBase<TKey>
     {
-        public SqlServerRepositoryGuid(DbConnectionInfo dbConnectionInfo) : base(dbConnectionInfo)
+        public SqlServerRepository(DbConnectionInfo dbConnectionInfo) : base(dbConnectionInfo)
         {
             Debug.Assert(dbConnectionInfo.DatabaseType == DatabaseType.SQLServer, "数据库类型不匹配");
         }

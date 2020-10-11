@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace IceCoffee.DbCore.Primitives.Service
 {
-    public abstract partial class ServiceBase<TEntity, TKey, TDto, TQuery> : IServiceBase<TDto, TQuery>, IExceptionCaught
+    public abstract partial class ServiceBase<TEntity, TKey, TDto, TQuery> : ServiceBase, IServiceBase<TDto, TQuery>, IExceptionCaught
         where TDto : DtoBase<TQuery>, new()
         where TEntity : EntityBase<TKey>, new()
     {
@@ -28,27 +28,26 @@ namespace IceCoffee.DbCore.Primitives.Service
         #region 默认实现
 
         [CatchAsyncException("插入数据异常")]
-        public async Task InsertAsync(TDto dto)
+        public virtual async Task AddAsync(TDto dto)
         {
             TEntity entity = DtoToEntity(dto);
-            entity.Init();
             await Repository.InsertAsync(entity);
         }
 
         [CatchAsyncException("删除数据异常")]
-        public async Task RemoveAsync(TDto dto)
+        public virtual async Task RemoveAsync(TDto dto)
         {
             await Repository.DeleteAsync(DtoToEntity(dto));
         }
 
         [CatchAsyncException("删除全部数据异常")]
-        public async Task RemoveAllAsync()
+        public virtual async Task RemoveAllAsync()
         {
             await Repository.DeleteAllAsync();
         }
 
         [CatchAsyncException("获取全部数据异常")]
-        public async Task<List<TDto>> GetAllAsync(string orderBy = null)
+        public virtual async Task<List<TDto>> GetAllAsync(string orderBy = null)
         {
             List<TDto> dtos = new List<TDto>();
             var entitys = await Repository.QueryAllAsync(orderBy);
@@ -56,7 +55,7 @@ namespace IceCoffee.DbCore.Primitives.Service
         }
 
         [CatchAsyncException("更新数据异常")]
-        public async Task UpdateAsync(TDto dto)
+        public virtual async Task UpdateAsync(TDto dto)
         {
             await Repository.UpdateAsync(DtoToEntity(dto));
         }

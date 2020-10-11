@@ -16,19 +16,23 @@ namespace IceCoffee.DbCore.Primitives.Repository
 {
     public class RepositoryBase
     {
-        internal static ThreadLocal<IUnitOfWork> unitWork;
+        private static ThreadLocal<IUnitOfWork> _unitOfWork;
 
         static RepositoryBase()
         {
-            unitWork = new ThreadLocal<IUnitOfWork>(() =>
+            _unitOfWork = new ThreadLocal<IUnitOfWork>(() =>
             {
                 return new UnitOfWork();
             });
         }
 
+        /// <summary>
+        /// 覆盖默认工作单元
+        /// </summary>
+        /// <param name="func"></param>
         public static void OverrideUnitOfWork(Func<IUnitOfWork> func)
         {
-            unitWork = new ThreadLocal<IUnitOfWork>(func);
+            _unitOfWork = new ThreadLocal<IUnitOfWork>(func);
         }
 
         protected internal readonly DbConnectionInfo dbConnectionInfo;
@@ -37,6 +41,122 @@ namespace IceCoffee.DbCore.Primitives.Repository
         {
             this.dbConnectionInfo = dbConnectionInfo;
         }
+
+        internal static IUnitOfWork UnitOfWork => _unitOfWork.Value;
+
+        protected virtual int Execute(string sql, object param = null, bool useTransaction = false)
+        {
+            IUnitOfWork unitOfWork = UnitOfWork;
+            IDbConnection conn = null;
+            IDbTransaction tran = null;
+
+            try
+            {
+                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
+                tran = unitOfWork.DbTransaction ?? (useTransaction ? conn.BeginTransaction() : null);
+
+                int result = conn.Execute(sql, param, tran, commandType: CommandType.Text);
+
+                if (useTransaction && unitOfWork.IsExplicitSubmit == false)
+                {
+                    tran.Commit();
+                }
+
+                return result;
+            }
+            catch
+            {
+                if (useTransaction && unitOfWork.IsExplicitSubmit == false)
+                {
+                    tran.Rollback();
+                }
+                throw;
+            }
+            finally
+            {
+                if (conn != null && unitOfWork.IsExplicitSubmit == false)
+                {
+                    DbConnectionFactory.CollectDbConnectionToPool(conn);
+                }
+            }
+        }
+
+        protected virtual TReturn ExecuteScalar<TReturn>(string sql, object param = null, bool useTransaction = false)
+        {
+            IUnitOfWork unitOfWork = UnitOfWork;
+            IDbConnection conn = null;
+
+            try
+            {
+                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
+
+                TReturn result = conn.ExecuteScalar<TReturn>(sql, param, commandType: CommandType.Text);
+
+                return result;
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                if (conn != null && unitOfWork.IsExplicitSubmit == false)
+                {
+                    DbConnectionFactory.CollectDbConnectionToPool(conn);
+                }
+            }
+        }
+
+        protected virtual IEnumerable<AnyEntity> QueryAny<AnyEntity>(string sql, object param = null)
+        {
+            IUnitOfWork unitOfWork = UnitOfWork;
+            IDbConnection conn = null;
+            IDbTransaction tran = null;
+            try
+            {
+                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
+                tran = unitOfWork.DbTransaction;
+                return conn.Query<AnyEntity>(sql, param, tran, commandType: CommandType.Text);
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                if (conn != null && unitOfWork.IsExplicitSubmit == false)
+                {
+                    DbConnectionFactory.CollectDbConnectionToPool(conn);
+                }
+            }
+        }
+
+        protected virtual IEnumerable<TReturn> ExecProcedure<TReturn>(string procName, DynamicParameters parameters)
+        {
+            IUnitOfWork unitOfWork = UnitOfWork;
+            IDbConnection conn = null;
+            IDbTransaction tran = null;
+            try
+            {
+                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
+                tran = unitOfWork.DbTransaction;
+
+                return conn.Query<TReturn>(new CommandDefinition(commandText: procName, parameters: parameters,
+                    transaction: tran, commandType: CommandType.StoredProcedure));
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                if (conn != null && unitOfWork.IsExplicitSubmit == false)
+                {
+                    DbConnectionFactory.CollectDbConnectionToPool(conn);
+                }
+            }
+        }
+
     }
 
     /// <summary>
@@ -82,15 +202,13 @@ namespace IceCoffee.DbCore.Primitives.Repository
         {
             PropertyInfo[] properties = typeof(TEntity).GetProperties(BindingFlags.Instance | BindingFlags.Public)
                 .Where(p => p.GetCustomAttribute<NotMappedAttribute>(false) == null).ToArray();
-
-            Debug.Assert(properties.Length > 2, "实体属性个数应大于2");
-
+            
             PropertyInfo keyPropInfo = properties.FirstOrDefault(p => p.GetCustomAttribute<PrimaryKeyAttribute>(true) != null);
             KeyName = keyPropInfo.GetCustomAttribute<ColumnAttribute>(false)?.Name;
             KeyName = KeyName ?? keyPropInfo.Name;
             TableName = typeof(TEntity).GetCustomAttribute<TableAttribute>(false)?.Name;
             TableName = TableName ?? typeof(TEntity).Name;
-
+            
             StringBuilder stringBuilder1 = new StringBuilder();
             StringBuilder stringBuilder2 = new StringBuilder();
             StringBuilder stringBuilder3 = new StringBuilder();
@@ -121,6 +239,11 @@ namespace IceCoffee.DbCore.Primitives.Repository
                     stringBuilder4.AppendFormat("{0}=@{1},", columnName, propertyName);
                 }
             }
+
+            Debug.Assert(stringBuilder1.Length > 0
+                && stringBuilder2.Length > 0
+                && stringBuilder3.Length > 0
+                && stringBuilder4.Length > 0, "实体应存在CURD属性");
 
             Insert_Statement_Fixed = string.Format("INSERT INTO {0} ({1}) VALUES({2})", TableName,
                 stringBuilder1.Remove(stringBuilder1.Length - 1, 1).ToString(),
@@ -154,92 +277,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
         #endregion 构造
 
-        public virtual IUnitOfWork UnitOfWork => unitWork.Value;
-
-        protected virtual int Execute(string sql, object param = null, bool useTransaction = false)
-        {
-            IUnitOfWork unitOfWork = UnitOfWork;
-            IDbConnection conn = null;
-            IDbTransaction tran = null;
-
-            try
-            {
-                conn = unitOfWork.DbConnection ?? ConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
-                tran = unitOfWork.DbTransaction ?? (useTransaction ? conn.BeginTransaction() : null);
-
-                int result = conn.Execute(sql, param, tran, commandType: CommandType.Text);
-
-                if (useTransaction && unitOfWork.UseUnitOfWork == false)
-                {
-                    tran.Commit();
-                }
-
-                return result;
-            }
-            catch
-            {
-                if (useTransaction && unitOfWork.UseUnitOfWork == false)
-                {
-                    tran.Rollback();
-                }
-                throw;
-            }
-            finally
-            {
-                if (conn != null && unitOfWork.UseUnitOfWork == false)
-                {
-                    ConnectionFactory.CollectDbConnectionToPool(conn);
-                }
-            }
-        }
-
-        protected virtual IEnumerable<TEntity> Query(string sql, object param = null)
-        {
-            IUnitOfWork unitOfWork = UnitOfWork;
-            IDbConnection conn = null;
-            IDbTransaction tran = null;
-            try
-            {
-                conn = unitOfWork.DbConnection ?? ConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
-                tran = unitOfWork.DbTransaction;
-                return conn.Query<TEntity>(sql, param, tran, commandType: CommandType.Text);
-            }
-            catch
-            {
-                throw;
-            }
-            finally
-            {
-                if (conn != null && unitOfWork.UseUnitOfWork == false)
-                {
-                    ConnectionFactory.CollectDbConnectionToPool(conn);
-                }
-            }
-        }
-
-        protected virtual IEnumerable<dynamic> QueryDynamic(string sql, object param = null)
-        {
-            IUnitOfWork unitOfWork = UnitOfWork;
-            IDbConnection conn = null;
-            IDbTransaction tran = null;
-            try
-            {
-                conn = unitOfWork.DbConnection ?? ConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
-                tran = unitOfWork.DbTransaction;
-                return conn.Query(sql, param, tran, commandType: CommandType.Text);
-            }
-            catch
-            {
-                throw;
-            }
-            finally
-            {
-                if (conn != null && unitOfWork.UseUnitOfWork == false)
-                {
-                    ConnectionFactory.CollectDbConnectionToPool(conn);
-                }
-            }
-        }
+        new public virtual IUnitOfWork UnitOfWork => RepositoryBase.UnitOfWork;
 
         #region Insert
 
@@ -302,9 +340,14 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
         #region Query
 
+        protected virtual IEnumerable<TEntity> Query(string sql, object param = null)
+        {
+            return QueryAny<TEntity>(sql, param);
+        }
+
         public virtual IEnumerable<TEntity> QueryAny(string columnNames, string whereBy, string orderby, object param = null)
         {
-            string sql = string.Format("SELECT {0} FROM {1} {2} {3}", columnNames, TableName, whereBy == null ? null : "WHERE " + whereBy, orderby);
+            string sql = string.Format("SELECT {0} FROM {1} {2} {3}", columnNames, TableName, whereBy == null ? string.Empty : "WHERE " + whereBy, orderby);
             return Query(sql, param);
         }
 
@@ -333,8 +376,8 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
         public virtual long QueryRecordCount(string whereBy = null, object param = null)
         {
-            string sql = string.Format("SELECT COUNT(*) AS Total FROM {0} {1}", TableName, whereBy == null ? null : "WHERE " + whereBy);
-            return QueryDynamic(sql, param).FirstOrDefault().Total;
+            string sql = string.Format("SELECT COUNT(*) FROM {0} {1}", TableName, whereBy == null ? string.Empty : "WHERE " + whereBy);
+            return ExecuteScalar<long>(sql, param);
         }
 
         #region 待实现
@@ -350,7 +393,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
         public virtual int UpdateAny(string setClause, string whereBy, object param, bool useTransaction = false)
         {
-            string sql = string.Format("UPDATE {0} SET {1} {2}", TableName, setClause, whereBy == null ? null : "WHERE " + whereBy);
+            string sql = string.Format("UPDATE {0} SET {1} {2}", TableName, setClause, whereBy == null ? string.Empty : "WHERE " + whereBy);
             return Execute(sql, param, useTransaction);
         }
 
@@ -368,8 +411,8 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
         public virtual int UpdateById<TId>(TEntity entity, TId id, string idColumnName)
         {
-            string sql = string.Format("UPDATE {0} SET {1} WHERE {2}=@Id", TableName, UpdateSet_Statement, idColumnName);
-            return Execute(sql, new { Id = id });
+            string sql = string.Format("UPDATE {0} SET {1} WHERE {2}=@{2}", TableName, UpdateSet_Statement, idColumnName);
+            return Execute(sql, entity);
         }
 
         public virtual int UpdateColumnById<TId, TValue>(TId id, TValue value, string idColumnName, string valueColumnName)

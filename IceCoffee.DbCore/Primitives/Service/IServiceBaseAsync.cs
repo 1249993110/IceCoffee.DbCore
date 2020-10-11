@@ -6,10 +6,10 @@ namespace IceCoffee.DbCore.Primitives.Service
     public partial interface IServiceBase<TDto, TQuery>
     {
         /// <summary>
-        /// 插入数据
+        /// 添加数据
         /// </summary>
         /// <returns></returns>
-        Task InsertAsync(TDto dto);
+        Task AddAsync(TDto dto);
 
         /// <summary>
         /// 删除数据

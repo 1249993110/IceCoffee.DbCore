@@ -22,9 +22,10 @@ namespace IceCoffee.DbCore.UnitWork
         void SaveChanges();
 
         /// <summary>
-        /// 使用工作单元
+        /// 是否需要显示进行提交（save()）
+        /// 默认为false，即在repository方法中自动完成提交，值为true时，表示需要显示调用save()方法
         /// </summary>
-        bool UseUnitOfWork { get; }
+        bool IsExplicitSubmit { get; }
 
         IDbConnection DbConnection { get; set; }
 

@@ -3,13 +3,16 @@ using System;
 
 namespace IceCoffee.DbCore.Primitives.Entity
 {
-    public abstract class EntityBaseGuid : EntityBase<Guid>
+    /// <summary>
+    /// EntityBase泛型参数为int的默认实现
+    /// </summary>
+    public abstract class EntityBaseInt : EntityBase<int>
     {
         /// <summary>
         /// 主键
         /// </summary>
         [Column("GUID"), IgnoreUpdate, IgnoreInsert]
-        public override Guid Key { get; set; }
+        public override int Key { get; set; }
 
         /// <summary>
         /// 创建日期
@@ -17,20 +20,20 @@ namespace IceCoffee.DbCore.Primitives.Entity
         [IgnoreUpdate, IgnoreInsert]
         public DateTime? CreatedDate { get; set; }
 
-        public EntityBaseGuid() : base(Guid.Empty)
+        public EntityBaseInt() : base(0)
         {
         }
 
-        protected EntityBaseGuid(Guid guid) : base(guid)
+        protected EntityBaseInt(int key) : base(key)
         {
         }
 
         /// <summary>
-        /// 生成主键
+        /// 默认不生成主键
         /// </summary>
-        protected override Guid GenerateKey()
+        protected override int GenerateKey()
         {
-            return Guid.NewGuid();
+            return 0;
         }
 
         /// <summary>
@@ -38,8 +41,7 @@ namespace IceCoffee.DbCore.Primitives.Entity
         /// </summary>
         public override void Init()
         {
-            // base.Init();
-            // CreatedDate = DateTime.Now;
+            
         }
     }
 }
