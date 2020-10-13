@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace IceCoffee.DbCore.Primitives.Repository
 {
-    public partial interface IRepositoryBase<TEntity, in TKey> where TEntity : IEntity<TKey>
+    public partial interface IRepositoryBase<TEntity> where TEntity : IEntity
     {
         /// <summary>
         /// 工作单元
@@ -23,16 +23,16 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <summary>
         /// 插入多条记录
         /// </summary>
-        /// <param name="entitys"></param>
+        /// <param name="entities"></param>
         /// <returns></returns>
-        int InsertBatch(IEnumerable<TEntity> entitys);
+        int InsertBatch(IEnumerable<TEntity> entities);
 
         #endregion Insert
 
         #region Delete
 
         /// <summary>
-        /// 根据条件和匿名对象执行任意删除语句
+        /// 通过条件和匿名对象执行任意删除语句
         /// </summary>
         /// <param name="whereBy"></param>
         /// <param name="param"></param>
@@ -41,21 +41,21 @@ namespace IceCoffee.DbCore.Primitives.Repository
         int DeleteAny(string whereBy, object param = null, bool useTransaction = false);
 
         /// <summary>
-        /// 根据默认主键删除记录
+        /// 通过默认主键删除记录
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
         int Delete(TEntity entity);
 
         /// <summary>
-        /// 根据默认主键删除多条记录
+        /// 通过默认主键删除多条记录
         /// </summary>
-        /// <param name="entitys"></param>
+        /// <param name="entities"></param>
         /// <returns></returns>
-        int DeleteBatch(IEnumerable<TEntity> entitys);
+        int DeleteBatch(IEnumerable<TEntity> entities);
 
         /// <summary>
-        /// 根据ID删除记录
+        /// 通过Id删除记录
         /// </summary>
         /// <typeparam name="TId"></typeparam>
         /// <param name="id"></param>
@@ -64,7 +64,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         int DeleteById<TId>(TId id, string idColumnName);
 
         /// <summary>
-        /// 根据多个ID删除多条记录
+        /// 通过多个Id删除多条记录
         /// </summary>
         /// <typeparam name="TId"></typeparam>
         /// <param name="ids"></param>
@@ -83,7 +83,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         #region Query
 
         /// <summary>
-        /// 根据条件、顺序字符串和匿名对象执行任意查询语句
+        /// 通过条件、顺序字符串和匿名对象执行任意查询语句
         /// </summary>
         /// <param name="columnNames"></param>
         /// <param name="whereBy"></param>
@@ -100,7 +100,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         IEnumerable<TEntity> QueryAll(string orderby = null);
 
         /// <summary>
-        /// 根据ID获取记录
+        /// 通过Id获取记录
         /// </summary>
         /// <typeparam name="TId"></typeparam>
         /// <param name="id"></param>
@@ -109,7 +109,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         IEnumerable<TEntity> QueryById<TId>(TId id, string idColumnName);
 
         /// <summary>
-        /// 根据多个ID获取记录
+        /// 通过多个Id获取记录
         /// </summary>
         /// <typeparam name="TId"></typeparam>
         /// <param name="ids"></param>
@@ -141,7 +141,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         #region Update
 
         /// <summary>
-        /// 根据set子句、条件和匿名对象执行任意更新语句
+        /// 通过set子句、条件和匿名对象执行任意更新语句
         /// </summary>
         /// <param name="setClause"></param>
         /// <param name="whereBy"></param>
@@ -151,21 +151,21 @@ namespace IceCoffee.DbCore.Primitives.Repository
         int UpdateAny(string setClause, string whereBy, object param, bool useTransaction = false);
 
         /// <summary>
-        /// 根据默认主键更新记录
+        /// 通过默认主键更新记录
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
         int Update(TEntity entity);
 
         /// <summary>
-        /// 根据默认主键更新多条记录
+        /// 通过默认主键更新多条记录
         /// </summary>
-        /// <param name="entitys"></param>
+        /// <param name="entities"></param>
         /// <returns></returns>
-        int UpdateBatch(IEnumerable<TEntity> entitys);
+        int UpdateBatch(IEnumerable<TEntity> entities);
 
         /// <summary>
-        /// 根据ID更新记录
+        /// 通过Id更新记录
         /// </summary>
         /// <typeparam name="TId"></typeparam>
         /// <param name="entity"></param>
@@ -175,7 +175,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         int UpdateById<TId>(TEntity entity, TId id, string idColumnName);
 
         /// <summary>
-        /// 根据ID更新记录的一列
+        /// 通过Id更新记录的一列
         /// </summary>
         /// <typeparam name="TId"></typeparam>
         /// <typeparam name="TValue"></typeparam>

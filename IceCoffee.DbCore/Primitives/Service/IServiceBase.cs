@@ -2,20 +2,24 @@
 
 namespace IceCoffee.DbCore.Primitives.Service
 {
-    public partial interface IServiceBase<TDto, TQuery>
+    public interface IServiceBase
+    {
+    }
+
+    public partial interface IServiceBase<TDto> : IServiceBase
     {
         /// <summary>
         /// 添加数据
         /// </summary>
         /// <returns></returns>
-        int Add(TDto dto);
+        TDto Add(TDto dto);
 
         /// <summary>
         /// 批量添加数据
         /// </summary>
         /// <param name="dtos"></param>
         /// <returns></returns>
-        int AddBatch(IEnumerable<TDto> dtos);
+        List<TDto> AddBatch(IEnumerable<TDto> dtos);
 
         /// <summary>
         /// 根据条件和匿名对象删除任意数据

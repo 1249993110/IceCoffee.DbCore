@@ -17,13 +17,13 @@ namespace IceCoffee.DbCore.Domain
         /// <summary>
         /// 数据库类型
         /// </summary>
-        public DatabaseType DatabaseType { get; set; }
+        public DatabaseType DatabaseType { get; set; } = DatabaseType.Unknown;
 
-
+#if NETFRAMEWORK
         /// <summary>
-        /// 数据库连接串的key
+        /// 由ConfigurationManager通过key得到ConnectionString和ProviderName
         /// </summary>
-        /// <param name="connectionStringKey"></param>
+        /// <param name="connectionStringKey">数据库连接串的key</param>
         public DbConnectionInfo(string connectionStringKey)
         {
             var connStrSetting = ConfigurationManager.ConnectionStrings[connectionStringKey];
@@ -55,7 +55,7 @@ namespace IceCoffee.DbCore.Domain
             ConnectionString = connStrSetting.ConnectionString;
             DatabaseType = databaseType;
         }
-
+#endif
 
         public DbConnectionInfo(string connectionString, DatabaseType databaseType)
         {

@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using IceCoffee.DbCore.ExceptionCatch;
 using IceCoffee.DbCore.Domain;
 using IceCoffee.DbCore.OptionalAttributes;
 using IceCoffee.DbCore.Primitives.Entity;
@@ -165,7 +166,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
     /// <para>https://docs.microsoft.com/zh-cn/dotnet/api/system.data.common.dbcommand.executenonqueryasync</para>
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
-    public abstract partial class RepositoryBase<TEntity, TKey> : RepositoryBase, IRepositoryBase<TEntity, TKey> where TEntity : EntityBase<TKey>
+    public abstract partial class RepositoryBase<TEntity> : RepositoryBase, IRepositoryBase<TEntity> where TEntity : EntityBase
     {
         #region 公共静态属性
 
@@ -201,12 +202,17 @@ namespace IceCoffee.DbCore.Primitives.Repository
         static RepositoryBase()
         {
             PropertyInfo[] properties = typeof(TEntity).GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                .Where(p => p.GetCustomAttribute<NotMappedAttribute>(false) == null).ToArray();
+                .Where(p => p.GetCustomAttribute<NotMappedAttribute>(true) == null).ToArray();
             
             PropertyInfo keyPropInfo = properties.FirstOrDefault(p => p.GetCustomAttribute<PrimaryKeyAttribute>(true) != null);
-            KeyName = keyPropInfo.GetCustomAttribute<ColumnAttribute>(false)?.Name;
-            KeyName = KeyName ?? keyPropInfo.Name;
-            TableName = typeof(TEntity).GetCustomAttribute<TableAttribute>(false)?.Name;
+
+            if(keyPropInfo != null)
+            {
+                KeyName = keyPropInfo.GetCustomAttribute<ColumnAttribute>(true)?.Name;
+                KeyName = KeyName ?? keyPropInfo.Name;
+            }
+            
+            TableName = typeof(TEntity).GetCustomAttribute<TableAttribute>(true)?.Name;
             TableName = TableName ?? typeof(TEntity).Name;
             
             StringBuilder stringBuilder1 = new StringBuilder();
@@ -219,22 +225,22 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 string propertyName = prop.Name;
                 string columnName;
 
-                ColumnAttribute columnAttribute = prop.GetCustomAttribute<ColumnAttribute>(false);
+                ColumnAttribute columnAttribute = prop.GetCustomAttribute<ColumnAttribute>(true);
                 columnName = columnAttribute != null ? columnAttribute.Name : prop.Name;
 
                 // 过滤定义了IgnoreInsert特性的属性
-                if (prop.GetCustomAttribute<IgnoreInsertAttribute>(false) == null)
+                if (prop.GetCustomAttribute<IgnoreInsertAttribute>(true) == null)
                 {
                     stringBuilder1.AppendFormat("{0},", columnName);
                     stringBuilder2.AppendFormat("@{0},", propertyName);
                 }
                 // 过滤定义了IgnoreSelect特性的属性
-                if (prop.GetCustomAttribute<IgnoreSelectAttribute>(false) == null)
+                if (prop.GetCustomAttribute<IgnoreSelectAttribute>(true) == null)
                 {
                     stringBuilder3.AppendFormat("{0},", columnName);
                 }
                 // 过滤定义了IgnoreUpdate特性的属性
-                if (prop.GetCustomAttribute<IgnoreUpdateAttribute>(false) == null)
+                if (prop.GetCustomAttribute<IgnoreUpdateAttribute>(true) == null)
                 {
                     stringBuilder4.AppendFormat("{0}=@{1},", columnName, propertyName);
                 }
@@ -279,46 +285,51 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
         new public virtual IUnitOfWork UnitOfWork => RepositoryBase.UnitOfWork;
 
-        #region Insert
+        protected virtual IEnumerable<TEntity> Query(string sql, object param = null)
+        {
+            return QueryAny<TEntity>(sql, param);
+        }
 
+        #region Insert
+        [CatchRepositoryException("插入数据异常")]
         public virtual int Insert(TEntity entity)
         {
             return Execute(Insert_Statement_Fixed, entity);
         }
-
-        public virtual int InsertBatch(IEnumerable<TEntity> entitys)
+        [CatchRepositoryException("批量插入数据异常")]
+        public virtual int InsertBatch(IEnumerable<TEntity> entities)
         {
-            return Execute(Insert_Statement_Fixed, entitys, true);
+            return Execute(Insert_Statement_Fixed, entities, true);
         }
 
         #endregion Insert
 
         #region Delete
-
+        [CatchRepositoryException("删除任意数据异常")]
         public virtual int DeleteAny(string whereBy, object param = null, bool useTransaction = false)
         {
             string sql = string.Format("DELETE FROM {0} {1}", TableName, whereBy == null ? string.Empty : "WHERE " + whereBy);
             return Execute(sql, param, useTransaction);
         }
-
+        [CatchRepositoryException("删除数据异常")]
         public virtual int Delete(TEntity entity)
         {
-            string sql = string.Format("DELETE FROM {0} WHERE {1}=@Key", TableName, KeyName);
+            string sql = string.Format("DELETE FROM {0} WHERE {1}=@{1}", TableName, KeyName);
             return Execute(sql, entity);
         }
-
-        public virtual int DeleteBatch(IEnumerable<TEntity> entitys)
+        [CatchRepositoryException("批量删除数据异常")]
+        public virtual int DeleteBatch(IEnumerable<TEntity> entities)
         {
-            string sql = string.Format("DELETE FROM {0} WHERE {1}=@Key", TableName, KeyName);
-            return Execute(sql, entitys, true);
+            string sql = string.Format("DELETE FROM {0} WHERE {1}=@{1}", TableName, KeyName);
+            return Execute(sql, entities, true);
         }
-
+        [CatchRepositoryException("通过Id删除数据异常")]
         public virtual int DeleteById<TId>(TId id, string idColumnName)
         {
             string sql = string.Format("DELETE FROM {0} WHERE {1}=@Id", TableName, idColumnName);
             return Execute(sql, new { Id = id });
         }
-
+        [CatchRepositoryException("通过Id批量删除数据异常")]
         public virtual int DeleteBatchByIds<TId>(IEnumerable<TId> ids, string idColumnName)
         {
             string sql = string.Format("DELETE FROM {0} WHERE {1}=@Id", TableName, idColumnName);
@@ -329,7 +340,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
             }
             return Execute(sql, param, true);
         }
-
+        [CatchRepositoryException("删除所有数据异常")]
         public virtual int DeleteAll()
         {
             string sql = string.Format("DELETE FROM {0}", TableName);
@@ -339,30 +350,25 @@ namespace IceCoffee.DbCore.Primitives.Repository
         #endregion Delete
 
         #region Query
-
-        protected virtual IEnumerable<TEntity> Query(string sql, object param = null)
-        {
-            return QueryAny<TEntity>(sql, param);
-        }
-
+        [CatchRepositoryException("查询任意数据异常")]
         public virtual IEnumerable<TEntity> QueryAny(string columnNames, string whereBy, string orderby, object param = null)
         {
             string sql = string.Format("SELECT {0} FROM {1} {2} {3}", columnNames, TableName, whereBy == null ? string.Empty : "WHERE " + whereBy, orderby);
             return Query(sql, param);
         }
-
+        [CatchRepositoryException("查询所有数据异常")]
         public virtual IEnumerable<TEntity> QueryAll(string orderby = null)
         {
             string sql = string.Format("SELECT {0} FROM {1} {2}", Select_Statement, TableName, orderby == null ? string.Empty : "ORDER BY " + orderby);
             return Query(sql, null);
         }
-
+        [CatchRepositoryException("通过Id查询数据异常")]
         public virtual IEnumerable<TEntity> QueryById<TId>(TId id, string idColumnName)
         {
             string sql = string.Format("SELECT {0} FROM {1} WHERE {2}=@Id", Select_Statement, TableName, idColumnName);
             return Query(sql, new { Id = id });
         }
-
+        [CatchRepositoryException("通过Id批量查询数据异常")]
         public virtual IEnumerable<TEntity> QueryByIds<TId>(IEnumerable<TId> ids, string idColumnName)
         {
             string sql = string.Format("SELECT {0} FROM {1} WHERE {2}=@Id", Select_Statement, TableName, idColumnName);
@@ -374,6 +380,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
             return Query(sql, param);
         }
 
+        [CatchRepositoryException("获取记录条数异常")]
         public virtual long QueryRecordCount(string whereBy = null, object param = null)
         {
             string sql = string.Format("SELECT COUNT(*) FROM {0} {1}", TableName, whereBy == null ? string.Empty : "WHERE " + whereBy);
@@ -390,31 +397,31 @@ namespace IceCoffee.DbCore.Primitives.Repository
         #endregion Query
 
         #region Update
-
+        [CatchRepositoryException("更新任意数据异常")]
         public virtual int UpdateAny(string setClause, string whereBy, object param, bool useTransaction = false)
         {
             string sql = string.Format("UPDATE {0} SET {1} {2}", TableName, setClause, whereBy == null ? string.Empty : "WHERE " + whereBy);
             return Execute(sql, param, useTransaction);
         }
-
+        [CatchRepositoryException("更新数据异常")]
         public virtual int Update(TEntity entity)
         {
-            string sql = string.Format("UPDATE {0} SET {1} WHERE {2}=@Key", TableName, UpdateSet_Statement, KeyName);
+            string sql = string.Format("UPDATE {0} SET {1} WHERE {2}=@{2}", TableName, UpdateSet_Statement, KeyName);
             return Execute(sql, entity);
         }
-
-        public virtual int UpdateBatch(IEnumerable<TEntity> entitys)
+        [CatchRepositoryException("批量更新意数据异常")]
+        public virtual int UpdateBatch(IEnumerable<TEntity> entities)
         {
-            string sql = string.Format("UPDATE {0} SET {1} WHERE {2}=@Key", TableName, UpdateSet_Statement, KeyName);
-            return Execute(sql, entitys, true);
+            string sql = string.Format("UPDATE {0} SET {1} WHERE {2}=@{2}", TableName, UpdateSet_Statement, KeyName);
+            return Execute(sql, entities, true);
         }
-
+        [CatchRepositoryException("通过Id更新数据异常")]
         public virtual int UpdateById<TId>(TEntity entity, TId id, string idColumnName)
         {
             string sql = string.Format("UPDATE {0} SET {1} WHERE {2}=@{2}", TableName, UpdateSet_Statement, idColumnName);
             return Execute(sql, entity);
         }
-
+        [CatchRepositoryException("通过Id更新记录的一列异常")]
         public virtual int UpdateColumnById<TId, TValue>(TId id, TValue value, string idColumnName, string valueColumnName)
         {
             string sql = string.Format("UPDATE {0} SET {1}=@Value WHERE {2}=@Id", TableName, valueColumnName, idColumnName);

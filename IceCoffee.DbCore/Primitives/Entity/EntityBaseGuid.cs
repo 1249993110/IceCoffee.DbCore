@@ -3,13 +3,13 @@ using System;
 
 namespace IceCoffee.DbCore.Primitives.Entity
 {
-    public abstract class EntityBaseGuid : EntityBase<Guid>
+    public abstract class EntityBaseGuid : EntityBase
     {
         /// <summary>
         /// 主键
         /// </summary>
-        [Column("GUID"), IgnoreUpdate, IgnoreInsert]
-        public override Guid Key { get; set; }
+        [PrimaryKey, Column("GUID"), IgnoreUpdate, IgnoreInsert]
+        public virtual Guid Key { get; set; }
 
         /// <summary>
         /// 创建日期
@@ -17,29 +17,14 @@ namespace IceCoffee.DbCore.Primitives.Entity
         [IgnoreUpdate, IgnoreInsert]
         public DateTime? CreatedDate { get; set; }
 
-        public EntityBaseGuid() : base(Guid.Empty)
-        {
-        }
-
-        protected EntityBaseGuid(Guid guid) : base(guid)
-        {
-        }
-
-        /// <summary>
-        /// 生成主键
-        /// </summary>
-        protected override Guid GenerateKey()
-        {
-            return Guid.NewGuid();
-        }
-
         /// <summary>
         /// 初始化，默认不生成主键，不生成创建日期，应由数据库生成
         /// </summary>
-        public override void Init()
+        public override object Init()
         {
-            // base.Init();
+            // Key = Guid.NewGuid();
             // CreatedDate = DateTime.Now;
+            return this;
         }
     }
 }

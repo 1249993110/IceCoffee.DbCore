@@ -9,7 +9,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
     /// <summary>
     /// SQLite数据库仓储
     /// </summary>
-    public class SQLiteRepository<TEntity, TKey> : RepositoryBase<TEntity, TKey> where TEntity : EntityBase<TKey>
+    public class SQLiteRepository<TEntity> : RepositoryBase<TEntity> where TEntity : EntityBase
     {
         public SQLiteRepository(DbConnectionInfo dbConnectionInfo) : base(dbConnectionInfo)
         {

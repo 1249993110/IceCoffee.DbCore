@@ -1,63 +1,61 @@
-﻿using IceCoffee.DbCore.CatchServiceException;
+﻿using IceCoffee.DbCore.ExceptionCatch;
 using IceCoffee.DbCore.Primitives.Dto;
 using IceCoffee.DbCore.Primitives.Entity;
+using IceCoffee.DbCore.Primitives.Repository;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace IceCoffee.DbCore.Primitives.Service
 {
-    public abstract partial class ServiceBase<TEntity, TKey, TDto, TQuery> : ServiceBase, IServiceBase<TDto, TQuery>, IExceptionCaught
-        where TDto : DtoBase<TQuery>, new()
-        where TEntity : EntityBase<TKey>, new()
+    public abstract partial class ServiceBase<TEntity, TDto> : ServiceBase, IServiceBase<TDto>, IExceptionCaught
+        where TDto : DtoBase, new()
+        where TEntity : EntityBase, new()
     {
         /// <summary>
-        /// 捕获异步服务层异常
+        /// 捕获服务层操作异常事件
         /// </summary>
-        public static event AsyncExceptionCaughtEventHandler AsyncExceptionCaught;
+        public static event ServiceExceptionCaughtEventHandler ExceptionCaught;
 
-        void IExceptionCaught.EmitSignal(object sender, ServiceException e)
+        void IExceptionCaught.EmitSignal(object sender, ServiceException ex)
         {
-            AsyncExceptionCaught?.Invoke(this, e);
+            ExceptionCaught?.Invoke(this, ex);
         }
-
-        /// <summary>
-        /// 是否自动处理异步服务层异常
-        /// </summary>
-        public bool IsAutoHandleAsyncServiceException { get; set; } = true;
 
         #region 默认实现
-
-        [CatchAsyncException("插入数据异常")]
-        public virtual async Task AddAsync(TDto dto)
+        [CatchServiceException]
+        [AutoHandleException]
+        public virtual async Task<TDto> AddAsync(TDto dto)
         {
             TEntity entity = DtoToEntity(dto);
+            entity.Init();
             await Repository.InsertAsync(entity);
+            return EntityToDto(entity);
         }
-
-        [CatchAsyncException("删除数据异常")]
-        public virtual async Task RemoveAsync(TDto dto)
+        [CatchServiceException]
+        [AutoHandleException]
+        public virtual async Task<int> RemoveAsync(TDto dto)
         {
-            await Repository.DeleteAsync(DtoToEntity(dto));
+            return await Repository.DeleteAsync(DtoToEntity(dto));
         }
-
-        [CatchAsyncException("删除全部数据异常")]
-        public virtual async Task RemoveAllAsync()
+        [CatchServiceException]
+        [AutoHandleException]
+        public virtual async Task<int> RemoveAllAsync()
         {
-            await Repository.DeleteAllAsync();
+            return await Repository.DeleteAllAsync();
         }
-
-        [CatchAsyncException("获取全部数据异常")]
+        [CatchServiceException]
+        [AutoHandleException]
         public virtual async Task<List<TDto>> GetAllAsync(string orderBy = null)
         {
             List<TDto> dtos = new List<TDto>();
-            var entitys = await Repository.QueryAllAsync(orderBy);
-            return EntityToDto(entitys);
+            var entities = await Repository.QueryAllAsync(orderBy);
+            return EntityToDto(entities);
         }
-
-        [CatchAsyncException("更新数据异常")]
-        public virtual async Task UpdateAsync(TDto dto)
+        [CatchServiceException]
+        [AutoHandleException]
+        public virtual async Task<int> UpdateAsync(TDto dto)
         {
-            await Repository.UpdateAsync(DtoToEntity(dto));
+            return await Repository.UpdateAsync(DtoToEntity(dto));
         }
 
         #endregion 默认实现

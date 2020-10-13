@@ -6,13 +6,13 @@ namespace IceCoffee.DbCore.Primitives.Entity
     /// <summary>
     /// EntityBase泛型参数为int的默认实现
     /// </summary>
-    public abstract class EntityBaseInt : EntityBase<int>
+    public abstract class EntityBaseInt : EntityBase
     {
         /// <summary>
         /// 主键
         /// </summary>
-        [Column("GUID"), IgnoreUpdate, IgnoreInsert]
-        public override int Key { get; set; }
+        [PrimaryKey, Column("GUID"), IgnoreUpdate, IgnoreInsert]
+        public virtual int Key { get; set; }
 
         /// <summary>
         /// 创建日期
@@ -20,28 +20,13 @@ namespace IceCoffee.DbCore.Primitives.Entity
         [IgnoreUpdate, IgnoreInsert]
         public DateTime? CreatedDate { get; set; }
 
-        public EntityBaseInt() : base(0)
-        {
-        }
-
-        protected EntityBaseInt(int key) : base(key)
-        {
-        }
-
-        /// <summary>
-        /// 默认不生成主键
-        /// </summary>
-        protected override int GenerateKey()
-        {
-            return 0;
-        }
-
         /// <summary>
         /// 初始化，默认不生成主键，不生成创建日期，应由数据库生成
         /// </summary>
-        public override void Init()
+        public override object Init()
         {
-            
+            // CreatedDate = DateTime.Now;
+            return this;
         }
     }
 }
