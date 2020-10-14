@@ -13,7 +13,7 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <Authors>IceCoffee</Authors>
     <Company>IceCoffee</Company>
-    <Version>1.0.0.1</Version>
+    <Version>1.0.0.3</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -36,6 +36,7 @@
     <PackageReference Include="PostSharp" Version="6.6.12">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Mapster" Version="6.5.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -48,9 +49,9 @@
     <PackageReference Include="Dapper">
       <Version>1.50.2</Version>
     </PackageReference>
-    <PackageReference Include="AutoMapper">
+    <!--PackageReference Include="AutoMapper">
       <Version>7.0.1</Version>
-    </PackageReference>
+    </PackageReference-->
   </ItemGroup>
   
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
@@ -60,9 +61,9 @@
     <PackageReference Include="System.Data.SqlClient">
       <Version>4.8.1</Version>
     </PackageReference>
-    <PackageReference Include="AutoMapper">
+    <!--PackageReference Include="AutoMapper">
       <Version>10.0.0</Version>
-    </PackageReference>
+    </PackageReference-->
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
@@ -72,9 +73,9 @@
     <PackageReference Include="System.Data.SqlClient">
       <Version>4.8.1</Version>
     </PackageReference>
-    <PackageReference Include="AutoMapper">
+    <!--PackageReference Include="AutoMapper">
       <Version>10.0.0</Version>
-    </PackageReference>
+    </PackageReference-->
   </ItemGroup>
 
 </Project>

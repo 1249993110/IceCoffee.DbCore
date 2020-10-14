@@ -6,9 +6,9 @@ namespace IceCoffee.DbCore.ExceptionCatch
     /// <summary>
     /// 仓储层封装异常
     /// </summary>
-    public class RepositoryException : CustomExceptionBase
+    public class DbException : CustomExceptionBase
     {
-        public RepositoryException(string message, Exception innerException) : base(message, innerException)
+        public DbException(string message, Exception innerException) : base(message, innerException)
         {
         }
     }
