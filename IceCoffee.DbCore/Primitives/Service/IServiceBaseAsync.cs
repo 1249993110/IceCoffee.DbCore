@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using IceCoffee.DbCore.Primitives.Dto;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace IceCoffee.DbCore.Primitives.Service
 {
-    public partial interface IServiceBase<TDto> : IServiceBase
+    public partial interface IServiceBase<TDto> : IServiceBase where TDto : IDtoBase
     {
         /// <summary>
         /// 添加数据
@@ -15,11 +16,6 @@ namespace IceCoffee.DbCore.Primitives.Service
         /// 删除数据
         /// </summary>
         Task<int> RemoveAsync(TDto dto);
-
-        /// <summary>
-        /// 删除全部数据
-        /// </summary>
-        Task<int> RemoveAllAsync();
 
         /// <summary>
         /// 获取全部数据

@@ -16,8 +16,8 @@ namespace IceCoffee.DbCore.Primitives.Repository
             Debug.Assert(dbConnectionInfo.DatabaseType == DatabaseType.SQLite, "数据库类型不匹配");
         }
 
-        public override IEnumerable<TEntity> QueryPaged(int pageNumber, int rowsPerPage,
-            string whereBy = null, string orderby = null, object param = null)
+        protected override IEnumerable<AnyEntity> QueryPaged<AnyEntity>(int pageIndex, int pageSize,
+            string whereBy = null, string orderBy = null, object param = null, string tableName = null)
         {
             throw new NotImplementedException();
         }

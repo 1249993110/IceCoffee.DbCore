@@ -26,11 +26,6 @@ namespace IceCoffee.DbCore.Primitives.Service
             return await Repository.DeleteAsync(DtoToEntity(dto));
         }
         
-        public virtual async Task<int> RemoveAllAsync()
-        {
-            return await Repository.DeleteAllAsync();
-        }
-        
         public virtual async Task<List<TDto>> GetAllAsync(string orderBy = null)
         {
             List<TDto> dtos = new List<TDto>();

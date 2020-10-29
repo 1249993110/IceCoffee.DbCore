@@ -52,14 +52,14 @@ namespace IceCoffee.DbCore.Primitives.Service
             Repository.Insert(entity);
             return EntityToDto(entity);
         }
-        public virtual List<TDto> AddBatch(IEnumerable<TDto> dtos)
+        public virtual List<TDto> AddBatch(IEnumerable<TDto> dtos, bool useTransaction = false)
         {
             List<TEntity> entities = DtoToEntity(dtos);
             foreach (var entity in entities)
             {
                 entity.Init();
             }
-            Repository.InsertBatch(entities);
+            Repository.InsertBatch(entities, useTransaction);
             return EntityToDto(entities);
         }
         public virtual int RemoveAny(string whereBy, object param = null, bool useTransaction = false)
@@ -72,14 +72,14 @@ namespace IceCoffee.DbCore.Primitives.Service
             return Repository.Delete(DtoToEntity(dto));
         }
         
-        public virtual int RemoveById<TId>(TId id, string idColumnName)
+        public virtual int RemoveById<TId>(string idColumnName, TId id)
         {
-            return Repository.DeleteById(id, idColumnName);
+            return Repository.DeleteById(idColumnName, id);
         }
         
-        public virtual List<TDto> GetById<TId>(TId id, string idColumnName)
+        public virtual List<TDto> GetById<TId>(string idColumnName, TId id)
         {
-            return EntityToDto(Repository.QueryById(id, idColumnName));
+            return EntityToDto(Repository.QueryById(idColumnName, id));
         }
         
         public virtual List<TDto> GetAll(string orderBy = null)
@@ -102,9 +102,9 @@ namespace IceCoffee.DbCore.Primitives.Service
             return Repository.Update(DtoToEntity(dto));
         }
         
-        public virtual int UpdateById<TId>(TDto dto, TId id, string idColumnName)
+        public virtual int UpdateById(string idColumnName, TDto dto)
         {
-            return Repository.UpdateById(DtoToEntity(dto), id, idColumnName);
+            return Repository.UpdateById(idColumnName, DtoToEntity(dto));
         }
         #endregion 默认实现
 

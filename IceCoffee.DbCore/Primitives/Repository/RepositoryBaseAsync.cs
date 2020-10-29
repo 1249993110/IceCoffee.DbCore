@@ -12,9 +12,9 @@ namespace IceCoffee.DbCore.Primitives.Repository
         {
             return await Task.Run(() => { return Insert(entity); });
         }
-        public async Task<int> InsertBatchAsync(IEnumerable<TEntity> entities)
+        public async Task<int> InsertBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false)
         {
-            return await Task.Run(() => { return InsertBatch(entities); });
+            return await Task.Run(() => { return InsertBatch(entities, useTransaction); });
         }
         #endregion Insert
 
@@ -30,55 +30,50 @@ namespace IceCoffee.DbCore.Primitives.Repository
             return await Task.Run(() => { return Delete(entity); });
         }
         
-        public async Task<int> DeleteBatchAsync(IEnumerable<TEntity> entities)
+        public async Task<int> DeleteBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false)
         {
-            return await Task.Run(() => { return DeleteBatch(entities); });
+            return await Task.Run(() => { return DeleteBatch(entities, useTransaction); });
         }
         
-        public async Task<int> DeleteByIdAsync<TId>(TId id, string idColumnName)
+        public async Task<int> DeleteByIdAsync<TId>(string idColumnName, TId id)
         {
-            return await Task.Run(() => { return DeleteById(id, idColumnName); });
+            return await Task.Run(() => { return DeleteById(idColumnName, id); });
         }
         
-        public async Task<int> DeleteBatchByIdsAsync<TId>(IEnumerable<TId> ids, string idColumnName)
+        public async Task<int> DeleteBatchByIdsAsync<TId>(string idColumnName, IEnumerable<TId> ids, bool useTransaction = false)
         {
-            return await Task.Run(() => { return DeleteBatchByIds(ids, idColumnName); });
-        }
-        
-        public async Task<int> DeleteAllAsync()
-        {
-            return await Task.Run(() => { return DeleteAll(); });
+            return await Task.Run(() => { return DeleteBatchByIds(idColumnName, ids, useTransaction); });
         }
         #endregion Delete
 
         #region Query
         
-        public async Task<IEnumerable<TEntity>> QueryAnyAsync(string columnNames, string whereBy, string orderby, object param = null)
+        public async Task<IEnumerable<TEntity>> QueryAnyAsync(string columnNames, string whereBy = null, string orderBy = null, object param = null)
         {
-            return await Task.Run(() => { return QueryAny(columnNames, whereBy, orderby, param); });
+            return await Task.Run(() => { return QueryAny(columnNames, whereBy, orderBy, param); });
         }
         
-        public async Task<IEnumerable<TEntity>> QueryAllAsync(string orderby = null)
+        public async Task<IEnumerable<TEntity>> QueryAllAsync(string orderBy = null)
         {
-            return await Task.Run(() => { return QueryAll(orderby); });
+            return await Task.Run(() => { return QueryAll(orderBy); });
         }
         
-        public async Task<IEnumerable<TEntity>> QueryByIdAsync<TId>(TId id, string idColumnName)
+        public async Task<IEnumerable<TEntity>> QueryByIdAsync<TId>(string idColumnName, TId id)
         {
-            return await Task.Run(() => { return QueryById(id, idColumnName); });
+            return await Task.Run(() => { return QueryById(idColumnName, id); });
         }
         
-        public async Task<IEnumerable<TEntity>> QueryByIdsAsync<TId>(IEnumerable<TId> ids, string idColumnName)
+        public async Task<IEnumerable<TEntity>> QueryByIdsAsync<TId>(string idColumnName, IEnumerable<TId> ids)
         {
-            return await Task.Run(() => { return QueryByIds(ids, idColumnName); });
+            return await Task.Run(() => { return QueryByIds(idColumnName, ids); });
         }
         
-        public async Task<IEnumerable<TEntity>> QueryPagedAsync(int pageNumber, int rowsPerPage,
-            string whereBy = null, string orderby = null, object param = null)
+        public async Task<IEnumerable<TEntity>> QueryPagedAsync(int pageIndex, int pageSize,
+            string whereBy = null, string orderBy = null, object param = null)
         {
             return await Task.Run(() =>
             {
-                return QueryPaged(pageNumber, rowsPerPage, whereBy, orderby, param);
+                return QueryPaged(pageIndex, pageSize, whereBy, orderBy, param);
             });
         }
         
@@ -99,19 +94,19 @@ namespace IceCoffee.DbCore.Primitives.Repository
             return await Task.Run(() => { return Update(entity); });
         }
         
-        public async Task<int> UpdateBatchAsync(IEnumerable<TEntity> entities)
+        public async Task<int> UpdateBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false)
         {
-            return await Task.Run(() => { return UpdateBatch(entities); });
+            return await Task.Run(() => { return UpdateBatch(entities, useTransaction); });
         }
         
-        public async Task<int> UpdateByIdAsync<TId>(TEntity entity, TId id, string idColumnName)
+        public async Task<int> UpdateByIdAsync(string idColumnName, TEntity entity)
         {
-            return await Task.Run(() => { return UpdateById(entity, id, idColumnName); });
+            return await Task.Run(() => { return UpdateById(idColumnName, entity); });
         }
         
-        public async Task<int> UpdateColumnByIdAsync<TId, TValue>(TId id, TValue value, string idColumnName, string valueColumnName)
+        public async Task<int> UpdateColumnByIdAsync<TId, TValue>(string idColumnName, TId id, string valueColumnName, TValue value)
         {
-            return await Task.Run(() => { return UpdateColumnById(id, value, idColumnName, valueColumnName); });
+            return await Task.Run(() => { return UpdateColumnById(idColumnName, id, valueColumnName, value); });
         }
         #endregion Update
     }

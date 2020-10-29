@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using IceCoffee.DbCore.Primitives.Dto;
+using System.Collections.Generic;
 
 namespace IceCoffee.DbCore.Primitives.Service
 {
@@ -6,7 +7,7 @@ namespace IceCoffee.DbCore.Primitives.Service
     {
     }
 
-    public partial interface IServiceBase<TDto> : IServiceBase
+    public partial interface IServiceBase<TDto> : IServiceBase where TDto : IDtoBase
     {
         /// <summary>
         /// 添加数据
@@ -18,8 +19,9 @@ namespace IceCoffee.DbCore.Primitives.Service
         /// 批量添加数据
         /// </summary>
         /// <param name="dtos"></param>
+        /// <param name="useTransaction"></param>
         /// <returns></returns>
-        List<TDto> AddBatch(IEnumerable<TDto> dtos);
+        List<TDto> AddBatch(IEnumerable<TDto> dtos, bool useTransaction = false);
 
         /// <summary>
         /// 根据条件和匿名对象删除任意数据
@@ -39,19 +41,19 @@ namespace IceCoffee.DbCore.Primitives.Service
         /// 通过ID删除数据
         /// </summary>
         /// <typeparam name="TId"></typeparam>
-        /// <param name="id"></param>
         /// <param name="idColumnName"></param>
+        /// <param name="id"></param>
         /// <returns></returns>
-        int RemoveById<TId>(TId id, string idColumnName);
+        int RemoveById<TId>(string idColumnName, TId id);
 
         /// <summary>
         /// 通过ID获取数据
         /// </summary>
         /// <typeparam name="TId"></typeparam>
-        /// <param name="id"></param>
         /// <param name="idColumnName"></param>
+        /// <param name="id"></param>
         /// <returns></returns>
-        List<TDto> GetById<TId>(TId id, string idColumnName);
+        List<TDto> GetById<TId>(string idColumnName, TId id);
 
         /// <summary>
         /// 获取全部数据
@@ -87,10 +89,8 @@ namespace IceCoffee.DbCore.Primitives.Service
         /// <summary>
         /// 更新数据
         /// </summary>
-        /// <typeparam name="TId"></typeparam>
-        /// <param name="dto"></param>
-        /// <param name="id"></param>
         /// <param name="idColumnName"></param>
-        int UpdateById<TId>(TDto dto, TId id, string idColumnName);
+        /// <param name="dto"></param>
+        int UpdateById(string idColumnName, TDto dto);
     }
 }

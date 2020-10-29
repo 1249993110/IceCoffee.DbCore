@@ -23,8 +23,9 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// 插入多条记录
         /// </summary>
         /// <param name="entities"></param>
+        /// <param name="useTransaction"></param>
         /// <returns></returns>
-        Task<int> InsertBatchAsync(IEnumerable<TEntity> entities);
+        Task<int> InsertBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false);
 
         #endregion Insert
 
@@ -50,32 +51,28 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// 通过默认主键删除多条记录
         /// </summary>
         /// <param name="entities"></param>
+        /// <param name="useTransaction"></param>
         /// <returns></returns>
-        Task<int> DeleteBatchAsync(IEnumerable<TEntity> entities);
+        Task<int> DeleteBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false);
 
         /// <summary>
         /// 通过ID删除记录
         /// </summary>
         /// <typeparam name="TId"></typeparam>
-        /// <param name="id"></param>
         /// <param name="idColumnName"></param>
+        /// <param name="id"></param>
         /// <returns></returns>
-        Task<int> DeleteByIdAsync<TId>(TId id, string idColumnName);
+        Task<int> DeleteByIdAsync<TId>(string idColumnName, TId id);
 
         /// <summary>
         /// 通过多个ID删除多条记录
         /// </summary>
         /// <typeparam name="TId"></typeparam>
-        /// <param name="ids"></param>
         /// <param name="idColumnName"></param>
+        /// <param name="ids"></param>
+        /// <param name="useTransaction"></param>
         /// <returns></returns>
-        Task<int> DeleteBatchByIdsAsync<TId>(IEnumerable<TId> ids, string idColumnName);
-
-        /// <summary>
-        /// 删除关联表的所有记录
-        /// </summary>
-        /// <returns></returns>
-        Task<int> DeleteAllAsync();
+        Task<int> DeleteBatchByIdsAsync<TId>(string idColumnName, IEnumerable<TId> ids, bool useTransaction = false);
 
         #endregion Delete
 
@@ -86,45 +83,45 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// </summary>
         /// <param name="columnNames"></param>
         /// <param name="whereBy"></param>
-        /// <param name="orderby"></param>
+        /// <param name="orderBy"></param>
         /// <param name="param"></param>
         /// <returns></returns>
-        Task<IEnumerable<TEntity>> QueryAnyAsync(string columnNames, string whereBy, string orderby, object param = null);
+        Task<IEnumerable<TEntity>> QueryAnyAsync(string columnNames, string whereBy = null, string orderBy = null, object param = null);
 
         /// <summary>
         /// 查询关联表的所有记录
         /// </summary>
         /// <returns></returns>
-        Task<IEnumerable<TEntity>> QueryAllAsync(string orderby = null);
+        Task<IEnumerable<TEntity>> QueryAllAsync(string orderBy = null);
 
         /// <summary>
         /// 通过ID获取记录
         /// </summary>
         /// <typeparam name="TId"></typeparam>
-        /// <param name="id"></param>
         /// <param name="idColumnName"></param>
+        /// <param name="id"></param>
         /// <returns></returns>
-        Task<IEnumerable<TEntity>> QueryByIdAsync<TId>(TId id, string idColumnName);
+        Task<IEnumerable<TEntity>> QueryByIdAsync<TId>(string idColumnName, TId id);
 
         /// <summary>
         /// 通过多个ID获取记录
         /// </summary>
         /// <typeparam name="TId"></typeparam>
-        /// <param name="ids"></param>
         /// <param name="idColumnName"></param>
+        /// <param name="ids"></param>
         /// <returns></returns>
-        Task<IEnumerable<TEntity>> QueryByIdsAsync<TId>(IEnumerable<TId> ids, string idColumnName);
+        Task<IEnumerable<TEntity>> QueryByIdsAsync<TId>(string idColumnName, IEnumerable<TId> ids);
 
         /// <summary>
         /// 获取与条件匹配的所有记录的分页列表
         /// </summary>
-        /// <param name="pageNumber">页码</param>
-        /// <param name="rowsPerPage">每页数量</param>
+        /// <param name="pageIndex">页码</param>
+        /// <param name="pageSize">每页数量</param>
         /// <param name="whereBy">where条件字符串</param>
-        /// <param name="orderby">顺序字符串</param>
+        /// <param name="orderBy">顺序字符串</param>
         /// <param name="param">带参数的匿名对象</param>
         /// <returns></returns>
-        Task<IEnumerable<TEntity>> QueryPagedAsync(int pageNumber, int rowsPerPage, string whereBy = null, string orderby = null, object param = null);
+        Task<IEnumerable<TEntity>> QueryPagedAsync(int pageIndex, int pageSize, string whereBy = null, string orderBy = null, object param = null);
 
         /// <summary>
         /// 获取与条件匹配的所有记录的计数
@@ -159,30 +156,29 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// 通过默认主键更新多条记录
         /// </summary>
         /// <param name="entities"></param>
+        /// <param name="useTransaction"></param>
         /// <returns></returns>
-        Task<int> UpdateBatchAsync(IEnumerable<TEntity> entities);
+        Task<int> UpdateBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false);
 
         /// <summary>
         /// 通过ID更新记录
         /// </summary>
-        /// <typeparam name="TId"></typeparam>
-        /// <param name="entity"></param>
-        /// <param name="id"></param>
         /// <param name="idColumnName"></param>
+        /// <param name="entity"></param>
         /// <returns></returns>
-        Task<int> UpdateByIdAsync<TId>(TEntity entity, TId id, string idColumnName);
+        Task<int> UpdateByIdAsync(string idColumnName, TEntity entity);
 
         /// <summary>
         /// 通过ID更新记录的一列
         /// </summary>
         /// <typeparam name="TId"></typeparam>
         /// <typeparam name="TValue"></typeparam>
-        /// <param name="id"></param>
-        /// <param name="value"></param>
         /// <param name="idColumnName"></param>
+        /// <param name="id"></param>
         /// <param name="valueColumnName"></param>
+        /// <param name="value"></param>
         /// <returns></returns>
-        Task<int> UpdateColumnByIdAsync<TId, TValue>(TId id, TValue value, string idColumnName, string valueColumnName);
+        Task<int> UpdateColumnByIdAsync<TId, TValue>(string idColumnName, TId id, string valueColumnName, TValue value);
 
         #endregion Update
     }
