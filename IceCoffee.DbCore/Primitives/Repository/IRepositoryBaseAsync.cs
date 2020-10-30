@@ -86,7 +86,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <param name="orderBy"></param>
         /// <param name="param"></param>
         /// <returns></returns>
-        Task<IEnumerable<TEntity>> QueryAnyAsync(string columnNames, string whereBy = null, string orderBy = null, object param = null);
+        Task<IEnumerable<TEntity>> QueryAnyAsync(string columnNames = null, string whereBy = null, string orderBy = null, object param = null);
 
         /// <summary>
         /// 查询关联表的所有记录

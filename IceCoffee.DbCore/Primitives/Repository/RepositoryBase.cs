@@ -156,22 +156,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
                     DbConnectionFactory.CollectDbConnectionToPool(conn);
                 }
             }
-        }
-
-        /// <summary>
-        /// 获取与条件匹配的所有记录的分页列表
-        /// 默认使用 typeof(AnyEntity).Name 作为表名
-        /// </summary>
-        /// <typeparam name="AnyEntity"></typeparam>
-        /// <param name="pageIndex"></param>
-        /// <param name="pageSize"></param>
-        /// <param name="whereBy"></param>
-        /// <param name="orderBy"></param>
-        /// <param name="param"></param>
-        /// <returns></returns>
-        protected abstract IEnumerable<AnyEntity> QueryPaged<AnyEntity>(int pageIndex, int pageSize,
-           string whereBy = null, string orderBy = null, object param = null, string tableName = null);
-
+        }        
     }
 
     /// <summary>
@@ -225,17 +210,22 @@ namespace IceCoffee.DbCore.Primitives.Repository
             
             IEnumerable<PropertyInfo> keyPropInfos = properties.Where(p => p.GetCustomAttribute<PrimaryKeyAttribute>(true) != null);
 
-            Debug.Assert(keyPropInfos.Any(), "必须定义主键PrimaryKey特性");
-
             StringBuilder keyNameWhereByBuilder = new StringBuilder();
             List<string> _keyNames = new List<string>();
             foreach (var item in keyPropInfos)
             {
-                string _keyName = item.GetCustomAttribute<ColumnAttribute>(true)?.Name;
-                if(_keyName == null)
+                string _keyName = null;
+                var attribute = item.GetCustomAttribute<ColumnAttribute>(true);
+
+                if(attribute == null)
                 {
                     _keyName = item.Name;
                 }
+                else
+                {
+                    _keyName = attribute.Name;
+                }
+
                 _keyNames.Add(_keyName);
                 //"{1}=@{1} AND {2}=@{2}"
                 keyNameWhereByBuilder.AppendFormat("{0}=@{0} AND ", _keyName);
@@ -372,9 +362,9 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
         #region Query
         [CatchException("查询任意数据异常")]
-        public virtual IEnumerable<TEntity> QueryAny(string columnNames, string whereBy = null, string orderBy = null, object param = null)
+        public virtual IEnumerable<TEntity> QueryAny(string columnNames = null, string whereBy = null, string orderBy = null, object param = null)
         {
-            string sql = string.Format("SELECT {0} FROM {1} {2} {3}", columnNames, TableName, 
+            string sql = string.Format("SELECT {0} FROM {1} {2} {3}", columnNames ?? "*", TableName, 
                 whereBy == null ? string.Empty : "WHERE " + whereBy, 
                 orderBy == null ? string.Empty : "ORDER BY " + orderBy);
             return Query(sql, param);
@@ -406,12 +396,8 @@ namespace IceCoffee.DbCore.Primitives.Repository
             return ExecuteScalar<long>(sql, param);
         }
 
-        [CatchException("获取与条件匹配的所有记录的分页列表异常")]
-        public virtual IEnumerable<TEntity> QueryPaged(int pageIndex, int pageSize,
-           string whereBy = null, string orderBy = null, object param = null)
-        {
-            return QueryPaged<TEntity>(pageIndex, pageSize, whereBy, string.Join(",", KeyNames), param, TableName);
-        }
+        public abstract IEnumerable<TEntity> QueryPaged(int pageIndex, int pageSize,
+           string whereBy = null, string orderBy = null, object param = null);
 
         #endregion Query
 
@@ -448,5 +434,11 @@ namespace IceCoffee.DbCore.Primitives.Repository
         }
 
         #endregion Update
+
+        public abstract int ReplaceInto(TEntity entity, bool useLock = false);
+
+        public abstract int ReplaceIntoBatch(IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false);
+
+        public abstract int InsertIgnoreBatch(IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false);
     }
 }

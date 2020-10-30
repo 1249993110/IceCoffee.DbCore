@@ -87,7 +87,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <param name="orderBy"></param>
         /// <param name="param"></param>
         /// <returns></returns>
-        IEnumerable<TEntity> QueryAny(string columnNames, string whereBy = null, string orderBy = null, object param = null);
+        IEnumerable<TEntity> QueryAny(string columnNames = null, string whereBy = null, string orderBy = null, object param = null);
 
         /// <summary>
         /// 查询关联表的所有记录
@@ -184,5 +184,32 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
         #endregion Update
 
+        /// <summary>
+        /// 插入或更新一条记录
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="useLock"></param>
+        /// <returns></returns>
+        int ReplaceInto(TEntity entity, bool useLock = false);
+
+        /// <summary>
+        /// 插入或更新多条记录
+        /// 先尝试更新如结果为 0，则进行批量插入
+        /// </summary>
+        /// <param name="entities"></param>
+        /// <param name="useTransaction"></param>
+        /// <param name="useLock"></param>
+        /// <returns></returns>
+        int ReplaceIntoBatch(IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false);
+
+        /// <summary>
+        /// 插入多条记录，忽略已经存在的冲突记录
+        /// 先通过主键过滤已存在再批量插入
+        /// </summary>
+        /// <param name="entities"></param>
+        /// <param name="useTransaction"></param>
+        /// <param name="useLock"></param>
+        /// <returns></returns>
+        int InsertIgnoreBatch(IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false);
     }
 }

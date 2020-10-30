@@ -8,6 +8,10 @@ namespace IceCoffee.DbCore.ExceptionCatch
     /// </summary>
     public class DbException : CustomExceptionBase
     {
+        public DbException(string message) : base(message)
+        {
+        }
+
         public DbException(string message, Exception innerException) : base(message, innerException)
         {
         }

@@ -48,7 +48,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
         #region Query
         
-        public async Task<IEnumerable<TEntity>> QueryAnyAsync(string columnNames, string whereBy = null, string orderBy = null, object param = null)
+        public async Task<IEnumerable<TEntity>> QueryAnyAsync(string columnNames = null, string whereBy = null, string orderBy = null, object param = null)
         {
             return await Task.Run(() => { return QueryAny(columnNames, whereBy, orderBy, param); });
         }
