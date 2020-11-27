@@ -17,23 +17,15 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <summary>
         /// 插入或更新sql语句
         /// </summary>
-        public const string ReplaceInto_Statement = 
-@"IF EXISTS(SELECT 1 FROM {0} {1} WHERE {2})
-BEGIN
-    UPDATE {0} SET {3} WHERE {2}
-End
-ELSE
-BEGIN
-    {4}
-END";
+        public const string ReplaceInto_Statement = "IF EXISTS(SELECT 1 FROM {0} {1} WHERE {2}) BEGIN UPDATE {0} SET {3} WHERE {2} End ELSE BEGIN {4} END";
         /// <summary>
         /// 插入或忽略sql语句
         /// </summary>
-        public const string InsertIgnore_Statement =
-@"IF NO EXISTS(SELECT 1 FROM {0} {1} WHERE {2})
-BEGIN
-{3}
-END";
+        public const string InsertIgnore_Statement = "IF NOT EXISTS(SELECT 1 FROM {0} {1} WHERE {2}) BEGIN {3} END";
+        /// <summary>
+        /// 使用锁sql语句
+        /// </summary>
+        public const string UseLock_Statement = "WITH (UPDLOCK,SERIALIZABLE)";
 
         public SqlServerRepository(DbConnectionInfo dbConnectionInfo) : base(dbConnectionInfo)
         {
@@ -60,7 +52,7 @@ END";
         public override int ReplaceInto(TEntity entity, bool useLock = false)
         {
             return Execute(string.Format(ReplaceInto_Statement, TableName, 
-                useLock ? "WITH (UPDLOCK,SERIALIZABLE)" : string.Empty,
+                useLock ? UseLock_Statement : string.Empty,
                 KeyNameWhereBy, UpdateSet_Statement, Insert_Statement_Fixed), entity);
         }
 
@@ -68,7 +60,7 @@ END";
         public override int ReplaceIntoBatch(IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false)
         {
             return Execute(string.Format(ReplaceInto_Statement, TableName,
-                useLock ? "WITH (UPDLOCK,SERIALIZABLE)" : string.Empty,
+                useLock ? UseLock_Statement : string.Empty,
                 KeyNameWhereBy, UpdateSet_Statement, Insert_Statement_Fixed), entities, useTransaction);
         }
 
@@ -76,7 +68,7 @@ END";
         public override int InsertIgnoreBatch(IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false)
         {
             return Execute(string.Format(InsertIgnore_Statement, TableName,
-                useLock ? "WITH (UPDLOCK,SERIALIZABLE)" : string.Empty, 
+                useLock ? UseLock_Statement : string.Empty, 
                 KeyNameWhereBy, Insert_Statement_Fixed), entities, useTransaction);
         }
     }

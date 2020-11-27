@@ -1,4 +1,5 @@
 ﻿using IceCoffee.DbCore.Domain;
+using System;
 using System.Collections.Concurrent;
 using System.Data;
 using System.Data.Common;
@@ -9,18 +10,21 @@ using System.Diagnostics;
 namespace IceCoffee.DbCore
 {
     /// <summary>
-    /// 数据库连接工厂
+    /// 数据库连接工厂，为每一个连接串建立一个连接池
     /// </summary>
     public static class DbConnectionFactory
     {
         /// <summary>
         /// 连接池字典
         /// </summary>
-        private static readonly ConcurrentDictionary<string, DbConnectionPool> connectionPoolDict;
+        private static readonly ConcurrentDictionary<string, DbConnectionPool> _connectionPoolDict;
+
+        private static Func<string, DbProviderFactory, DbConnectionPool> _dbConnectionPoolGenerator;
 
         static DbConnectionFactory()
         {
-            connectionPoolDict = new ConcurrentDictionary<string, DbConnectionPool>();
+            _connectionPoolDict = new ConcurrentDictionary<string, DbConnectionPool>();
+            _dbConnectionPoolGenerator = (connStr, factory) => new DbConnectionPool(connStr, factory);
         }
 
         private static DbProviderFactory GetProvider(DatabaseType databaseType)
@@ -43,48 +47,68 @@ namespace IceCoffee.DbCore
                     break;
 
                 default:
-                    Debug.Assert(false, "未定义的数据库类型");
-                    break;
+                    throw new ExceptionCatch.DbException("未定义的数据库类型");
             }
             return factory;
         }
 
         /// <summary>
+        /// 覆盖数据库连接池生成器
+        /// </summary>
+        /// <param name="func"></param>
+        public static void OverrideDbConnectionPoolGenerator(Func<string, DbProviderFactory, DbConnectionPool> func)
+        {
+            _dbConnectionPoolGenerator = func;
+        }
+
+        /// <summary>
         /// 根据连接信息获取静态连接池
         /// </summary>
-        /// <param name="connectionString"></param>
+        /// <param name="dbConnectionInfo"></param>
         /// <returns></returns>
         public static DbConnectionPool GetDbConnectionPool(DbConnectionInfo dbConnectionInfo)
         {
             string connStr = dbConnectionInfo.ConnectionString;
-            if (connectionPoolDict.TryGetValue(connStr, out DbConnectionPool pool))
+            if (_connectionPoolDict.TryGetValue(connStr, out DbConnectionPool pool))
             {
                 return pool;
             }
             else
             {
-                DbConnectionPool newPool = new DbConnectionPool(connStr, GetProvider(dbConnectionInfo.DatabaseType));
-                connectionPoolDict.TryAdd(connStr, newPool);
+                DbConnectionPool newPool = _dbConnectionPoolGenerator(connStr, GetProvider(dbConnectionInfo.DatabaseType));
+                _connectionPoolDict.TryAdd(connStr, newPool);
 
                 return newPool;
             }
         }
 
         /// <summary>
+        /// 清理所有Pool
+        /// </summary>
+        public static void ClearAll()
+        {
+            foreach (var item in _connectionPoolDict)
+            {
+                item.Value.Dispose();
+            }
+            _connectionPoolDict.Clear();
+        }
+
+        /// <summary>
         /// 从连接池中获得一个数据库连接
         /// </summary>
         /// <returns></returns>
-        internal static IDbConnection GetConnectionFromPool(DbConnectionInfo dbConnectionInfo)
+        public static IDbConnection GetConnectionFromPool(DbConnectionInfo dbConnectionInfo)
         {
             string connStr = dbConnectionInfo.ConnectionString;
-            if (connectionPoolDict.TryGetValue(connStr, out DbConnectionPool pool))
+            if (_connectionPoolDict.TryGetValue(connStr, out DbConnectionPool pool))
             {
                 return pool.Take();
             }
             else
             {
-                DbConnectionPool newPool = new DbConnectionPool(connStr, GetProvider(dbConnectionInfo.DatabaseType));
-                connectionPoolDict.TryAdd(connStr, newPool);
+                DbConnectionPool newPool = _dbConnectionPoolGenerator(connStr, GetProvider(dbConnectionInfo.DatabaseType));
+                _connectionPoolDict.TryAdd(connStr, newPool);
 
                 return newPool.Take();
             }
@@ -93,9 +117,9 @@ namespace IceCoffee.DbCore
         /// <summary>
         /// 回收数据库连接到连接池
         /// </summary>
-        internal static void CollectDbConnectionToPool(IDbConnection dbConnection)
+        public static void CollectDbConnectionToPool(IDbConnection dbConnection)
         {
-            if (connectionPoolDict.TryGetValue(dbConnection.ConnectionString, out DbConnectionPool pool))
+            if (_connectionPoolDict.TryGetValue(dbConnection.ConnectionString, out DbConnectionPool pool))
             {
                 if (pool.Put(dbConnection))
                 {

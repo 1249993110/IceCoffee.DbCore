@@ -7,7 +7,7 @@ namespace IceCoffee.DbCore.Domain
     /// <summary>
     /// 数据库连接信息
     /// </summary>
-    public sealed class DbConnectionInfo
+    public class DbConnectionInfo
     {
         /// <summary>
         /// 连接串

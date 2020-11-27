@@ -27,7 +27,12 @@ namespace IceCoffee.DbCore.UnitWork
         /// </summary>
         bool IsExplicitSubmit { get; }
 
-        IDbConnection DbConnection { get; set; }
+        /// <summary>
+        /// 从挂起状态回滚事务
+        /// </summary>
+        void Rollback();
+
+        IDbConnection DbConnection { get; }
 
         IDbTransaction DbTransaction { get; }
     }

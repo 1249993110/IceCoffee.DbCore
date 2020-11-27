@@ -13,7 +13,7 @@ namespace IceCoffee.DbCore.UnitWork
 
         public bool IsExplicitSubmit => _isExplicitSubmit;
 
-        public IDbConnection DbConnection { get => _dbConnection; set => _dbConnection = value; }
+        public IDbConnection DbConnection => _dbConnection;
 
         public IDbTransaction DbTransaction => _dbTransaction;
 
@@ -34,10 +34,29 @@ namespace IceCoffee.DbCore.UnitWork
             if (_isExplicitSubmit == true)
             {
                 _isExplicitSubmit = false;
-                _dbTransaction.Commit();
 
-                _dbConnection = null;
+                _dbTransaction.Commit();
+                _dbTransaction.Dispose();
                 _dbTransaction = null;
+
+                DbConnectionFactory.CollectDbConnectionToPool(_dbConnection);
+                _dbConnection = null;
+            }
+        }
+
+        public virtual void Rollback()
+        {
+            // 防止多次执行
+            if (_isExplicitSubmit == true)
+            {
+                _isExplicitSubmit = false;
+
+                _dbTransaction.Rollback();
+                _dbTransaction.Dispose();
+                _dbTransaction = null;
+
+                DbConnectionFactory.CollectDbConnectionToPool(_dbConnection);
+                _dbConnection = null;
             }
         }
     }

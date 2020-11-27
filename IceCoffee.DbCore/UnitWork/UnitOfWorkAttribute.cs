@@ -53,12 +53,7 @@ namespace IceCoffee.DbCore.UnitWork
         {
             args.FlowBehavior = FlowBehavior.RethrowException;
 
-            _unitOfWork.DbTransaction.Rollback();
-        }
-
-        public override void OnExit(MethodExecutionArgs args)
-        {
-            DbConnectionFactory.CollectDbConnectionToPool(_dbConnection);
+            _unitOfWork.Rollback();
         }
     }
 }

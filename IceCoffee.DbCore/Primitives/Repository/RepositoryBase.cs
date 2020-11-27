@@ -205,99 +205,104 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
         static RepositoryBase()
         {
-            PropertyInfo[] properties = typeof(TEntity).GetProperties(BindingFlags.Instance | BindingFlags.Public)
+            try
+            {
+                PropertyInfo[] properties = typeof(TEntity).GetProperties(BindingFlags.Instance | BindingFlags.Public)
                 .Where(p => p.GetCustomAttribute<NotMappedAttribute>(true) == null).ToArray();
-            
-            IEnumerable<PropertyInfo> keyPropInfos = properties.Where(p => p.GetCustomAttribute<PrimaryKeyAttribute>(true) != null);
 
-            StringBuilder keyNameWhereByBuilder = new StringBuilder();
-            List<string> _keyNames = new List<string>();
-            foreach (var item in keyPropInfos)
-            {
-                string _keyName = null;
-                var attribute = item.GetCustomAttribute<ColumnAttribute>(true);
+                IEnumerable<PropertyInfo> keyPropInfos = properties.Where(p => p.GetCustomAttribute<PrimaryKeyAttribute>(true) != null);
 
-                if(attribute == null)
+                if (keyPropInfos.Any())
                 {
-                    _keyName = item.Name;
+                    StringBuilder keyNameWhereByBuilder = new StringBuilder();
+                    List<string> _keyNames = new List<string>();
+                    foreach (var item in keyPropInfos)
+                    {
+                        string _keyName = null;
+                        var attribute = item.GetCustomAttribute<ColumnAttribute>(true);
+
+                        if (attribute == null)
+                        {
+                            _keyName = item.Name;
+                        }
+                        else
+                        {
+                            _keyName = attribute.Name;
+                        }
+
+                        _keyNames.Add(_keyName);
+                        //"{1}=@{1} AND {2}=@{2}"
+                        keyNameWhereByBuilder.AppendFormat("{0}=@{0} AND ", _keyName);
+                    }
+                    keyNameWhereByBuilder.Remove(keyNameWhereByBuilder.Length - 5, 5);
+
+                    KeyNames = _keyNames.ToArray();
+                    KeyNameWhereBy = keyNameWhereByBuilder.ToString();
                 }
-                else
+
+                TableName = typeof(TEntity).GetCustomAttribute<TableAttribute>(true)?.Name;
+                TableName = TableName ?? typeof(TEntity).Name;
+
+                StringBuilder stringBuilder1 = new StringBuilder();
+                StringBuilder stringBuilder2 = new StringBuilder();
+                StringBuilder stringBuilder3 = new StringBuilder();
+                StringBuilder stringBuilder4 = new StringBuilder();
+
+                foreach (PropertyInfo prop in properties)
                 {
-                    _keyName = attribute.Name;
+                    string propertyName = prop.Name;
+                    string columnName;
+
+                    ColumnAttribute columnAttribute = prop.GetCustomAttribute<ColumnAttribute>(true);
+                    columnName = columnAttribute != null ? columnAttribute.Name : prop.Name;
+
+                    // 过滤定义了IgnoreInsert特性的属性
+                    if (prop.GetCustomAttribute<IgnoreInsertAttribute>(true) == null)
+                    {
+                        stringBuilder1.AppendFormat("{0},", columnName);
+                        stringBuilder2.AppendFormat("@{0},", propertyName);
+                    }
+                    // 过滤定义了IgnoreSelect特性的属性
+                    if (prop.GetCustomAttribute<IgnoreSelectAttribute>(true) == null)
+                    {
+                        stringBuilder3.AppendFormat("{0},", columnName);
+                    }
+                    // 过滤定义了IgnoreUpdate特性的属性
+                    if (prop.GetCustomAttribute<IgnoreUpdateAttribute>(true) == null)
+                    {
+                        stringBuilder4.AppendFormat("{0}=@{1},", columnName, propertyName);
+                    }
                 }
 
-                _keyNames.Add(_keyName);
-                //"{1}=@{1} AND {2}=@{2}"
-                keyNameWhereByBuilder.AppendFormat("{0}=@{0} AND ", _keyName);
-            }
-            keyNameWhereByBuilder.Remove(keyNameWhereByBuilder.Length - 5, 5);
+                Insert_Statement_Fixed = string.Format("INSERT INTO {0} ({1}) VALUES({2})", TableName,
+                    stringBuilder1.Remove(stringBuilder1.Length - 1, 1).ToString(),
+                    stringBuilder2.Remove(stringBuilder2.Length - 1, 1).ToString());
+                Select_Statement = stringBuilder3.Remove(stringBuilder3.Length - 1, 1).ToString();
+                UpdateSet_Statement = stringBuilder4.Remove(stringBuilder4.Length - 1, 1).ToString();
 
-            KeyNames = _keyNames.ToArray();
-            KeyNameWhereBy = keyNameWhereByBuilder.ToString();
-
-            TableName = typeof(TEntity).GetCustomAttribute<TableAttribute>(true)?.Name;
-            TableName = TableName ?? typeof(TEntity).Name;
-            
-            StringBuilder stringBuilder1 = new StringBuilder();
-            StringBuilder stringBuilder2 = new StringBuilder();
-            StringBuilder stringBuilder3 = new StringBuilder();
-            StringBuilder stringBuilder4 = new StringBuilder();
-
-            foreach (PropertyInfo prop in properties)
-            {
-                string propertyName = prop.Name;
-                string columnName;
-
-                ColumnAttribute columnAttribute = prop.GetCustomAttribute<ColumnAttribute>(true);
-                columnName = columnAttribute != null ? columnAttribute.Name : prop.Name;
-
-                // 过滤定义了IgnoreInsert特性的属性
-                if (prop.GetCustomAttribute<IgnoreInsertAttribute>(true) == null)
-                {
-                    stringBuilder1.AppendFormat("{0},", columnName);
-                    stringBuilder2.AppendFormat("@{0},", propertyName);
-                }
-                // 过滤定义了IgnoreSelect特性的属性
-                if (prop.GetCustomAttribute<IgnoreSelectAttribute>(true) == null)
-                {
-                    stringBuilder3.AppendFormat("{0},", columnName);
-                }
-                // 过滤定义了IgnoreUpdate特性的属性
-                if (prop.GetCustomAttribute<IgnoreUpdateAttribute>(true) == null)
-                {
-                    stringBuilder4.AppendFormat("{0}=@{1},", columnName, propertyName);
-                }
-            }
-
-            Debug.Assert(stringBuilder1.Length > 0
-                && stringBuilder2.Length > 0
-                && stringBuilder3.Length > 0
-                && stringBuilder4.Length > 0, "实体应存在CURD属性");
-
-            Insert_Statement_Fixed = string.Format("INSERT INTO {0} ({1}) VALUES({2})", TableName,
-                stringBuilder1.Remove(stringBuilder1.Length - 1, 1).ToString(),
-                stringBuilder2.Remove(stringBuilder2.Length - 1, 1).ToString());
-            Select_Statement = stringBuilder3.Remove(stringBuilder3.Length - 1, 1).ToString();
-            UpdateSet_Statement = stringBuilder4.Remove(stringBuilder4.Length - 1, 1).ToString();
-
-            var propertyMap = new CustomPropertyTypeMap(typeof(TEntity),
-                (type, columnName) =>
-                {
+                var propertyMap = new CustomPropertyTypeMap(typeof(TEntity),
+                    (type, columnName) =>
+                    {
                     // 过滤定义了Column特性的属性
                     var result = properties.FirstOrDefault(prop => prop
-                        .GetCustomAttributes(false)
-                        .OfType<ColumnAttribute>()
-                        .Any(attr => attr.Name == columnName));
-                    if (result != null)
-                    {
-                        return result;
-                    }
+                            .GetCustomAttributes(false)
+                            .OfType<ColumnAttribute>()
+                            .Any(attr => attr.Name == columnName));
+                        if (result != null)
+                        {
+                            return result;
+                        }
                     // Column特性为空则返回默认对应列名的属性
                     return properties.FirstOrDefault(prop => prop.Name == columnName);
-                }
-            );
+                    }
+                );
 
-            SqlMapper.SetTypeMap(typeof(TEntity), propertyMap);
+                SqlMapper.SetTypeMap(typeof(TEntity), propertyMap);
+            }
+            catch (Exception ex)
+            {
+                throw new DbException("初始化实体映射异常", ex);
+            }
         }
 
         public RepositoryBase(DbConnectionInfo dbConnectionInfo) : base(dbConnectionInfo)
