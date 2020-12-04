@@ -1,4 +1,5 @@
 ﻿using IceCoffee.DbCore.Domain;
+using IceCoffee.DbCore.ExceptionCatch;
 using System.Data;
 
 namespace IceCoffee.DbCore.UnitWork
@@ -19,18 +20,22 @@ namespace IceCoffee.DbCore.UnitWork
 
         public virtual void EnterContext(DbConnectionInfo dbConnectionInfo)
         {
-            // 防止多次执行
+            // 防止多次执行或跨线程使用
             if (_isExplicitSubmit == false)
             {
                 _isExplicitSubmit = true;
                 _dbConnection = DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
                 _dbTransaction = _dbConnection.BeginTransaction();
             }
+            else
+            {
+                throw new DbException(string.Format("多次执行 {0} 或 跨线程使用工作单元", nameof(EnterContext)));
+            }
         }
 
         public virtual void SaveChanges()
         {
-            // 防止多次执行
+            // 防止多次执行或跨线程使用
             if (_isExplicitSubmit == true)
             {
                 _isExplicitSubmit = false;
@@ -42,11 +47,15 @@ namespace IceCoffee.DbCore.UnitWork
                 DbConnectionFactory.CollectDbConnectionToPool(_dbConnection);
                 _dbConnection = null;
             }
+            else
+            {
+                throw new DbException(string.Format("多次执行 {0} 或 跨线程使用工作单元", nameof(SaveChanges)));
+            }
         }
 
         public virtual void Rollback()
         {
-            // 防止多次执行
+            // 防止多次执行或跨线程使用
             if (_isExplicitSubmit == true)
             {
                 _isExplicitSubmit = false;
@@ -57,6 +66,10 @@ namespace IceCoffee.DbCore.UnitWork
 
                 DbConnectionFactory.CollectDbConnectionToPool(_dbConnection);
                 _dbConnection = null;
+            }
+            else
+            {
+                throw new DbException(string.Format("多次执行 {0} 或 跨线程使用工作单元", nameof(Rollback)));
             }
         }
     }

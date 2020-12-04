@@ -28,7 +28,6 @@ namespace IceCoffee.DbCore.Primitives.Service
         
         public virtual async Task<List<TDto>> GetAllAsync(string orderBy = null)
         {
-            List<TDto> dtos = new List<TDto>();
             var entities = await Repository.QueryAllAsync(orderBy);
             return EntityToDto(entities);
         }

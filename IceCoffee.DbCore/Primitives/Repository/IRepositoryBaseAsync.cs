@@ -181,5 +181,33 @@ namespace IceCoffee.DbCore.Primitives.Repository
         Task<int> UpdateColumnByIdAsync<TId, TValue>(string idColumnName, TId id, string valueColumnName, TValue value);
 
         #endregion Update
+
+        /// <summary>
+        /// 插入或更新一条记录
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="useLock"></param>
+        /// <returns></returns>
+        Task<int> ReplaceIntoAsync(TEntity entity, bool useLock = false);
+
+        /// <summary>
+        /// 插入或更新多条记录
+        /// 先尝试更新，如结果为 0，则进行批量插入
+        /// </summary>
+        /// <param name="entities"></param>
+        /// <param name="useTransaction"></param>
+        /// <param name="useLock"></param>
+        /// <returns></returns>
+        Task<int> ReplaceIntoBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false);
+
+        /// <summary>
+        /// 插入多条记录，忽略已经存在的冲突记录
+        /// 先通过主键过滤已存在再批量插入
+        /// </summary>
+        /// <param name="entities"></param>
+        /// <param name="useTransaction"></param>
+        /// <param name="useLock"></param>
+        /// <returns></returns>
+        Task<int> InsertIgnoreBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false);
     }
 }

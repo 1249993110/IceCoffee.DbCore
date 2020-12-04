@@ -194,7 +194,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
         /// <summary>
         /// 插入或更新多条记录
-        /// 先尝试更新如结果为 0，则进行批量插入
+        /// 先尝试更新，如结果为 0，则进行批量插入
         /// </summary>
         /// <param name="entities"></param>
         /// <param name="useTransaction"></param>

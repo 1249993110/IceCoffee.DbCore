@@ -12,7 +12,7 @@ namespace IceCoffee.DbCore.Primitives.Entity
         /// </summary>
         public virtual object Init()
         {
-            return null;
+            return this;
         }
 
         /// <summary>

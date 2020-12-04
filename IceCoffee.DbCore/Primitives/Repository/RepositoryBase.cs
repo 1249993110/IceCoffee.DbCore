@@ -12,6 +12,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace IceCoffee.DbCore.Primitives.Repository
 {
@@ -81,6 +82,42 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 }
             }
         }
+        protected virtual async Task<int> ExecuteAsync(string sql, object param = null, bool useTransaction = false)
+        {
+            IUnitOfWork unitOfWork = UnitOfWork;
+            IDbConnection conn = null;
+            IDbTransaction tran = null;
+
+            try
+            {
+                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
+                tran = unitOfWork.DbTransaction ?? (useTransaction ? conn.BeginTransaction() : null);
+
+                int result = await conn.ExecuteAsync(sql, param, tran, commandType: CommandType.Text);
+
+                if (useTransaction && unitOfWork.IsExplicitSubmit == false)
+                {
+                    tran.Commit();
+                }
+
+                return result;
+            }
+            catch
+            {
+                if (useTransaction && unitOfWork.IsExplicitSubmit == false)
+                {
+                    tran.Rollback();
+                }
+                throw;
+            }
+            finally
+            {
+                if (conn != null && unitOfWork.IsExplicitSubmit == false)
+                {
+                    DbConnectionFactory.CollectDbConnectionToPool(conn);
+                }
+            }
+        }
 
         protected virtual TReturn ExecuteScalar<TReturn>(string sql, object param = null, bool useTransaction = false)
         {
@@ -107,8 +144,33 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 }
             }
         }
+        protected virtual async Task<TReturn> ExecuteScalarAsync<TReturn>(string sql, object param = null, bool useTransaction = false)
+        {
+            IUnitOfWork unitOfWork = UnitOfWork;
+            IDbConnection conn = null;
 
-        protected virtual IEnumerable<AnyEntity> QueryAny<AnyEntity>(string sql, object param = null)
+            try
+            {
+                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
+
+                TReturn result = await conn.ExecuteScalarAsync<TReturn>(sql, param, commandType: CommandType.Text);
+
+                return result;
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                if (conn != null && unitOfWork.IsExplicitSubmit == false)
+                {
+                    DbConnectionFactory.CollectDbConnectionToPool(conn);
+                }
+            }
+        }
+        
+        protected virtual IEnumerable<AnyEntity> Query<AnyEntity>(string sql, object param = null)
         {
             IUnitOfWork unitOfWork = UnitOfWork;
             IDbConnection conn = null;
@@ -131,7 +193,30 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 }
             }
         }
-
+        protected virtual async Task<IEnumerable<AnyEntity>> QueryAsync<AnyEntity>(string sql, object param = null)
+        {
+            IUnitOfWork unitOfWork = UnitOfWork;
+            IDbConnection conn = null;
+            IDbTransaction tran = null;
+            try
+            {
+                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
+                tran = unitOfWork.DbTransaction;
+                return await conn.QueryAsync<AnyEntity>(sql, param, tran, commandType: CommandType.Text);
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                if (conn != null && unitOfWork.IsExplicitSubmit == false)
+                {
+                    DbConnectionFactory.CollectDbConnectionToPool(conn);
+                }
+            }
+        }
+        
         protected virtual IEnumerable<TReturn> ExecProcedure<TReturn>(string procName, DynamicParameters parameters)
         {
             IUnitOfWork unitOfWork = UnitOfWork;
@@ -156,7 +241,32 @@ namespace IceCoffee.DbCore.Primitives.Repository
                     DbConnectionFactory.CollectDbConnectionToPool(conn);
                 }
             }
-        }        
+        }
+        protected virtual async Task<IEnumerable<TReturn>> ExecProcedureAsync<TReturn>(string procName, DynamicParameters parameters)
+        {
+            IUnitOfWork unitOfWork = UnitOfWork;
+            IDbConnection conn = null;
+            IDbTransaction tran = null;
+            try
+            {
+                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
+                tran = unitOfWork.DbTransaction;
+
+                return await conn.QueryAsync<TReturn>(new CommandDefinition(commandText: procName, parameters: parameters,
+                    transaction: tran, commandType: CommandType.StoredProcedure));
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                if (conn != null && unitOfWork.IsExplicitSubmit == false)
+                {
+                    DbConnectionFactory.CollectDbConnectionToPool(conn);
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -311,12 +421,10 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
         #endregion 构造
 
+        /// <summary>
+        /// 工作单元
+        /// </summary>
         new public virtual IUnitOfWork UnitOfWork => RepositoryBase.UnitOfWork;
-
-        protected virtual IEnumerable<TEntity> Query(string sql, object param = null)
-        {
-            return QueryAny<TEntity>(sql, param);
-        }
 
         #region Insert
         [CatchException("插入数据异常")]
@@ -372,26 +480,26 @@ namespace IceCoffee.DbCore.Primitives.Repository
             string sql = string.Format("SELECT {0} FROM {1} {2} {3}", columnNames ?? "*", TableName, 
                 whereBy == null ? string.Empty : "WHERE " + whereBy, 
                 orderBy == null ? string.Empty : "ORDER BY " + orderBy);
-            return Query(sql, param);
+            return Query<TEntity>(sql, param);
         }
         [CatchException("查询所有数据异常")]
         public virtual IEnumerable<TEntity> QueryAll(string orderBy = null)
         {
             string sql = string.Format("SELECT {0} FROM {1} {2}", Select_Statement, TableName, 
                 orderBy == null ? string.Empty : "ORDER BY " + orderBy);
-            return Query(sql, null);
+            return Query<TEntity>(sql, null);
         }
         [CatchException("通过Id查询数据异常")]
         public virtual IEnumerable<TEntity> QueryById<TId>(string idColumnName, TId id)
         {
             string sql = string.Format("SELECT {0} FROM {1} WHERE {2}=@Id", Select_Statement, TableName, idColumnName);
-            return Query(sql, new { Id = id });
+            return Query<TEntity>(sql, new { Id = id });
         }
         [CatchException("通过Id批量查询数据异常")]
         public virtual IEnumerable<TEntity> QueryByIds<TId>(string idColumnName, IEnumerable<TId> ids)
         {
             string sql = string.Format("SELECT {0} FROM {1} WHERE {2} IN @Ids", Select_Statement, TableName, idColumnName);
-            return Query(sql, new { Ids = ids });
+            return Query<TEntity>(sql, new { Ids = ids });
         }
 
         [CatchException("获取记录条数异常")]
