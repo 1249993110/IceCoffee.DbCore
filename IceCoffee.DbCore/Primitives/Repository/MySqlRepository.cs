@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 namespace IceCoffee.DbCore.Primitives.Repository
 {
     /// <summary>
-    /// SQLite数据库仓储
+    /// MySql数据库仓储
     /// </summary>
-    public class SQLiteRepository<TEntity> : RepositoryBase<TEntity> where TEntity : EntityBase
+    public class MySqlRepository<TEntity> : RepositoryBase<TEntity> where TEntity : EntityBase
     {
-        public SQLiteRepository(DbConnectionInfo dbConnectionInfo) : base(dbConnectionInfo)
+        public MySqlRepository(DbConnectionInfo dbConnectionInfo) : base(dbConnectionInfo)
         {
-            if (dbConnectionInfo.DatabaseType != DatabaseType.SQLite)
+            if (dbConnectionInfo.DatabaseType != DatabaseType.MySQL)
             {
                 throw new DbCoreException("数据库类型不匹配");
             }
@@ -77,4 +77,5 @@ namespace IceCoffee.DbCore.Primitives.Repository
         }
         #endregion
     }
+
 }

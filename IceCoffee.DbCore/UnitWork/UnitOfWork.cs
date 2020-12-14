@@ -29,7 +29,7 @@ namespace IceCoffee.DbCore.UnitWork
             }
             else
             {
-                throw new DbException(string.Format("多次执行 {0} 或 跨线程使用工作单元", nameof(EnterContext)));
+                throw new DbCoreException(string.Format("多次执行 {0} 或 跨线程使用工作单元", nameof(EnterContext)));
             }
         }
 
@@ -49,7 +49,7 @@ namespace IceCoffee.DbCore.UnitWork
             }
             else
             {
-                throw new DbException(string.Format("多次执行 {0} 或 跨线程使用工作单元", nameof(SaveChanges)));
+                throw new DbCoreException(string.Format("多次执行 {0} 或 跨线程使用工作单元", nameof(SaveChanges)));
             }
         }
 
@@ -69,7 +69,7 @@ namespace IceCoffee.DbCore.UnitWork
             }
             else
             {
-                throw new DbException(string.Format("多次执行 {0} 或 跨线程使用工作单元", nameof(Rollback)));
+                throw new DbCoreException(string.Format("多次执行 {0} 或 跨线程使用工作单元", nameof(Rollback)));
             }
         }
     }

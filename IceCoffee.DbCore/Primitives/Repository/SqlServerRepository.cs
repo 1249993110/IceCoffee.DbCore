@@ -32,7 +32,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         {
             if(dbConnectionInfo.DatabaseType != DatabaseType.SQLServer)
             {
-                throw new DbException("数据库类型不匹配");
+                throw new DbCoreException("数据库类型不匹配");
             }
         }
 

@@ -7,7 +7,7 @@ using System.Linq;
 namespace IceCoffee.DbCore.ExceptionCatch
 {
     /// <summary>
-    /// 捕获仓储层异常
+    /// 捕获数据库核心驱动层异常
     /// </summary>
     [Serializable]
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
@@ -29,7 +29,7 @@ namespace IceCoffee.DbCore.ExceptionCatch
 
         public override void OnException(MethodExecutionArgs args)
         {
-            throw new DbException(ErrorMessage, args.Exception);
+            throw new DbCoreException(ErrorMessage, args.Exception);
         }
     }
 }

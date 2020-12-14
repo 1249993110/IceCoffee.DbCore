@@ -170,7 +170,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
             }
         }
         
-        protected virtual IEnumerable<AnyEntity> Query<AnyEntity>(string sql, object param = null)
+        protected virtual IEnumerable<TEntity> Query<TEntity>(string sql, object param = null)
         {
             IUnitOfWork unitOfWork = UnitOfWork;
             IDbConnection conn = null;
@@ -179,7 +179,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
             {
                 conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
                 tran = unitOfWork.DbTransaction;
-                return conn.Query<AnyEntity>(sql, param, tran, commandType: CommandType.Text);
+                return conn.Query<TEntity>(sql, param, tran, commandType: CommandType.Text);
             }
             catch
             {
@@ -193,7 +193,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 }
             }
         }
-        protected virtual async Task<IEnumerable<AnyEntity>> QueryAsync<AnyEntity>(string sql, object param = null)
+        protected virtual async Task<IEnumerable<TEntity>> QueryAsync<TEntity>(string sql, object param = null)
         {
             IUnitOfWork unitOfWork = UnitOfWork;
             IDbConnection conn = null;
@@ -202,7 +202,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
             {
                 conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
                 tran = unitOfWork.DbTransaction;
-                return await conn.QueryAsync<AnyEntity>(sql, param, tran, commandType: CommandType.Text);
+                return await conn.QueryAsync<TEntity>(sql, param, tran, commandType: CommandType.Text);
             }
             catch
             {
@@ -411,7 +411,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
             }
             catch (Exception ex)
             {
-                throw new DbException("初始化实体映射异常", ex);
+                throw new DbCoreException("初始化实体映射异常", ex);
             }
         }
 
