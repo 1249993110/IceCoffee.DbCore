@@ -37,7 +37,16 @@ namespace IceCoffee.DbCore.Primitives.Repository
         }
 
         #region Sync
-
+        /// <summary>
+        /// 获取与条件匹配的所有记录的分页列表
+        /// 此实现仅在 Sql Server 2012 及以上版本可用
+        /// </summary>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="whereBy"></param>
+        /// <param name="orderBy"></param>
+        /// <param name="param"></param>
+        /// <returns></returns>
         [CatchException("获取与条件匹配的所有记录的分页列表异常")]
         public override IEnumerable<TEntity> QueryPaged(int pageIndex, int pageSize,
             string whereBy = null, string orderBy = null, object param = null)
@@ -77,7 +86,16 @@ namespace IceCoffee.DbCore.Primitives.Repository
         #endregion
 
         #region Async
-
+        /// <summary>
+        /// 获取与条件匹配的所有记录的分页列表
+        /// 此实现仅在 Sql Server 2012 及以上版本可用
+        /// </summary>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="whereBy"></param>
+        /// <param name="orderBy"></param>
+        /// <param name="param"></param>
+        /// <returns></returns>
         [CatchException("获取与条件匹配的所有记录的分页列表异常")]
         public override async Task<IEnumerable<TEntity>> QueryPagedAsync(int pageIndex, int pageSize,
             string whereBy = null, string orderBy = null, object param = null)
