@@ -15,7 +15,7 @@ namespace IceCoffee.DbCore.Primitives.Entity
         /// 创建日期
         /// </summary>
         [IgnoreUpdate, IgnoreInsert]
-        public DateTime? CreatedDate { get; set; }
+        public DateTime CreatedDate { get; set; }
 
         /// <summary>
         /// 初始化，默认不生成主键，不生成创建日期，应由数据库生成

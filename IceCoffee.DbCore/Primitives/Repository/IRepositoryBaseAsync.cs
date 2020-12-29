@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace IceCoffee.DbCore.Primitives.Repository
 {
     /// <summary>
-    /// 使用Task.Run的执行异步操作
+    /// 使用 Task 执行异步操作
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
     public partial interface IRepositoryBase<TEntity> where TEntity : IEntity

@@ -18,7 +18,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <summary>
         /// 插入或更新sql语句
         /// </summary>
-        public const string ReplaceInto_Statement = "IF EXISTS(SELECT 1 FROM {0} {1} WHERE {2}) BEGIN UPDATE {0} SET {3} WHERE {2} End ELSE BEGIN {4} END";
+        public const string ReplaceInto_Statement = "IF EXISTS(SELECT 1 FROM {0} {1} WHERE {2}) BEGIN UPDATE {0} SET {3} WHERE {2} END ELSE BEGIN {4} END";
         /// <summary>
         /// 插入或忽略sql语句
         /// </summary>

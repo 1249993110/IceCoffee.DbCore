@@ -318,7 +318,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
             try
             {
                 PropertyInfo[] properties = typeof(TEntity).GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                .Where(p => p.GetCustomAttribute<NotMappedAttribute>(true) == null).ToArray();
+                    .Where(p => p.GetCustomAttribute<NotMappedAttribute>(true) == null).ToArray();
 
                 IEnumerable<PropertyInfo> keyPropInfos = properties.Where(p => p.GetCustomAttribute<PrimaryKeyAttribute>(true) != null);
 
