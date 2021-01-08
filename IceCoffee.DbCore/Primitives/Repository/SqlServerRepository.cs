@@ -16,18 +16,26 @@ namespace IceCoffee.DbCore.Primitives.Repository
     public class SqlServerRepository<TEntity> : RepositoryBase<TEntity> where TEntity : EntityBase
     {
         /// <summary>
-        /// 插入或更新sql语句
+        /// 分页查询 SQL 语句
+        /// </summary>
+        public const string QueryPaged_Statement = "SELECT * FROM {0} {1} ORDER BY {2} OFFSET {3} ROWS FETCH NEXT {4} ROWS ONLY";
+        /// <summary>
+        /// 插入或更新 SQL 语句
         /// </summary>
         public const string ReplaceInto_Statement = "IF EXISTS(SELECT 1 FROM {0} {1} WHERE {2}) BEGIN UPDATE {0} SET {3} WHERE {2} END ELSE BEGIN {4} END";
         /// <summary>
-        /// 插入或忽略sql语句
+        /// 插入或忽略 SQL 语句
         /// </summary>
         public const string InsertIgnore_Statement = "IF NOT EXISTS(SELECT 1 FROM {0} {1} WHERE {2}) BEGIN {3} END";
         /// <summary>
-        /// 使用锁sql语句
+        /// 使用锁 SQL 语句
         /// </summary>
         public const string UseLock_Statement = "WITH (UPDLOCK,SERIALIZABLE)";
 
+        /// <summary>
+        /// 实例化 SqlServerRepository
+        /// </summary>
+        /// <param name="dbConnectionInfo"></param>
         public SqlServerRepository(DbConnectionInfo dbConnectionInfo) : base(dbConnectionInfo)
         {
             if(dbConnectionInfo.DatabaseType != DatabaseType.SQLServer)
@@ -51,7 +59,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         public override IEnumerable<TEntity> QueryPaged(int pageIndex, int pageSize,
             string whereBy = null, string orderBy = null, object param = null)
         {
-            string sql = string.Format("SELECT * FROM {0} {1} ORDER BY {2} OFFSET {3} ROWS FETCH NEXT {4} ROWS ONLY",
+            string sql = string.Format(QueryPaged_Statement,
                 TableName,
                 whereBy == null ? string.Empty : "WHERE " + whereBy,
                 orderBy ?? (KeyNames.Length == 0 ? "1" : string.Join(",", KeyNames)),
@@ -60,6 +68,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
             return base.Query<TEntity>(sql, param);
         }
 
+        /// <inheritdoc />
         [CatchException("插入或更新一条记录异常")]
         public override int ReplaceInto(TEntity entity, bool useLock = false)
         {
@@ -67,7 +76,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 useLock ? UseLock_Statement : string.Empty,
                 KeyNameWhereBy, UpdateSet_Statement, Insert_Statement_Fixed), entity);
         }
-
+        /// <inheritdoc />
         [CatchException("插入或更新多条记录异常")]
         public override int ReplaceIntoBatch(IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false)
         {
@@ -75,7 +84,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 useLock ? UseLock_Statement : string.Empty,
                 KeyNameWhereBy, UpdateSet_Statement, Insert_Statement_Fixed), entities, useTransaction);
         }
-
+        /// <inheritdoc />
         [CatchException("插入多条记录异常")]
         public override int InsertIgnoreBatch(IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false)
         {
@@ -100,7 +109,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         public override async Task<IEnumerable<TEntity>> QueryPagedAsync(int pageIndex, int pageSize,
             string whereBy = null, string orderBy = null, object param = null)
         {
-            string sql = string.Format("SELECT * FROM {0} {1} ORDER BY {2} OFFSET {3} ROWS FETCH NEXT {4} ROWS ONLY",
+            string sql = string.Format(QueryPaged_Statement,
                 TableName,
                 whereBy == null ? string.Empty : "WHERE " + whereBy,
                 orderBy ?? (KeyNames.Length == 0 ? "1" : string.Join(",", KeyNames)),
@@ -108,7 +117,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 pageSize);
             return await base.QueryAsync<TEntity>(sql, param);
         }
-
+        /// <inheritdoc />
         [CatchException("插入或更新一条记录异常")]
         public override async Task<int> ReplaceIntoAsync(TEntity entity, bool useLock = false)
         {
@@ -116,7 +125,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 useLock ? UseLock_Statement : string.Empty,
                 KeyNameWhereBy, UpdateSet_Statement, Insert_Statement_Fixed), entity);
         }
-
+        /// <inheritdoc />
         [CatchException("插入或更新多条记录异常")]
         public override async Task<int> ReplaceIntoBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false)
         {
@@ -124,7 +133,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 useLock ? UseLock_Statement : string.Empty,
                 KeyNameWhereBy, UpdateSet_Statement, Insert_Statement_Fixed), entities, useTransaction);
         }
-
+        /// <inheritdoc />
         [CatchException("插入多条记录异常")]
         public override async Task<int> InsertIgnoreBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false)
         {

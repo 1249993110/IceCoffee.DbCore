@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace IceCoffee.DbCore.Primitives.Dto
 {
+    /// <summary>
+    /// 数据传输对象接口
+    /// </summary>
     public interface IDtoBase
     {
     }

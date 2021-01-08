@@ -32,8 +32,13 @@ namespace IceCoffee.DbCore.UnitWork
         /// </summary>
         void Rollback();
 
+        /// <summary>
+        /// DbConnection
+        /// </summary>
         IDbConnection DbConnection { get; }
-
+        /// <summary>
+        /// DbTransaction
+        /// </summary>
         IDbTransaction DbTransaction { get; }
     }
 }

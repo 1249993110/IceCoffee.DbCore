@@ -38,7 +38,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <param name="param"></param>
         /// <param name="useTransaction"></param>
         /// <returns></returns>
-        Task<int> DeleteAnyAsync(string whereBy, object param = null, bool useTransaction = false);
+        Task<int> DeleteAsync(string whereBy, object param = null, bool useTransaction = false);
 
         /// <summary>
         /// 通过默认主键删除记录
@@ -81,12 +81,11 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <summary>
         /// 通过条件、顺序字符串和匿名对象执行任意查询语句
         /// </summary>
-        /// <param name="columnNames"></param>
         /// <param name="whereBy"></param>
         /// <param name="orderBy"></param>
         /// <param name="param"></param>
         /// <returns></returns>
-        Task<IEnumerable<TEntity>> QueryAnyAsync(string columnNames = null, string whereBy = null, string orderBy = null, object param = null);
+        Task<IEnumerable<TEntity>> QueryAsync(string whereBy = null, string orderBy = null, object param = null);
 
         /// <summary>
         /// 查询关联表的所有记录
@@ -143,7 +142,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <param name="param"></param>
         /// <param name="useTransaction"></param>
         /// <returns></returns>
-        Task<int> UpdateAnyAsync(string setClause, string whereBy, object param, bool useTransaction = false);
+        Task<int> UpdateAsync(string setClause, string whereBy, object param, bool useTransaction = false);
 
         /// <summary>
         /// 通过默认主键更新记录

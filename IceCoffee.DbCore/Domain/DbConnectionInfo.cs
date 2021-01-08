@@ -57,19 +57,15 @@ namespace IceCoffee.DbCore.Domain
         }
 #endif
 
+        /// <summary>
+        /// 实例化 DbConnectionInfo
+        /// </summary>
+        /// <param name="connectionString"></param>
+        /// <param name="databaseType"></param>
         public DbConnectionInfo(string connectionString, DatabaseType databaseType)
         {
             ConnectionString = connectionString;
             DatabaseType = databaseType;
-        }
-
-        /// <summary>
-        /// 从连接信息得到一个数据库连接
-        /// </summary>
-        /// <returns></returns>
-        public IDbConnection GetDbConnection()
-        {
-            return DbConnectionFactory.GetConnectionFromPool(this);
         }
     }
 }

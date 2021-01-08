@@ -3,6 +3,9 @@ using System;
 
 namespace IceCoffee.DbCore.Primitives.Entity
 {
+    /// <summary>
+    /// 实体 主键为 GUID 的实现基类
+    /// </summary>
     public abstract class EntityBaseGuid : EntityBase
     {
         /// <summary>

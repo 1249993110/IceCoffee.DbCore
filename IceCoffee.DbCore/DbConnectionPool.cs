@@ -1,10 +1,14 @@
 ﻿using IceCoffee.Common.Pools;
+using IceCoffee.DbCore.ExceptionCatch;
 using System;
 using System.Data;
 using System.Data.Common;
 
 namespace IceCoffee.DbCore
 {
+    /// <summary>
+    /// 数据库连接池
+    /// </summary>
     public class DbConnectionPool : ConnectionPool<IDbConnection>
     {
         private readonly string _connectionString;
@@ -16,6 +20,12 @@ namespace IceCoffee.DbCore
         /// </summary>
         public string ConnectionString => _connectionString;
 
+        /// <summary>
+        /// 实例化数据库连接池
+        /// </summary>
+        /// <param name="connectionString"></param>
+        /// <param name="factory"></param>
+        /// <param name="maxConnectionCount"></param>
         public DbConnectionPool(string connectionString, DbProviderFactory factory, int maxConnectionCount = 1000)
         {
             this._connectionString = connectionString;
@@ -36,7 +46,7 @@ namespace IceCoffee.DbCore
             IdleTime = 60;
             AllIdleTime = 180;
         }
-
+        /// <inheritdoc />
         protected override IDbConnection Create()
         {
             var conn = _factory?.CreateConnection();
@@ -44,7 +54,7 @@ namespace IceCoffee.DbCore
             {
                 var msg = "连接创建失败！请检查驱动是否正常";
 
-                throw new Exception(Name + " " + msg);
+                throw new DbCoreException(Name + " " + msg);
             }
 
             conn.ConnectionString = ConnectionString;

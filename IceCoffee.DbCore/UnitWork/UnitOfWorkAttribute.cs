@@ -22,13 +22,15 @@ namespace IceCoffee.DbCore.UnitWork
         private IUnitOfWork _unitOfWork;
 
         private IDbConnection _dbConnection;
-
+        /// <summary>
+        /// 实例化 UnitOfWorkAttribute
+        /// </summary>
         public UnitOfWorkAttribute()
         {
             // UnitOfWorkAttribute应比CatchExceptionAttribute优先级低
             AspectPriority = 1;
         }
-
+        /// <inheritdoc />
         public override void OnEntry(MethodExecutionArgs args)
         {
             Debug.Assert(args.Method.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) == null, "工作单元无法标记异步方法");
@@ -43,12 +45,12 @@ namespace IceCoffee.DbCore.UnitWork
 
             _dbConnection = _unitOfWork.DbConnection;
         }
-
+        /// <inheritdoc />
         public override void OnSuccess(MethodExecutionArgs args)
         {
             _unitOfWork.SaveChanges();
         }
-
+        /// <inheritdoc />
         public override void OnException(MethodExecutionArgs args)
         {
             args.FlowBehavior = FlowBehavior.RethrowException;

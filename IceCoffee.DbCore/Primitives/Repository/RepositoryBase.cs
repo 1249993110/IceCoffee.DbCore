@@ -16,6 +16,9 @@ using System.Threading.Tasks;
 
 namespace IceCoffee.DbCore.Primitives.Repository
 {
+    /// <summary>
+    /// RepositoryBase
+    /// </summary>
     public abstract class RepositoryBase
     {
         private static ThreadLocal<IUnitOfWork> _unitOfWork;
@@ -37,15 +40,29 @@ namespace IceCoffee.DbCore.Primitives.Repository
             _unitOfWork = new ThreadLocal<IUnitOfWork>(func);
         }
 
+        /// <summary>
+        /// protected dbConnectionInfo
+        /// </summary>
         protected internal readonly DbConnectionInfo dbConnectionInfo;
-
+        /// <summary>
+        /// 实例化 RepositoryBase
+        /// </summary>
+        /// <param name="dbConnectionInfo"></param>
         public RepositoryBase(DbConnectionInfo dbConnectionInfo)
         {
             this.dbConnectionInfo = dbConnectionInfo;
         }
-
+        /// <summary>
+        /// 工作单元
+        /// </summary>
         internal static IUnitOfWork UnitOfWork => _unitOfWork.Value;
-
+        /// <summary>
+        /// 执行参数化 SQL 语句
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="param"></param>
+        /// <param name="useTransaction"></param>
+        /// <returns>受影响的行数</returns>
         protected virtual int Execute(string sql, object param = null, bool useTransaction = false)
         {
             IUnitOfWork unitOfWork = UnitOfWork;
@@ -82,6 +99,13 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 }
             }
         }
+        /// <summary>
+        /// 异步执行参数化 SQL 语句
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <param name="param"></param>
+        /// <param name="useTransaction"></param>
+        /// <returns>受影响的行数</returns>
         protected virtual async Task<int> ExecuteAsync(string sql, object param = null, bool useTransaction = false)
         {
             IUnitOfWork unitOfWork = UnitOfWork;
@@ -118,7 +142,14 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 }
             }
         }
-
+        /// <summary>
+        /// 执行参数化 SQL 语句，选择单个值
+        /// </summary>
+        /// <typeparam name="TReturn"></typeparam>
+        /// <param name="sql"></param>
+        /// <param name="param"></param>
+        /// <param name="useTransaction"></param>
+        /// <returns></returns>
         protected virtual TReturn ExecuteScalar<TReturn>(string sql, object param = null, bool useTransaction = false)
         {
             IUnitOfWork unitOfWork = UnitOfWork;
@@ -144,6 +175,14 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 }
             }
         }
+        /// <summary>
+        /// 异步执行参数化 SQL 语句，选择单个值
+        /// </summary>
+        /// <typeparam name="TReturn"></typeparam>
+        /// <param name="sql"></param>
+        /// <param name="param"></param>
+        /// <param name="useTransaction"></param>
+        /// <returns></returns>
         protected virtual async Task<TReturn> ExecuteScalarAsync<TReturn>(string sql, object param = null, bool useTransaction = false)
         {
             IUnitOfWork unitOfWork = UnitOfWork;
@@ -169,7 +208,13 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 }
             }
         }
-        
+        /// <summary>
+        /// 执行查询语句
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="sql"></param>
+        /// <param name="param"></param>
+        /// <returns></returns>
         protected virtual IEnumerable<TEntity> Query<TEntity>(string sql, object param = null)
         {
             IUnitOfWork unitOfWork = UnitOfWork;
@@ -193,6 +238,13 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 }
             }
         }
+        /// <summary>
+        /// 异步执行查询语句
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="sql"></param>
+        /// <param name="param"></param>
+        /// <returns></returns>
         protected virtual async Task<IEnumerable<TEntity>> QueryAsync<TEntity>(string sql, object param = null)
         {
             IUnitOfWork unitOfWork = UnitOfWork;
@@ -216,7 +268,13 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 }
             }
         }
-        
+        /// <summary>
+        /// 执行存储过程
+        /// </summary>
+        /// <typeparam name="TReturn"></typeparam>
+        /// <param name="procName"></param>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
         protected virtual IEnumerable<TReturn> ExecProcedure<TReturn>(string procName, DynamicParameters parameters)
         {
             IUnitOfWork unitOfWork = UnitOfWork;
@@ -242,6 +300,13 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 }
             }
         }
+        /// <summary>
+        /// 异步执行存储过程
+        /// </summary>
+        /// <typeparam name="TReturn"></typeparam>
+        /// <param name="procName"></param>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
         protected virtual async Task<IEnumerable<TReturn>> ExecProcedureAsync<TReturn>(string procName, DynamicParameters parameters)
         {
             IUnitOfWork unitOfWork = UnitOfWork;
@@ -414,7 +479,10 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 throw new DbCoreException("初始化实体映射异常", ex);
             }
         }
-
+        /// <summary>
+        /// 实例化 RepositoryBase
+        /// </summary>
+        /// <param name="dbConnectionInfo"></param>
         public RepositoryBase(DbConnectionInfo dbConnectionInfo) : base(dbConnectionInfo)
         {
         }
@@ -427,44 +495,51 @@ namespace IceCoffee.DbCore.Primitives.Repository
         new public virtual IUnitOfWork UnitOfWork => RepositoryBase.UnitOfWork;
 
         #region Insert
+        /// <inheritdoc />
         [CatchException("插入数据异常")]
         public virtual int Insert(TEntity entity)
         {
-            return Execute(Insert_Statement_Fixed, entity);
+            return base.Execute(Insert_Statement_Fixed, entity);
         }
+        /// <inheritdoc />
         [CatchException("批量插入数据异常")]
         public virtual int InsertBatch(IEnumerable<TEntity> entities, bool useTransaction = false)
         {
-            return Execute(Insert_Statement_Fixed, entities, useTransaction);
+            return base.Execute(Insert_Statement_Fixed, entities, useTransaction);
         }
 
         #endregion Insert
 
         #region Delete
+        /// <inheritdoc />
         [CatchException("删除任意数据异常")]
-        public virtual int DeleteAny(string whereBy, object param = null, bool useTransaction = false)
+        public virtual int Delete(string whereBy, object param = null, bool useTransaction = false)
         {
             string sql = string.Format("DELETE FROM {0} {1}", TableName, whereBy == null ? string.Empty : "WHERE " + whereBy);
-            return Execute(sql, param, useTransaction);
+            return base.Execute(sql, param, useTransaction);
         }
+        /// <inheritdoc />
         [CatchException("删除数据异常")]
         public virtual int Delete(TEntity entity)
         {
             string sql = string.Format("DELETE FROM {0} WHERE {1}", TableName, KeyNameWhereBy);
-            return Execute(sql, entity);
+            return base.Execute(sql, entity);
         }
+        /// <inheritdoc />
         [CatchException("批量删除数据异常")]
         public virtual int DeleteBatch(IEnumerable<TEntity> entities, bool useTransaction = false)
         {
             string sql = string.Format("DELETE FROM {0} WHERE {1}", TableName, KeyNameWhereBy);
-            return Execute(sql, entities, useTransaction);
+            return base.Execute(sql, entities, useTransaction);
         }
+        /// <inheritdoc />
         [CatchException("通过Id删除数据异常")]
         public virtual int DeleteById<TId>(string idColumnName, TId id)
         {
             string sql = string.Format("DELETE FROM {0} WHERE {1}=@Id", TableName, idColumnName);
-            return Execute(sql, new { Id = id });
+            return base.Execute(sql, new { Id = id });
         }
+        /// <inheritdoc />
         [CatchException("通过Id批量删除数据异常")]
         public virtual int DeleteBatchByIds<TId>(string idColumnName, IEnumerable<TId> ids, bool useTransaction = false)
         {
@@ -474,84 +549,93 @@ namespace IceCoffee.DbCore.Primitives.Repository
         #endregion Delete
 
         #region Query
+        /// <inheritdoc />
         [CatchException("查询任意数据异常")]
-        public virtual IEnumerable<TEntity> QueryAny(string columnNames = null, string whereBy = null, string orderBy = null, object param = null)
+        public virtual IEnumerable<TEntity> Query(string whereBy = null, string orderBy = null, object param = null)
         {
-            string sql = string.Format("SELECT {0} FROM {1} {2} {3}", columnNames ?? "*", TableName, 
+            string sql = string.Format("SELECT * FROM {0} {1} {2}", TableName, 
                 whereBy == null ? string.Empty : "WHERE " + whereBy, 
                 orderBy == null ? string.Empty : "ORDER BY " + orderBy);
-            return Query<TEntity>(sql, param);
+            return base.Query<TEntity>(sql, param);
         }
+        /// <inheritdoc />
         [CatchException("查询所有数据异常")]
         public virtual IEnumerable<TEntity> QueryAll(string orderBy = null)
         {
             string sql = string.Format("SELECT {0} FROM {1} {2}", Select_Statement, TableName, 
                 orderBy == null ? string.Empty : "ORDER BY " + orderBy);
-            return Query<TEntity>(sql, null);
+            return base.Query<TEntity>(sql, null);
         }
+        /// <inheritdoc />
         [CatchException("通过Id查询数据异常")]
         public virtual IEnumerable<TEntity> QueryById<TId>(string idColumnName, TId id)
         {
             string sql = string.Format("SELECT {0} FROM {1} WHERE {2}=@Id", Select_Statement, TableName, idColumnName);
-            return Query<TEntity>(sql, new { Id = id });
+            return base.Query<TEntity>(sql, new { Id = id });
         }
+        /// <inheritdoc />
         [CatchException("通过Id批量查询数据异常")]
         public virtual IEnumerable<TEntity> QueryByIds<TId>(string idColumnName, IEnumerable<TId> ids)
         {
             string sql = string.Format("SELECT {0} FROM {1} WHERE {2} IN @Ids", Select_Statement, TableName, idColumnName);
-            return Query<TEntity>(sql, new { Ids = ids });
+            return base.Query<TEntity>(sql, new { Ids = ids });
         }
-
+        /// <inheritdoc />
         [CatchException("获取记录条数异常")]
         public virtual long QueryRecordCount(string whereBy = null, object param = null)
         {
             string sql = string.Format("SELECT COUNT(*) FROM {0} {1}", TableName, whereBy == null ? string.Empty : "WHERE " + whereBy);
-            return ExecuteScalar<long>(sql, param);
+            return base.ExecuteScalar<long>(sql, param);
         }
-
+        /// <inheritdoc />
         public abstract IEnumerable<TEntity> QueryPaged(int pageIndex, int pageSize,
            string whereBy = null, string orderBy = null, object param = null);
 
         #endregion Query
 
         #region Update
+        /// <inheritdoc />
         [CatchException("更新任意数据异常")]
-        public virtual int UpdateAny(string setClause, string whereBy, object param, bool useTransaction = false)
+        public virtual int Update(string setClause, string whereBy, object param, bool useTransaction = false)
         {
             string sql = string.Format("UPDATE {0} SET {1} {2}", TableName, setClause, whereBy == null ? string.Empty : "WHERE " + whereBy);
-            return Execute(sql, param, useTransaction);
+            return base.Execute(sql, param, useTransaction);
         }
+        /// <inheritdoc />
         [CatchException("更新数据异常")]
         public virtual int Update(TEntity entity)
         {
             string sql = string.Format("UPDATE {0} SET {1} WHERE {2}", TableName, UpdateSet_Statement, KeyNameWhereBy);
-            return Execute(sql, entity);
+            return base.Execute(sql, entity);
         }
+        /// <inheritdoc />
         [CatchException("批量更新意数据异常")]
         public virtual int UpdateBatch(IEnumerable<TEntity> entities, bool useTransaction = false)
         {
             string sql = string.Format("UPDATE {0} SET {1} WHERE {2}", TableName, UpdateSet_Statement, KeyNameWhereBy);
-            return Execute(sql, entities, useTransaction);
+            return base.Execute(sql, entities, useTransaction);
         }
+        /// <inheritdoc />
         [CatchException("通过Id更新数据异常")]
         public virtual int UpdateById(string idColumnName, TEntity entity)
         {
             string sql = string.Format("UPDATE {0} SET {1} WHERE {2}=@{2}", TableName, UpdateSet_Statement, idColumnName);
-            return Execute(sql, entity);
+            return base.Execute(sql, entity);
         }
+        /// <inheritdoc />
         [CatchException("通过Id更新记录的一列异常")]
         public virtual int UpdateColumnById<TId, TValue>(string idColumnName, TId id, string valueColumnName, TValue value)
         {
             string sql = string.Format("UPDATE {0} SET {1}=@Value WHERE {2}=@Id", TableName, valueColumnName, idColumnName);
-            return Execute(sql, new { Id = id, Value = value });
+            return base.Execute(sql, new { Id = id, Value = value });
         }
 
         #endregion Update
-
+        /// <inheritdoc />
         public abstract int ReplaceInto(TEntity entity, bool useLock = false);
-
+        /// <inheritdoc />
         public abstract int ReplaceIntoBatch(IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false);
-
+        /// <inheritdoc />
         public abstract int InsertIgnoreBatch(IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false);
     }
 }

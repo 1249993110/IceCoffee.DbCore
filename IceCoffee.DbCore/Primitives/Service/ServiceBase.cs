@@ -12,10 +12,15 @@ using Mapster;
 
 namespace IceCoffee.DbCore.Primitives.Service
 {
+    /// <summary>
+    /// ServiceBase
+    /// </summary>
     public abstract class ServiceBase
     {
         // protected static IMapper Mapper => EntityDtoMapper.mapper;
-
+        /// <summary>
+        /// 数据库连接信息
+        /// </summary>
         public abstract DbConnectionInfo DbConnectionInfo { get; }
     }
 
@@ -34,9 +39,12 @@ namespace IceCoffee.DbCore.Primitives.Service
         {
             get { return _repository; }
         }
-
+        /// <inheritdoc />
         public override DbConnectionInfo DbConnectionInfo => (_repository as RepositoryBase).dbConnectionInfo;
-
+        /// <summary>
+        /// 实例化 ServiceBase
+        /// </summary>
+        /// <param name="repository"></param>
         public ServiceBase(IRepositoryBase<TEntity> repository)
         {
             _repository = repository;
@@ -45,6 +53,7 @@ namespace IceCoffee.DbCore.Primitives.Service
         #endregion 字段&属性
 
         #region 默认实现
+        /// <inheritdoc />
         public virtual TDto Add(TDto dto)
         {
             TEntity entity = DtoToEntity(dto);
@@ -52,6 +61,7 @@ namespace IceCoffee.DbCore.Primitives.Service
             Repository.Insert(entity);
             return EntityToDto(entity);
         }
+        /// <inheritdoc />
         public virtual List<TDto> AddBatch(IEnumerable<TDto> dtos, bool useTransaction = false)
         {
             List<TEntity> entities = DtoToEntity(dtos);
@@ -62,46 +72,47 @@ namespace IceCoffee.DbCore.Primitives.Service
             Repository.InsertBatch(entities, useTransaction);
             return EntityToDto(entities);
         }
-        public virtual int RemoveAny(string whereBy, object param = null, bool useTransaction = false)
+        /// <inheritdoc />
+        public virtual int Remove(string whereBy, object param = null, bool useTransaction = false)
         {
-            return Repository.DeleteAny(whereBy, param, useTransaction);
+            return Repository.Delete(whereBy, param, useTransaction);
         }
-        
+        /// <inheritdoc />
         public virtual int Remove(TDto dto)
         {
             return Repository.Delete(DtoToEntity(dto));
         }
-        
+        /// <inheritdoc />
         public virtual int RemoveById<TId>(string idColumnName, TId id)
         {
             return Repository.DeleteById(idColumnName, id);
         }
-        
+        /// <inheritdoc />
         public virtual List<TDto> GetById<TId>(string idColumnName, TId id)
         {
             return EntityToDto(Repository.QueryById(idColumnName, id));
         }
-        
+        /// <inheritdoc />
         public virtual List<TDto> GetAll(string orderBy = null)
         {
             return EntityToDto(Repository.QueryAll(orderBy));
         }
-        
+        /// <inheritdoc />
         public virtual long GetRecordCount(string whereBy = null, object param = null)
         {
             return Repository.QueryRecordCount(whereBy, param);
         }
-        
-        public virtual int UpdateAny(string setClause, string whereBy, object param, bool useTransaction = false)
+        /// <inheritdoc />
+        public virtual int Update(string setClause, string whereBy, object param, bool useTransaction = false)
         {
-            return Repository.UpdateAny(setClause, whereBy, param, useTransaction);
+            return Repository.Update(setClause, whereBy, param, useTransaction);
         }
-        
+        /// <inheritdoc />
         public virtual int Update(TDto dto)
         {
             return Repository.Update(DtoToEntity(dto));
         }
-        
+        /// <inheritdoc />
         public virtual int UpdateById(string idColumnName, TDto dto)
         {
             return Repository.UpdateById(idColumnName, DtoToEntity(dto));

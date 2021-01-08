@@ -3,10 +3,16 @@ using System.Collections.Generic;
 
 namespace IceCoffee.DbCore.Primitives.Service
 {
+    /// <summary>
+    /// 服务基础接口
+    /// </summary>
     public interface IServiceBase
     {
     }
-
+    /// <summary>
+    /// 服务模板接口
+    /// </summary>
+    /// <typeparam name="TDto"></typeparam>
     public partial interface IServiceBase<TDto> : IServiceBase where TDto : IDtoBase
     {
         /// <summary>
@@ -30,7 +36,7 @@ namespace IceCoffee.DbCore.Primitives.Service
         /// <param name="param"></param>
         /// <param name="useTransaction"></param>
         /// <returns></returns>
-        int RemoveAny(string whereBy, object param = null, bool useTransaction = false);
+        int Remove(string whereBy, object param = null, bool useTransaction = false);
 
         /// <summary>
         /// 删除数据
@@ -78,7 +84,7 @@ namespace IceCoffee.DbCore.Primitives.Service
         /// <param name="param"></param>
         /// <param name="useTransaction"></param>
         /// <returns></returns>
-        int UpdateAny(string setClause, string whereBy, object param, bool useTransaction = false);
+        int Update(string setClause, string whereBy, object param, bool useTransaction = false);
 
         /// <summary>
         /// 更新数据

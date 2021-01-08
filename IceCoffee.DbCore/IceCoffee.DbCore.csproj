@@ -13,7 +13,7 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <Authors>IceCoffee</Authors>
     <Company>IceCoffee</Company>
-    <Version>1.0.0.17</Version>
+    <Version>1.0.0.19</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -32,8 +32,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="PostSharp.Redist" Version="6.7.11" />
-    <PackageReference Include="PostSharp" Version="6.7.11">
+    <PackageReference Include="PostSharp.Redist" Version="6.8.7" />
+    <PackageReference Include="PostSharp" Version="6.8.7">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Mapster" Version="6.5.0" />

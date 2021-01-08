@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace IceCoffee.DbCore.Primitives.Dto
 {
+    /// <summary>
+    /// 数据传输对象 主键为 int 的实现基类
+    /// </summary>
     public abstract class DtoBaseInt : DtoBase
     {
         /// <summary>

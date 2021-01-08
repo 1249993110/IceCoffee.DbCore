@@ -18,6 +18,10 @@ namespace IceCoffee.DbCore.ExceptionCatch
         /// </summary>
         public string ErrorMessage { get; set; }
 
+        /// <summary>
+        /// 实例化 CatchExceptionAttribute
+        /// </summary>
+        /// <param name="errorMessage"></param>
         public CatchExceptionAttribute(string errorMessage)
         {
             // 确定应用于迭代器或异步方法（编译为状态机）时方面的行为方式
@@ -27,6 +31,7 @@ namespace IceCoffee.DbCore.ExceptionCatch
             ErrorMessage = errorMessage;
         }
 
+        /// <inheritdoc />
         public override void OnException(MethodExecutionArgs args)
         {
             throw new DbCoreException(ErrorMessage, args.Exception);
