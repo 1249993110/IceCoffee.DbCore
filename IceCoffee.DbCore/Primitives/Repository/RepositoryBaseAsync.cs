@@ -25,7 +25,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
         #region Delete
         /// <inheritdoc />
-        [CatchException("删除任意数据异常")]
+        [CatchException("删除数据异常")]
         public virtual async Task<int> DeleteAsync(string whereBy, object param = null, bool useTransaction = false)
         {
             string sql = string.Format("DELETE FROM {0} {1}", TableName, whereBy == null ? string.Empty : "WHERE " + whereBy);
@@ -63,7 +63,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
         #region Query
         /// <inheritdoc />
-        [CatchException("查询任意数据异常")]
+        [CatchException("查询数据异常")]
         public virtual async Task<IEnumerable<TEntity>> QueryAsync(string whereBy = null, string orderBy = null, object param = null)
         {
             string sql = string.Format("SELECT {0} FROM {0} {1} {2}", TableName,
@@ -108,7 +108,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
         #region Update
         /// <inheritdoc />
-        [CatchException("更新任意数据异常")]
+        [CatchException("更新数据异常")]
         public virtual async Task<int> UpdateAsync(string setClause, string whereBy, object param, bool useTransaction = false)
         {
             string sql = string.Format("UPDATE {0} SET {1} {2}", TableName, setClause, whereBy == null ? string.Empty : "WHERE " + whereBy);
@@ -122,7 +122,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
             return await base.ExecuteAsync(sql, entity);
         }
         /// <inheritdoc />
-        [CatchException("批量更新意数据异常")]
+        [CatchException("批量更新数据异常")]
         public virtual async Task<int> UpdateBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false)
         {
             string sql = string.Format("UPDATE {0} SET {1} WHERE {2}", TableName, UpdateSet_Statement, KeyNameWhereBy);

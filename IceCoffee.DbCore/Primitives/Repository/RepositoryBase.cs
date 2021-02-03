@@ -407,8 +407,9 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
                         _keyNames.Add(_keyName);
                         //"{1}=@{1} AND {2}=@{2}"
-                        keyNameWhereByBuilder.AppendFormat("{0}=@{0} AND ", _keyName);
+                        keyNameWhereByBuilder.AppendFormat("{0}=@{1} AND ", _keyName, item.Name);
                     }
+
                     keyNameWhereByBuilder.Remove(keyNameWhereByBuilder.Length - 5, 5);
 
                     KeyNames = _keyNames.ToArray();
@@ -512,7 +513,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
         #region Delete
         /// <inheritdoc />
-        [CatchException("删除任意数据异常")]
+        [CatchException("删除数据异常")]
         public virtual int Delete(string whereBy, object param = null, bool useTransaction = false)
         {
             string sql = string.Format("DELETE FROM {0} {1}", TableName, whereBy == null ? string.Empty : "WHERE " + whereBy);
@@ -550,7 +551,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
         #region Query
         /// <inheritdoc />
-        [CatchException("查询任意数据异常")]
+        [CatchException("查询数据异常")]
         public virtual IEnumerable<TEntity> Query(string whereBy = null, string orderBy = null, object param = null)
         {
             string sql = string.Format("SELECT * FROM {0} {1} {2}", TableName, 
@@ -595,7 +596,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
         #region Update
         /// <inheritdoc />
-        [CatchException("更新任意数据异常")]
+        [CatchException("更新数据异常")]
         public virtual int Update(string setClause, string whereBy, object param, bool useTransaction = false)
         {
             string sql = string.Format("UPDATE {0} SET {1} {2}", TableName, setClause, whereBy == null ? string.Empty : "WHERE " + whereBy);
@@ -609,7 +610,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
             return base.Execute(sql, entity);
         }
         /// <inheritdoc />
-        [CatchException("批量更新意数据异常")]
+        [CatchException("批量更新数据异常")]
         public virtual int UpdateBatch(IEnumerable<TEntity> entities, bool useTransaction = false)
         {
             string sql = string.Format("UPDATE {0} SET {1} WHERE {2}", TableName, UpdateSet_Statement, KeyNameWhereBy);
