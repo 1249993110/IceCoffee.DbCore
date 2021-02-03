@@ -1,6 +1,6 @@
 ﻿using IceCoffee.Common;
 using IceCoffee.DbCore.ExceptionCatch;
-using IceCoffee.DbCore.Domain;
+
 using IceCoffee.DbCore.Primitives.Dto;
 using IceCoffee.DbCore.Primitives.Entity;
 using IceCoffee.DbCore.Primitives.Repository;
@@ -12,25 +12,23 @@ using Mapster;
 
 namespace IceCoffee.DbCore.Primitives.Service
 {
-    /// <summary>
-    /// ServiceBase
-    /// </summary>
     public abstract class ServiceBase
     {
-        // protected static IMapper Mapper => EntityDtoMapper.mapper;
         /// <summary>
-        /// 数据库连接信息
+        /// 默认仓储
         /// </summary>
-        public abstract DbConnectionInfo DbConnectionInfo { get; }
+        internal abstract IRepositoryBase DefaultRepository { get; }
     }
 
     public abstract partial class ServiceBase<TEntity, TDto> : ServiceBase, IServiceBase<TDto>
-        where TDto : DtoBase, new()
-        where TEntity : EntityBase, new()
+        where TDto : class, IDtoBase
+        where TEntity : class, IEntityBase
     {
         #region 字段&属性
 
         private readonly IRepositoryBase<TEntity> _repository;
+
+        internal override IRepositoryBase DefaultRepository => _repository;
 
         /// <summary>
         /// 默认仓储
@@ -39,8 +37,6 @@ namespace IceCoffee.DbCore.Primitives.Service
         {
             get { return _repository; }
         }
-        /// <inheritdoc />
-        public override DbConnectionInfo DbConnectionInfo => (_repository as RepositoryBase).dbConnectionInfo;
         /// <summary>
         /// 实例化 ServiceBase
         /// </summary>

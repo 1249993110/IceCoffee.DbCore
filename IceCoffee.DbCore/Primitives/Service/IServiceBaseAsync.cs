@@ -18,12 +18,6 @@ namespace IceCoffee.DbCore.Primitives.Service
         Task<int> RemoveAsync(TDto dto);
 
         /// <summary>
-        /// 删除所有数据
-        /// </summary>
-        /// <returns></returns>
-        Task<int> RemoveAllAsync();
-
-        /// <summary>
         /// 获取全部数据
         /// </summary>
         /// <param name="orderBy"></param>

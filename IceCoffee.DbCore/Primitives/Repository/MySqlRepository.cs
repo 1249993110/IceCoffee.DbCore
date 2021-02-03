@@ -1,4 +1,4 @@
-﻿using IceCoffee.DbCore.Domain;
+﻿
 using IceCoffee.DbCore.ExceptionCatch;
 using IceCoffee.DbCore.Primitives.Entity;
 using System;
@@ -11,7 +11,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
     /// <summary>
     /// MySql数据库仓储
     /// </summary>
-    public class MySqlRepository<TEntity> : RepositoryBase<TEntity> where TEntity : EntityBase
+    public class MySqlRepository<TEntity> : RepositoryBase<TEntity> where TEntity : IEntityBase
     {
         /// <summary>
         /// 实例化 MySqlRepository

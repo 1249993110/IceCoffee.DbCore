@@ -9,8 +9,8 @@ namespace IceCoffee.DbCore.Primitives.Service
 {
     /// <inheritdoc />
     public abstract partial class ServiceBase<TEntity, TDto> : ServiceBase, IServiceBase<TDto>
-        where TDto : DtoBase, new()
-        where TEntity : EntityBase, new()
+        where TDto : class, IDtoBase
+        where TEntity : class, IEntityBase
     {
         #region 默认实现
         /// <inheritdoc />
@@ -25,11 +25,6 @@ namespace IceCoffee.DbCore.Primitives.Service
         public virtual async Task<int> RemoveAsync(TDto dto)
         {
             return await Repository.DeleteAsync(DtoToEntity(dto));
-        }
-        /// <inheritdoc />
-        public virtual async Task<int> RemoveAllAsync()
-        {
-            return await Repository.DeleteAsync(whereBy: null, param: null);
         }
         /// <inheritdoc />
         public virtual async Task<List<TDto>> GetAllAsync(string orderBy = null)

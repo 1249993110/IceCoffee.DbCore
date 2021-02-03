@@ -1,4 +1,4 @@
-﻿using IceCoffee.DbCore.Domain;
+﻿
 using IceCoffee.DbCore.ExceptionCatch;
 using System.Data;
 
@@ -11,7 +11,7 @@ namespace IceCoffee.DbCore.UnitWork
 
         private IDbConnection _dbConnection;
 
-        internal IDbTransaction _dbTransaction;
+        private IDbTransaction _dbTransaction;
         /// <inheritdoc />
         public bool IsExplicitSubmit => _isExplicitSubmit;
         /// <inheritdoc />
@@ -37,7 +37,7 @@ namespace IceCoffee.DbCore.UnitWork
         public virtual void SaveChanges()
         {
             // 防止多次执行或跨线程使用
-            if (_isExplicitSubmit == true)
+            if (_isExplicitSubmit)
             {
                 _isExplicitSubmit = false;
 
@@ -57,7 +57,7 @@ namespace IceCoffee.DbCore.UnitWork
         public virtual void Rollback()
         {
             // 防止多次执行或跨线程使用
-            if (_isExplicitSubmit == true)
+            if (_isExplicitSubmit)
             {
                 _isExplicitSubmit = false;
 

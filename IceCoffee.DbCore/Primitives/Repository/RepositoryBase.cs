@@ -1,6 +1,6 @@
 ﻿using Dapper;
 using IceCoffee.DbCore.ExceptionCatch;
-using IceCoffee.DbCore.Domain;
+
 using IceCoffee.DbCore.OptionalAttributes;
 using IceCoffee.DbCore.Primitives.Entity;
 using IceCoffee.DbCore.UnitWork;
@@ -19,7 +19,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
     /// <summary>
     /// RepositoryBase
     /// </summary>
-    public abstract class RepositoryBase
+    public abstract class RepositoryBase : IRepositoryBase
     {
         private static ThreadLocal<IUnitOfWork> _unitOfWork;
 
@@ -30,6 +30,12 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 return new UnitOfWork();
             });
         }
+
+
+        /// <inheritdoc />
+        public virtual IUnitOfWork UnitOfWork => _unitOfWork.Value;
+        /// <inheritdoc />
+        public DbConnectionInfo DbConnectionInfo => _dbConnectionInfo;
 
         /// <summary>
         /// 覆盖默认工作单元
@@ -43,19 +49,15 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <summary>
         /// protected dbConnectionInfo
         /// </summary>
-        protected internal readonly DbConnectionInfo dbConnectionInfo;
+        protected readonly DbConnectionInfo _dbConnectionInfo;
         /// <summary>
         /// 实例化 RepositoryBase
         /// </summary>
         /// <param name="dbConnectionInfo"></param>
         public RepositoryBase(DbConnectionInfo dbConnectionInfo)
         {
-            this.dbConnectionInfo = dbConnectionInfo;
+            this._dbConnectionInfo = dbConnectionInfo;
         }
-        /// <summary>
-        /// 工作单元
-        /// </summary>
-        internal static IUnitOfWork UnitOfWork => _unitOfWork.Value;
         /// <summary>
         /// 执行参数化 SQL 语句
         /// </summary>
@@ -71,7 +73,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
             try
             {
-                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
+                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(_dbConnectionInfo);
                 tran = unitOfWork.DbTransaction ?? (useTransaction ? conn.BeginTransaction() : null);
 
                 int result = conn.Execute(sql, param, tran, commandType: CommandType.Text);
@@ -114,7 +116,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
             try
             {
-                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
+                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(_dbConnectionInfo);
                 tran = unitOfWork.DbTransaction ?? (useTransaction ? conn.BeginTransaction() : null);
 
                 int result = await conn.ExecuteAsync(sql, param, tran, commandType: CommandType.Text);
@@ -157,7 +159,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
             try
             {
-                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
+                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(_dbConnectionInfo);
 
                 TReturn result = conn.ExecuteScalar<TReturn>(sql, param, commandType: CommandType.Text);
 
@@ -190,7 +192,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
             try
             {
-                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
+                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(_dbConnectionInfo);
 
                 TReturn result = await conn.ExecuteScalarAsync<TReturn>(sql, param, commandType: CommandType.Text);
 
@@ -222,7 +224,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
             IDbTransaction tran = null;
             try
             {
-                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
+                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(_dbConnectionInfo);
                 tran = unitOfWork.DbTransaction;
                 return conn.Query<TEntity>(sql, param, tran, commandType: CommandType.Text);
             }
@@ -252,7 +254,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
             IDbTransaction tran = null;
             try
             {
-                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
+                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(_dbConnectionInfo);
                 tran = unitOfWork.DbTransaction;
                 return await conn.QueryAsync<TEntity>(sql, param, tran, commandType: CommandType.Text);
             }
@@ -282,7 +284,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
             IDbTransaction tran = null;
             try
             {
-                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
+                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(_dbConnectionInfo);
                 tran = unitOfWork.DbTransaction;
 
                 return conn.Query<TReturn>(new CommandDefinition(commandText: procName, parameters: parameters,
@@ -314,7 +316,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
             IDbTransaction tran = null;
             try
             {
-                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
+                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(_dbConnectionInfo);
                 tran = unitOfWork.DbTransaction;
 
                 return await conn.QueryAsync<TReturn>(new CommandDefinition(commandText: procName, parameters: parameters,
@@ -336,11 +338,11 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
     /// <summary>
     /// 通用仓储基类
-    /// <para>ExecuteAsync、QueryAsync实际上调用DbCommand.ExecuteNonQueryAsync 方法，是同步执行</para>
+    /// <para>ExecuteAsync、QueryAsync实际上调用DbCommand.ExecuteNonQueryAsync 方法</para>
     /// <para>https://docs.microsoft.com/zh-cn/dotnet/api/system.data.common.dbcommand.executenonqueryasync</para>
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
-    public abstract partial class RepositoryBase<TEntity> : RepositoryBase, IRepositoryBase<TEntity> where TEntity : EntityBase
+    public abstract partial class RepositoryBase<TEntity> : RepositoryBase, IRepositoryBase<TEntity> where TEntity : IEntityBase
     {
         #region 公共静态属性
 
@@ -489,11 +491,6 @@ namespace IceCoffee.DbCore.Primitives.Repository
         }
 
         #endregion 构造
-
-        /// <summary>
-        /// 工作单元
-        /// </summary>
-        new public virtual IUnitOfWork UnitOfWork => RepositoryBase.UnitOfWork;
 
         #region Insert
         /// <inheritdoc />

@@ -1,4 +1,4 @@
-﻿using IceCoffee.DbCore.Domain;
+﻿
 using System.Data;
 
 namespace IceCoffee.DbCore.UnitWork

@@ -4,13 +4,24 @@ using System.Collections.Generic;
 
 namespace IceCoffee.DbCore.Primitives.Repository
 {
-    public partial interface IRepositoryBase<TEntity> where TEntity : IEntity
+    /// <summary>
+    /// IRepositoryBase
+    /// </summary>
+    public interface IRepositoryBase
     {
         /// <summary>
         /// 工作单元
         /// </summary>
         IUnitOfWork UnitOfWork { get; }
 
+        /// <summary>
+        /// 数据库连接信息
+        /// </summary>
+        DbConnectionInfo DbConnectionInfo { get; }
+    }
+
+    public partial interface IRepositoryBase<TEntity> : IRepositoryBase where TEntity : IEntityBase
+    {
         #region Insert
 
         /// <summary>

@@ -8,7 +8,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
     /// 使用 Task 执行异步操作
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
-    public partial interface IRepositoryBase<TEntity> where TEntity : IEntity
+    public partial interface IRepositoryBase<TEntity> where TEntity : IEntityBase
     {
         #region Insert
 

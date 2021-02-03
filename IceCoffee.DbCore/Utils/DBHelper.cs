@@ -1,5 +1,5 @@
 ﻿using Dapper;
-using IceCoffee.DbCore.Domain;
+
 using IceCoffee.DbCore.ExceptionCatch;
 using System;
 using System.Data;

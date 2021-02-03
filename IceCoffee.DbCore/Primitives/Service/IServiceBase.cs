@@ -1,4 +1,5 @@
 ﻿using IceCoffee.DbCore.Primitives.Dto;
+using IceCoffee.DbCore.Primitives.Repository;
 using System.Collections.Generic;
 
 namespace IceCoffee.DbCore.Primitives.Service

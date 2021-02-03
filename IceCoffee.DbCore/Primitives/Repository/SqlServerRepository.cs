@@ -1,5 +1,5 @@
 ﻿using Dapper;
-using IceCoffee.DbCore.Domain;
+
 using IceCoffee.DbCore.ExceptionCatch;
 using IceCoffee.DbCore.Primitives.Entity;
 using System;
@@ -13,7 +13,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
     /// <summary>
     /// SqlServer数据库仓储
     /// </summary>
-    public class SqlServerRepository<TEntity> : RepositoryBase<TEntity> where TEntity : EntityBase
+    public class SqlServerRepository<TEntity> : RepositoryBase<TEntity> where TEntity : IEntityBase
     {
         /// <summary>
         /// 分页查询 SQL 语句

@@ -1,4 +1,4 @@
-﻿namespace IceCoffee.DbCore.Domain
+﻿namespace IceCoffee.DbCore
 {
     /// <summary>
     /// 预设的数据库类型

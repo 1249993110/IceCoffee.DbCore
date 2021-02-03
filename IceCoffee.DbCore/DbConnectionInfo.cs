@@ -2,7 +2,7 @@
 using System.Configuration;
 using System.Data;
 
-namespace IceCoffee.DbCore.Domain
+namespace IceCoffee.DbCore
 {
     /// <summary>
     /// 数据库连接信息

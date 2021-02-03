@@ -1,4 +1,5 @@
-﻿using IceCoffee.DbCore.Primitives.Repository;
+﻿using IceCoffee.DbCore.ExceptionCatch;
+using IceCoffee.DbCore.Primitives.Repository;
 using IceCoffee.DbCore.Primitives.Service;
 using PostSharp.Aspects;
 using System;
@@ -33,15 +34,22 @@ namespace IceCoffee.DbCore.UnitWork
         /// <inheritdoc />
         public override void OnEntry(MethodExecutionArgs args)
         {
-            Debug.Assert(args.Method.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) == null, "工作单元无法标记异步方法");
-
             ServiceBase service = args.Instance as ServiceBase;
 
-            Debug.Assert(service != null, "服务必须继承ServiceBase");
+#if DEBUG
+            if (args.Method.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) == null) 
+            {
+                throw new DbCoreException("工作单元无法标记异步方法");
+            }
+            if(service == null)
+            {
+                throw new DbCoreException("服务必须继承 ServiceBase");
+            }
+#endif
 
-            _unitOfWork = RepositoryBase.UnitOfWork;
+            _unitOfWork = service.DefaultRepository.UnitOfWork;
 
-            _unitOfWork.EnterContext(service.DbConnectionInfo);
+            _unitOfWork.EnterContext(service.DefaultRepository.DbConnectionInfo);
 
             _dbConnection = _unitOfWork.DbConnection;
         }
