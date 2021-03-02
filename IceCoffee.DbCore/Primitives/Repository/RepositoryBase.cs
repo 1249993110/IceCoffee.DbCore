@@ -452,7 +452,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
                     }
                 }
 
-                Insert_Statement = string.Format("({0}) VALUES({1})", TableName,
+                Insert_Statement = string.Format("({0}) VALUES({1})",
                     stringBuilder1.Remove(stringBuilder1.Length - 1, 1).ToString(),
                     stringBuilder2.Remove(stringBuilder2.Length - 1, 1).ToString());
                 Select_Statement = stringBuilder3.Remove(stringBuilder3.Length - 1, 1).ToString();
