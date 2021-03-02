@@ -51,6 +51,21 @@ namespace IceCoffee.DbCore.Primitives.Repository
         {
             throw new NotImplementedException();
         }
+        /// <inheritdoc />
+        public override int ReplaceInto(string tableName, TEntity entity, bool useLock = false)
+        {
+            throw new NotImplementedException();
+        }
+        /// <inheritdoc />
+        public override int ReplaceIntoBatch(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false)
+        {
+            throw new NotImplementedException();
+        }
+        /// <inheritdoc />
+        public override int InsertIgnoreBatch(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false)
+        {
+            throw new NotImplementedException();
+        }
         #endregion
 
         #region Async
@@ -79,6 +94,22 @@ namespace IceCoffee.DbCore.Primitives.Repository
         {
             throw new NotImplementedException();
         }
+        /// <inheritdoc />
+        public override Task<int> ReplaceIntoAsync(string tableName, TEntity entity, bool useLock = false)
+        {
+            throw new NotImplementedException();
+        }
+        /// <inheritdoc />
+        public override Task<int> ReplaceIntoBatchAsync(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false)
+        {
+            throw new NotImplementedException();
+        }
+        /// <inheritdoc />
+        public override Task<int> InsertIgnoreBatchAsync(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
     }
 

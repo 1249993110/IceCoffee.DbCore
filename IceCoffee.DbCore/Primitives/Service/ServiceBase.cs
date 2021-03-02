@@ -12,6 +12,9 @@ using Mapster;
 
 namespace IceCoffee.DbCore.Primitives.Service
 {
+    /// <summary>
+    /// ServiceBase
+    /// </summary>
     public abstract class ServiceBase
     {
         /// <summary>

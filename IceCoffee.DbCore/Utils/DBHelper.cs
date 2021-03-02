@@ -2,6 +2,7 @@
 
 using IceCoffee.DbCore.ExceptionCatch;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 
@@ -36,13 +37,14 @@ namespace IceCoffee.DbCore.Utils
         /// </summary>
         /// <param name="dbConnectionInfo"></param>
         /// <param name="sql"></param>
-        public static int ExecuteSQlite(DbConnectionInfo dbConnectionInfo, string sql)
+        /// <param name="param"></param>
+        public static int ExecuteSql(DbConnectionInfo dbConnectionInfo, string sql, object param = null)
         {
             IDbConnection connection = null;
             try
             {
                 connection = DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
-                return connection.Execute(sql);
+                return connection.Execute(sql, param);
             }
             catch(Exception ex)
             {
@@ -54,7 +56,34 @@ namespace IceCoffee.DbCore.Utils
                 {
                     DbConnectionFactory.CollectDbConnectionToPool(connection);
                 }
-            }            
+            }
+        }
+
+        /// <summary>
+        /// 从连接池中获取数据库连接，以执行sql语句
+        /// </summary>
+        /// <param name="dbConnectionInfo"></param>
+        /// <param name="sql"></param>
+        /// <param name="param"></param>
+        public static IEnumerable<TEntity> QueryAny<TEntity>(DbConnectionInfo dbConnectionInfo, string sql, object param = null)
+        {
+            IDbConnection connection = null;
+            try
+            {
+                connection = DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
+                return connection.Query<TEntity>(sql, param);
+            }
+            catch (Exception ex)
+            {
+                throw new DbCoreException("执行 SQL 语句异常", ex);
+            }
+            finally
+            {
+                if (connection != null)
+                {
+                    DbConnectionFactory.CollectDbConnectionToPool(connection);
+                }
+            }
         }
 
         /// <summary>

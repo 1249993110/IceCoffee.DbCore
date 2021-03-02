@@ -22,11 +22,11 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <summary>
         /// 插入或更新 SQL 语句
         /// </summary>
-        public const string ReplaceInto_Statement = "IF EXISTS(SELECT 1 FROM {0} {1} WHERE {2}) BEGIN UPDATE {0} SET {3} WHERE {2} END ELSE BEGIN {4} END";
+        public const string ReplaceInto_Statement = "IF EXISTS(SELECT 1 FROM {0} {1} WHERE {2}) BEGIN UPDATE {0} SET {3} WHERE {2} END ELSE BEGIN INSERT INTO {0} {4} END";
         /// <summary>
         /// 插入或忽略 SQL 语句
         /// </summary>
-        public const string InsertIgnore_Statement = "IF NOT EXISTS(SELECT 1 FROM {0} {1} WHERE {2}) BEGIN {3} END";
+        public const string InsertIgnore_Statement = "IF NOT EXISTS(SELECT 1 FROM {0} {1} WHERE {2}) BEGIN INSERT INTO {0} {3} END";
         /// <summary>
         /// 使用锁 SQL 语句
         /// </summary>
@@ -69,28 +69,45 @@ namespace IceCoffee.DbCore.Primitives.Repository
         }
 
         /// <inheritdoc />
-        [CatchException("插入或更新一条记录异常")]
         public override int ReplaceInto(TEntity entity, bool useLock = false)
         {
-            return base.Execute(string.Format(ReplaceInto_Statement, TableName, 
-                useLock ? UseLock_Statement : string.Empty,
-                KeyNameWhereBy, UpdateSet_Statement, Insert_Statement_Fixed), entity);
+            return this.ReplaceInto(TableName, entity, useLock);
         }
         /// <inheritdoc />
-        [CatchException("插入或更新多条记录异常")]
         public override int ReplaceIntoBatch(IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false)
         {
-            return base.Execute(string.Format(ReplaceInto_Statement, TableName,
-                useLock ? UseLock_Statement : string.Empty,
-                KeyNameWhereBy, UpdateSet_Statement, Insert_Statement_Fixed), entities, useTransaction);
+            return this.ReplaceIntoBatch(TableName, entities, useTransaction, useLock);
         }
         /// <inheritdoc />
         [CatchException("插入多条记录异常")]
         public override int InsertIgnoreBatch(IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false)
         {
-            return base.Execute(string.Format(InsertIgnore_Statement, TableName,
-                useLock ? UseLock_Statement : string.Empty, 
-                KeyNameWhereBy, Insert_Statement_Fixed), entities, useTransaction);
+            return this.InsertIgnoreBatch(TableName, entities, useTransaction, useLock);
+        }
+
+        /// <inheritdoc />
+        [CatchException("插入或更新一条记录异常")]
+        public override int ReplaceInto(string tableName, TEntity entity, bool useLock = false)
+        {
+            return base.Execute(string.Format(ReplaceInto_Statement, tableName,
+                useLock ? UseLock_Statement : string.Empty,
+                KeyNameWhereBy, UpdateSet_Statement, Insert_Statement), entity);
+        }
+        /// <inheritdoc />
+        [CatchException("插入或更新多条记录异常")]
+        public override int ReplaceIntoBatch(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false)
+        {
+            return base.Execute(string.Format(ReplaceInto_Statement, tableName,
+                useLock ? UseLock_Statement : string.Empty,
+                KeyNameWhereBy, UpdateSet_Statement, Insert_Statement), entities, useTransaction);
+        }
+        /// <inheritdoc />
+        [CatchException("插入多条记录异常")]
+        public override int InsertIgnoreBatch(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false)
+        {
+            return base.Execute(string.Format(InsertIgnore_Statement, tableName,
+                useLock ? UseLock_Statement : string.Empty,
+                KeyNameWhereBy, Insert_Statement), entities, useTransaction);
         }
         #endregion
 
@@ -121,25 +138,44 @@ namespace IceCoffee.DbCore.Primitives.Repository
         [CatchException("插入或更新一条记录异常")]
         public override async Task<int> ReplaceIntoAsync(TEntity entity, bool useLock = false)
         {
-            return await base.ExecuteAsync(string.Format(ReplaceInto_Statement, TableName,
-                useLock ? UseLock_Statement : string.Empty,
-                KeyNameWhereBy, UpdateSet_Statement, Insert_Statement_Fixed), entity);
+            return await this.ReplaceIntoAsync(TableName, entity, useLock);
         }
         /// <inheritdoc />
         [CatchException("插入或更新多条记录异常")]
         public override async Task<int> ReplaceIntoBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false)
         {
-            return await base.ExecuteAsync(string.Format(ReplaceInto_Statement, TableName,
-                useLock ? UseLock_Statement : string.Empty,
-                KeyNameWhereBy, UpdateSet_Statement, Insert_Statement_Fixed), entities, useTransaction);
+            return await this.ReplaceIntoBatchAsync(TableName, entities, useTransaction, useLock);
         }
         /// <inheritdoc />
         [CatchException("插入多条记录异常")]
         public override async Task<int> InsertIgnoreBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false)
         {
-            return await base.ExecuteAsync(string.Format(InsertIgnore_Statement, TableName,
+            return await this.InsertIgnoreBatchAsync(TableName, entities, useTransaction, useLock);
+        }
+
+        /// <inheritdoc />
+        [CatchException("插入或更新一条记录异常")]
+        public override async Task<int> ReplaceIntoAsync(string tableName, TEntity entity, bool useLock = false)
+        {
+            return await base.ExecuteAsync(string.Format(ReplaceInto_Statement, tableName,
                 useLock ? UseLock_Statement : string.Empty,
-                KeyNameWhereBy, Insert_Statement_Fixed), entities, useTransaction);
+                KeyNameWhereBy, UpdateSet_Statement, Insert_Statement), entity);
+        }
+        /// <inheritdoc />
+        [CatchException("插入或更新多条记录异常")]
+        public override async Task<int> ReplaceIntoBatchAsync(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false)
+        {
+            return await base.ExecuteAsync(string.Format(ReplaceInto_Statement, tableName,
+                useLock ? UseLock_Statement : string.Empty,
+                KeyNameWhereBy, UpdateSet_Statement, Insert_Statement), entities, useTransaction);
+        }
+        /// <inheritdoc />
+        [CatchException("插入多条记录异常")]
+        public override async Task<int> InsertIgnoreBatchAsync(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false)
+        {
+            return await base.ExecuteAsync(string.Format(InsertIgnore_Statement, tableName,
+                useLock ? UseLock_Statement : string.Empty,
+                KeyNameWhereBy, Insert_Statement), entities, useTransaction);
         }
         #endregion
     }

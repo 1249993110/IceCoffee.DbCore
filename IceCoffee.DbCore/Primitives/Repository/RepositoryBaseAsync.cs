@@ -12,13 +12,13 @@ namespace IceCoffee.DbCore.Primitives.Repository
         [CatchException("插入数据异常")]
         public virtual async Task<int> InsertAsync(TEntity entity)
         {
-            return await base.ExecuteAsync(Insert_Statement_Fixed, entity);
+            return await base.ExecuteAsync(string.Format("INSERT INTO {0} {1}", TableName, Insert_Statement), entity);
         }
         /// <inheritdoc />
         [CatchException("批量插入数据异常")]
         public virtual async Task<int> InsertBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false)
         {
-            return await base.ExecuteAsync(Insert_Statement_Fixed, entities, useTransaction);
+            return await base.ExecuteAsync(string.Format("INSERT INTO {0} {1}", TableName, Insert_Statement), entities, useTransaction);
         }
 
         #endregion Insert
@@ -144,11 +144,19 @@ namespace IceCoffee.DbCore.Primitives.Repository
         }
 
         #endregion Update
+
         /// <inheritdoc />
         public abstract Task<int> ReplaceIntoAsync(TEntity entity, bool useLock = false);
         /// <inheritdoc />
         public abstract Task<int> ReplaceIntoBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false);
         /// <inheritdoc />
         public abstract Task<int> InsertIgnoreBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false);
+
+        /// <inheritdoc />
+        public abstract Task<int> ReplaceIntoAsync(string tableName, TEntity entity, bool useLock = false);
+        /// <inheritdoc />
+        public abstract Task<int> ReplaceIntoBatchAsync(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false);
+        /// <inheritdoc />
+        public abstract Task<int> InsertIgnoreBatchAsync(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false);
     }
 }

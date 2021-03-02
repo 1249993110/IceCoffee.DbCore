@@ -362,9 +362,9 @@ namespace IceCoffee.DbCore.Primitives.Repository
         public static string TableName { get; private set; }
 
         /// <summary>
-        /// 基于实体上列名的插入语句_固定的
+        /// 基于实体上列名的插入语句
         /// </summary>
-        public static string Insert_Statement_Fixed { get; private set; }
+        public static string Insert_Statement { get; private set; }
 
         /// <summary>
         /// 基于实体上列名的选择语句
@@ -452,7 +452,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
                     }
                 }
 
-                Insert_Statement_Fixed = string.Format("INSERT INTO {0} ({1}) VALUES({2})", TableName,
+                Insert_Statement = string.Format("({0}) VALUES({1})", TableName,
                     stringBuilder1.Remove(stringBuilder1.Length - 1, 1).ToString(),
                     stringBuilder2.Remove(stringBuilder2.Length - 1, 1).ToString());
                 Select_Statement = stringBuilder3.Remove(stringBuilder3.Length - 1, 1).ToString();
@@ -497,13 +497,13 @@ namespace IceCoffee.DbCore.Primitives.Repository
         [CatchException("插入数据异常")]
         public virtual int Insert(TEntity entity)
         {
-            return base.Execute(Insert_Statement_Fixed, entity);
+            return base.Execute(string.Format("INSERT INTO {0} {1}", TableName, Insert_Statement), entity);
         }
         /// <inheritdoc />
         [CatchException("批量插入数据异常")]
         public virtual int InsertBatch(IEnumerable<TEntity> entities, bool useTransaction = false)
         {
-            return base.Execute(Insert_Statement_Fixed, entities, useTransaction);
+            return base.Execute(string.Format("INSERT INTO {0} {1}", TableName, Insert_Statement), entities, useTransaction);
         }
 
         #endregion Insert
@@ -635,5 +635,12 @@ namespace IceCoffee.DbCore.Primitives.Repository
         public abstract int ReplaceIntoBatch(IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false);
         /// <inheritdoc />
         public abstract int InsertIgnoreBatch(IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false);
+
+        /// <inheritdoc />
+        public abstract int ReplaceInto(string tableName, TEntity entity, bool useLock = false);
+        /// <inheritdoc />
+        public abstract int ReplaceIntoBatch(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false);
+        /// <inheritdoc />
+        public abstract int InsertIgnoreBatch(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false);
     }
 }

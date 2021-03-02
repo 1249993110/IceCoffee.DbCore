@@ -36,16 +36,10 @@ namespace IceCoffee.DbCore.UnitWork
         {
             ServiceBase service = args.Instance as ServiceBase;
 
-#if DEBUG
-            if (args.Method.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) == null) 
-            {
-                throw new DbCoreException("工作单元无法标记异步方法");
-            }
-            if(service == null)
+            if (service == null)
             {
                 throw new DbCoreException("服务必须继承 ServiceBase");
             }
-#endif
 
             _unitOfWork = service.DefaultRepository.UnitOfWork;
 

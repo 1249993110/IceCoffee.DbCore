@@ -18,14 +18,14 @@ namespace IceCoffee.DbCore.Primitives.Entity
         /// 创建日期
         /// </summary>
         [IgnoreUpdate, IgnoreInsert]
-        public DateTime? CreatedDate { get; set; }
+        public DateTime CreatedDate { get; set; }
 
         /// <summary>
         /// 初始化，默认生成主键，不生成创建日期，应由数据库生成
         /// </summary>
         public override object Init()
         {
-            // Key = Guid.NewGuid().ToString();
+            Key = Guid.NewGuid().ToString();
             // CreatedDate = DateTime.Now;
             return this;
         }
