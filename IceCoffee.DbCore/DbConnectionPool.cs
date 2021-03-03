@@ -57,7 +57,7 @@ namespace IceCoffee.DbCore
                 throw new DbCoreException(Name + " " + msg);
             }
 
-            conn.ConnectionString = ConnectionString;
+            conn.ConnectionString = _connectionString;
 
             try
             {

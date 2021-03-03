@@ -423,6 +423,8 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
                 StringBuilder stringBuilder1 = new StringBuilder();
                 StringBuilder stringBuilder2 = new StringBuilder();
+                // 是否定义了IgnoreSelect特性
+                bool isDefineIgnoreSelect = false;
                 StringBuilder stringBuilder3 = new StringBuilder();
                 StringBuilder stringBuilder4 = new StringBuilder();
 
@@ -445,6 +447,11 @@ namespace IceCoffee.DbCore.Primitives.Repository
                     {
                         stringBuilder3.AppendFormat("{0},", columnName);
                     }
+                    else
+                    {
+                        isDefineIgnoreSelect = true;
+                    }
+
                     // 过滤定义了IgnoreUpdate特性的属性
                     if (prop.GetCustomAttribute<IgnoreUpdateAttribute>(true) == null)
                     {
@@ -455,7 +462,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 Insert_Statement = string.Format("({0}) VALUES({1})",
                     stringBuilder1.Remove(stringBuilder1.Length - 1, 1).ToString(),
                     stringBuilder2.Remove(stringBuilder2.Length - 1, 1).ToString());
-                Select_Statement = stringBuilder3.Remove(stringBuilder3.Length - 1, 1).ToString();
+                Select_Statement = isDefineIgnoreSelect ? stringBuilder3.Remove(stringBuilder3.Length - 1, 1).ToString() : "*";
                 UpdateSet_Statement = stringBuilder4.Remove(stringBuilder4.Length - 1, 1).ToString();
 
                 var propertyMap = new CustomPropertyTypeMap(typeof(TEntity),
@@ -551,7 +558,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         [CatchException("查询数据异常")]
         public virtual IEnumerable<TEntity> Query(string whereBy = null, string orderBy = null, object param = null)
         {
-            string sql = string.Format("SELECT * FROM {0} {1} {2}", TableName, 
+            string sql = string.Format("SELECT {0} FROM {1} {2} {3}", Select_Statement, TableName, 
                 whereBy == null ? string.Empty : "WHERE " + whereBy, 
                 orderBy == null ? string.Empty : "ORDER BY " + orderBy);
             return base.Query<TEntity>(sql, param);

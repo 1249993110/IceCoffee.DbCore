@@ -18,7 +18,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <summary>
         /// 分页查询 SQL 语句
         /// </summary>
-        public const string QueryPaged_Statement = "SELECT * FROM {0} {1} ORDER BY {2} OFFSET {3} ROWS FETCH NEXT {4} ROWS ONLY";
+        public const string QueryPaged_Statement = "SELECT {0} FROM {1} {2} ORDER BY {3} OFFSET {4} ROWS FETCH NEXT {5} ROWS ONLY";
         /// <summary>
         /// 插入或更新 SQL 语句
         /// </summary>
@@ -59,7 +59,9 @@ namespace IceCoffee.DbCore.Primitives.Repository
         public override IEnumerable<TEntity> QueryPaged(int pageIndex, int pageSize,
             string whereBy = null, string orderBy = null, object param = null)
         {
-            string sql = string.Format(QueryPaged_Statement,
+            string sql = string.Format(
+                Select_Statement,
+                QueryPaged_Statement, 
                 TableName,
                 whereBy == null ? string.Empty : "WHERE " + whereBy,
                 orderBy ?? (KeyNames.Length == 0 ? "1" : string.Join(",", KeyNames)),
@@ -126,7 +128,9 @@ namespace IceCoffee.DbCore.Primitives.Repository
         public override async Task<IEnumerable<TEntity>> QueryPagedAsync(int pageIndex, int pageSize,
             string whereBy = null, string orderBy = null, object param = null)
         {
-            string sql = string.Format(QueryPaged_Statement,
+            string sql = string.Format(
+                Select_Statement,
+                QueryPaged_Statement,
                 TableName,
                 whereBy == null ? string.Empty : "WHERE " + whereBy,
                 orderBy ?? (KeyNames.Length == 0 ? "1" : string.Join(",", KeyNames)),
