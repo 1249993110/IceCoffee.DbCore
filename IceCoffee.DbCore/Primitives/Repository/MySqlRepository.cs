@@ -11,7 +11,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
     /// <summary>
     /// MySql数据库仓储
     /// </summary>
-    public class MySqlRepository<TEntity> : RepositoryBase<TEntity> where TEntity : IEntityBase
+    public class MySqlRepository<TEntity> : RepositoryBase<TEntity> where TEntity : IEntity
     {
         /// <summary>
         /// 实例化 MySqlRepository

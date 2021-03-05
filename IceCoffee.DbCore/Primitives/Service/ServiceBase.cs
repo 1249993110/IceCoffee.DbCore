@@ -20,23 +20,23 @@ namespace IceCoffee.DbCore.Primitives.Service
         /// <summary>
         /// 默认仓储
         /// </summary>
-        internal abstract IRepositoryBase DefaultRepository { get; }
+        internal abstract IRepository DefaultRepository { get; }
     }
 
-    public abstract partial class ServiceBase<TEntity, TDto> : ServiceBase, IServiceBase<TDto>
-        where TDto : class, IDtoBase
-        where TEntity : class, IEntityBase
+    public abstract partial class ServiceBase<TEntity, TDto> : ServiceBase, IService<TDto>
+        where TDto : class, IDto
+        where TEntity : class, IEntity
     {
         #region 字段&属性
 
-        private readonly IRepositoryBase<TEntity> _repository;
+        private readonly IRepository<TEntity> _repository;
 
-        internal override IRepositoryBase DefaultRepository => _repository;
+        internal override IRepository DefaultRepository => _repository;
 
         /// <summary>
         /// 默认仓储
         /// </summary>
-        protected virtual IRepositoryBase<TEntity> Repository
+        protected virtual IRepository<TEntity> Repository
         {
             get { return _repository; }
         }
@@ -44,7 +44,7 @@ namespace IceCoffee.DbCore.Primitives.Service
         /// 实例化 ServiceBase
         /// </summary>
         /// <param name="repository"></param>
-        public ServiceBase(IRepositoryBase<TEntity> repository)
+        public ServiceBase(IRepository<TEntity> repository)
         {
             _repository = repository;
         }

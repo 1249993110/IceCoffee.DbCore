@@ -3,7 +3,8 @@
     /// <summary>
     /// 实体接口
     /// </summary>
-    public interface IEntityBase
+    public interface IEntity
+
     {
         /// <summary>
         /// 初始化

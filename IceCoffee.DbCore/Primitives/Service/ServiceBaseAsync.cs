@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 namespace IceCoffee.DbCore.Primitives.Service
 {
     /// <inheritdoc />
-    public abstract partial class ServiceBase<TEntity, TDto> : ServiceBase, IServiceBase<TDto>
-        where TDto : class, IDtoBase
-        where TEntity : class, IEntityBase
+    public abstract partial class ServiceBase<TEntity, TDto> : ServiceBase, IService<TDto>
+        where TDto : class, IDto
+        where TEntity : class, IEntity
     {
         #region 默认实现
         /// <inheritdoc />

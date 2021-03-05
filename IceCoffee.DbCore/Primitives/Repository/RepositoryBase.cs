@@ -19,7 +19,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
     /// <summary>
     /// RepositoryBase
     /// </summary>
-    public abstract class RepositoryBase : IRepositoryBase
+    public abstract class RepositoryBase : IRepository
     {
         private static ThreadLocal<IUnitOfWork> _unitOfWork;
 
@@ -342,7 +342,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
     /// <para>https://docs.microsoft.com/zh-cn/dotnet/api/system.data.common.dbcommand.executenonqueryasync</para>
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
-    public abstract partial class RepositoryBase<TEntity> : RepositoryBase, IRepositoryBase<TEntity> where TEntity : IEntityBase
+    public abstract partial class RepositoryBase<TEntity> : RepositoryBase, IRepository<TEntity> where TEntity : IEntity
     {
         #region 公共静态属性
 

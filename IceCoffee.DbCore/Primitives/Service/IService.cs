@@ -7,14 +7,15 @@ namespace IceCoffee.DbCore.Primitives.Service
     /// <summary>
     /// 服务基础接口
     /// </summary>
-    public interface IServiceBase
+    public interface IService
+
     {
     }
     /// <summary>
     /// 服务模板接口
     /// </summary>
     /// <typeparam name="TDto"></typeparam>
-    public partial interface IServiceBase<TDto> : IServiceBase where TDto : IDtoBase
+    public partial interface IService<TDto> : IService where TDto : IDto
     {
         /// <summary>
         /// 添加数据

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace IceCoffee.DbCore.Primitives.Repository
 {
-    public abstract partial class RepositoryBase<TEntity> : IRepositoryBase<TEntity> where TEntity : IEntityBase
+    public abstract partial class RepositoryBase<TEntity> : IRepository<TEntity> where TEntity : IEntity
     {
         #region Insert
         /// <inheritdoc />
