@@ -60,8 +60,8 @@ namespace IceCoffee.DbCore.Primitives.Repository
             string whereBy = null, string orderBy = null, object param = null)
         {
             string sql = string.Format(
-                Select_Statement,
-                QueryPaged_Statement, 
+                QueryPaged_Statement,
+                Select_Statement, 
                 TableName,
                 whereBy == null ? string.Empty : "WHERE " + whereBy,
                 orderBy ?? (KeyNames.Length == 0 ? "1" : string.Join(",", KeyNames)),
@@ -129,8 +129,8 @@ namespace IceCoffee.DbCore.Primitives.Repository
             string whereBy = null, string orderBy = null, object param = null)
         {
             string sql = string.Format(
-                Select_Statement,
                 QueryPaged_Statement,
+                Select_Statement,
                 TableName,
                 whereBy == null ? string.Empty : "WHERE " + whereBy,
                 orderBy ?? (KeyNames.Length == 0 ? "1" : string.Join(",", KeyNames)),
