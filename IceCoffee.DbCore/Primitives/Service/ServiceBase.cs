@@ -15,12 +15,20 @@ namespace IceCoffee.DbCore.Primitives.Service
     /// <summary>
     /// ServiceBase
     /// </summary>
-    public abstract class ServiceBase
+    public class ServiceBase
     {
         /// <summary>
-        /// 默认仓储
+        /// 当前仓储数据库连接信息
         /// </summary>
-        internal abstract IRepository DefaultRepository { get; }
+        protected internal readonly DbConnectionInfo DbConnectionInfo;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dbConnectionInfo"></param>
+        public ServiceBase(DbConnectionInfo dbConnectionInfo)
+        {
+            DbConnectionInfo = dbConnectionInfo;
+        }
     }
 
     public abstract partial class ServiceBase<TEntity, TDto> : ServiceBase, IService<TDto>
@@ -31,20 +39,16 @@ namespace IceCoffee.DbCore.Primitives.Service
 
         private readonly IRepository<TEntity> _repository;
 
-        internal override IRepository DefaultRepository => _repository;
-
         /// <summary>
         /// 默认仓储
         /// </summary>
-        protected virtual IRepository<TEntity> Repository
-        {
-            get { return _repository; }
-        }
+        protected virtual IRepository<TEntity> Repository => _repository;
+
         /// <summary>
         /// 实例化 ServiceBase
         /// </summary>
         /// <param name="repository"></param>
-        public ServiceBase(IRepository<TEntity> repository)
+        public ServiceBase(IRepository<TEntity> repository) : base((repository as RepositoryBase).DbConnectionInfo)
         {
             _repository = repository;
         }

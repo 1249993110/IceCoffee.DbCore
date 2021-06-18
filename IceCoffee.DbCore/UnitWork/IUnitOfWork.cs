@@ -14,7 +14,7 @@ namespace IceCoffee.DbCore.UnitWork
         /// 进入工作单元上下文
         /// </summary>
         /// <returns></returns>
-        void EnterContext(DbConnectionInfo dbConnectionInfo);
+        IUnitOfWork EnterContext(DbConnectionInfo dbConnectionInfo);
 
         /// <summary>
         /// 保存到数据库

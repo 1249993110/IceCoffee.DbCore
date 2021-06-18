@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace IceCoffee.DbCore.Primitives.Service
 {
-    public partial interface IService<TDto> : IService where TDto : IDto
+    public partial interface IService<TDto> where TDto : IDto
     {
         /// <summary>
         /// 添加数据

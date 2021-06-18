@@ -5,17 +5,10 @@ using System.Collections.Generic;
 namespace IceCoffee.DbCore.Primitives.Service
 {
     /// <summary>
-    /// 服务基础接口
-    /// </summary>
-    public interface IService
-
-    {
-    }
-    /// <summary>
     /// 服务模板接口
     /// </summary>
     /// <typeparam name="TDto"></typeparam>
-    public partial interface IService<TDto> : IService where TDto : IDto
+    public partial interface IService<TDto> where TDto : IDto
     {
         /// <summary>
         /// 添加数据

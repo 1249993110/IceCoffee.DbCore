@@ -18,12 +18,6 @@ namespace IceCoffee.DbCore.UnitWork
     public sealed class UnitOfWorkAttribute : OnMethodBoundaryAspect
     {
         /// <summary>
-        /// 数据库工作单元
-        /// </summary>
-        private IUnitOfWork _unitOfWork;
-
-        private IDbConnection _dbConnection;
-        /// <summary>
         /// 实例化 UnitOfWorkAttribute
         /// </summary>
         public UnitOfWorkAttribute()
@@ -41,23 +35,19 @@ namespace IceCoffee.DbCore.UnitWork
                 throw new DbCoreException("服务必须继承 ServiceBase");
             }
 
-            _unitOfWork = service.DefaultRepository.UnitOfWork;
-
-            _unitOfWork.EnterContext(service.DefaultRepository.DbConnectionInfo);
-
-            _dbConnection = _unitOfWork.DbConnection;
+            UnitOfWork.Default.EnterContext(service.DbConnectionInfo);
         }
         /// <inheritdoc />
         public override void OnSuccess(MethodExecutionArgs args)
         {
-            _unitOfWork.SaveChanges();
+            UnitOfWork.Default.SaveChanges();
         }
         /// <inheritdoc />
         public override void OnException(MethodExecutionArgs args)
         {
             args.FlowBehavior = FlowBehavior.RethrowException;
 
-            _unitOfWork.Rollback();
+            UnitOfWork.Default.Rollback();
         }
     }
 }

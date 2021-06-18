@@ -19,44 +19,20 @@ namespace IceCoffee.DbCore.Primitives.Repository
     /// <summary>
     /// RepositoryBase
     /// </summary>
-    public abstract class RepositoryBase : IRepository
+    public abstract class RepositoryBase
     {
-        private static ThreadLocal<IUnitOfWork> _unitOfWork;
-
-        static RepositoryBase()
-        {
-            _unitOfWork = new ThreadLocal<IUnitOfWork>(() =>
-            {
-                return new UnitOfWork();
-            });
-        }
-
-
-        /// <inheritdoc />
-        public virtual IUnitOfWork UnitOfWork => _unitOfWork.Value;
-        /// <inheritdoc />
-        public DbConnectionInfo DbConnectionInfo => _dbConnectionInfo;
-
-        /// <summary>
-        /// 覆盖默认工作单元
-        /// </summary>
-        /// <param name="func"></param>
-        public static void OverrideUnitOfWork(Func<IUnitOfWork> func)
-        {
-            _unitOfWork = new ThreadLocal<IUnitOfWork>(func);
-        }
-
         /// <summary>
         /// protected dbConnectionInfo
         /// </summary>
-        protected readonly DbConnectionInfo _dbConnectionInfo;
+        public readonly DbConnectionInfo DbConnectionInfo;
+
         /// <summary>
         /// 实例化 RepositoryBase
         /// </summary>
         /// <param name="dbConnectionInfo"></param>
         public RepositoryBase(DbConnectionInfo dbConnectionInfo)
         {
-            this._dbConnectionInfo = dbConnectionInfo;
+            this.DbConnectionInfo = dbConnectionInfo;
         }
         /// <summary>
         /// 执行参数化 SQL 语句
@@ -67,13 +43,13 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <returns>受影响的行数</returns>
         protected virtual int Execute(string sql, object param = null, bool useTransaction = false)
         {
-            IUnitOfWork unitOfWork = UnitOfWork;
+            IUnitOfWork unitOfWork = UnitOfWork.Default;
             IDbConnection conn = null;
             IDbTransaction tran = null;
 
             try
             {
-                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(_dbConnectionInfo);
+                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(DbConnectionInfo);
                 tran = unitOfWork.DbTransaction ?? (useTransaction ? conn.BeginTransaction() : null);
 
                 int result = conn.Execute(sql, param, tran, commandType: CommandType.Text);
@@ -110,13 +86,13 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <returns>受影响的行数</returns>
         protected virtual async Task<int> ExecuteAsync(string sql, object param = null, bool useTransaction = false)
         {
-            IUnitOfWork unitOfWork = UnitOfWork;
+            IUnitOfWork unitOfWork = UnitOfWork.Default;
             IDbConnection conn = null;
             IDbTransaction tran = null;
 
             try
             {
-                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(_dbConnectionInfo);
+                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(DbConnectionInfo);
                 tran = unitOfWork.DbTransaction ?? (useTransaction ? conn.BeginTransaction() : null);
 
                 int result = await conn.ExecuteAsync(sql, param, tran, commandType: CommandType.Text);
@@ -154,12 +130,12 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <returns></returns>
         protected virtual TReturn ExecuteScalar<TReturn>(string sql, object param = null, bool useTransaction = false)
         {
-            IUnitOfWork unitOfWork = UnitOfWork;
+            IUnitOfWork unitOfWork = UnitOfWork.Default;
             IDbConnection conn = null;
 
             try
             {
-                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(_dbConnectionInfo);
+                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(DbConnectionInfo);
 
                 TReturn result = conn.ExecuteScalar<TReturn>(sql, param, commandType: CommandType.Text);
 
@@ -187,12 +163,12 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <returns></returns>
         protected virtual async Task<TReturn> ExecuteScalarAsync<TReturn>(string sql, object param = null, bool useTransaction = false)
         {
-            IUnitOfWork unitOfWork = UnitOfWork;
+            IUnitOfWork unitOfWork = UnitOfWork.Default;
             IDbConnection conn = null;
 
             try
             {
-                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(_dbConnectionInfo);
+                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(DbConnectionInfo);
 
                 TReturn result = await conn.ExecuteScalarAsync<TReturn>(sql, param, commandType: CommandType.Text);
 
@@ -219,12 +195,12 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <returns></returns>
         protected virtual IEnumerable<TEntity> Query<TEntity>(string sql, object param = null)
         {
-            IUnitOfWork unitOfWork = UnitOfWork;
+            IUnitOfWork unitOfWork = UnitOfWork.Default;
             IDbConnection conn = null;
             IDbTransaction tran = null;
             try
             {
-                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(_dbConnectionInfo);
+                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(DbConnectionInfo);
                 tran = unitOfWork.DbTransaction;
                 return conn.Query<TEntity>(sql, param, tran, commandType: CommandType.Text);
             }
@@ -249,12 +225,12 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <returns></returns>
         protected virtual async Task<IEnumerable<TEntity>> QueryAsync<TEntity>(string sql, object param = null)
         {
-            IUnitOfWork unitOfWork = UnitOfWork;
+            IUnitOfWork unitOfWork = UnitOfWork.Default;
             IDbConnection conn = null;
             IDbTransaction tran = null;
             try
             {
-                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(_dbConnectionInfo);
+                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(DbConnectionInfo);
                 tran = unitOfWork.DbTransaction;
                 return await conn.QueryAsync<TEntity>(sql, param, tran, commandType: CommandType.Text);
             }
@@ -279,12 +255,12 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <returns></returns>
         protected virtual IEnumerable<TReturn> ExecProcedure<TReturn>(string procName, DynamicParameters parameters)
         {
-            IUnitOfWork unitOfWork = UnitOfWork;
+            IUnitOfWork unitOfWork = UnitOfWork.Default;
             IDbConnection conn = null;
             IDbTransaction tran = null;
             try
             {
-                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(_dbConnectionInfo);
+                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(DbConnectionInfo);
                 tran = unitOfWork.DbTransaction;
 
                 return conn.Query<TReturn>(new CommandDefinition(commandText: procName, parameters: parameters,
@@ -311,12 +287,12 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <returns></returns>
         protected virtual async Task<IEnumerable<TReturn>> ExecProcedureAsync<TReturn>(string procName, DynamicParameters parameters)
         {
-            IUnitOfWork unitOfWork = UnitOfWork;
+            IUnitOfWork unitOfWork = UnitOfWork.Default;
             IDbConnection conn = null;
             IDbTransaction tran = null;
             try
             {
-                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(_dbConnectionInfo);
+                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(DbConnectionInfo);
                 tran = unitOfWork.DbTransaction;
 
                 return await conn.QueryAsync<TReturn>(new CommandDefinition(commandText: procName, parameters: parameters,

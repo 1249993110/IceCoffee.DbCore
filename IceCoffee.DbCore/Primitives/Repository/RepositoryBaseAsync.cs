@@ -66,7 +66,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         [CatchException("查询数据异常")]
         public virtual async Task<IEnumerable<TEntity>> QueryAsync(string whereBy = null, string orderBy = null, object param = null)
         {
-            string sql = string.Format("SELECT {0} FROM {0} {1} {2}", TableName,
+            string sql = string.Format("SELECT {0} FROM {1} {2} {3}", Select_Statement, TableName,
                 whereBy == null ? string.Empty : "WHERE " + whereBy,
                 orderBy == null ? string.Empty : "ORDER BY " + orderBy);
             return await base.QueryAsync<TEntity>(sql, param);
