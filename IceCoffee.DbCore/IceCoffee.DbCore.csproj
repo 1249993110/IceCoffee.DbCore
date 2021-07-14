@@ -12,7 +12,7 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <Authors>IceCoffee</Authors>
     <Company>IceCoffee</Company>
-    <Version>1.0.0.30</Version>
+    <Version>1.0.0.31</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,7 +21,7 @@
       <PackagePath></PackagePath>
     </None>
   </ItemGroup>
-
+  
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
@@ -36,7 +36,6 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Mapster" Version="6.5.1" />
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.114.2" />
   </ItemGroup>
 

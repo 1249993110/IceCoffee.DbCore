@@ -54,7 +54,7 @@ namespace IceCoffee.DbCore.UnitWork
             }
             else
             {
-                throw new DbCoreException(string.Format("多次执行 {0} 或 跨线程使用工作单元", nameof(SaveChanges)));
+                throw new DbCoreException(string.Format("设计错误，多次执行 {0} 或 跨线程使用工作单元", nameof(SaveChanges)));
             }
         }
         /// <inheritdoc />
@@ -74,7 +74,7 @@ namespace IceCoffee.DbCore.UnitWork
             }
             else
             {
-                throw new DbCoreException(string.Format("多次执行 {0} 或 跨线程使用工作单元", nameof(Rollback)));
+                throw new DbCoreException(string.Format("设计错误，多次执行 {0} 或 跨线程使用工作单元", nameof(Rollback)));
             }
         }
 
@@ -108,7 +108,6 @@ namespace IceCoffee.DbCore.UnitWork
                 return _threadLocal.Value;
             }
         } 
-
 
         /// <summary>
         /// 覆盖默认工作单元

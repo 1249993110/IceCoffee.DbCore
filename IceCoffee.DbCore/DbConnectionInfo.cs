@@ -10,6 +10,11 @@ namespace IceCoffee.DbCore
     public class DbConnectionInfo
     {
         /// <summary>
+        /// 连接名
+        /// </summary>
+        public string ConnectionName { get; set; }
+
+        /// <summary>
         /// 连接串
         /// </summary>
         public string ConnectionString { get; set; }

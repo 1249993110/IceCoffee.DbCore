@@ -26,7 +26,7 @@ namespace IceCoffee.DbCore
         /// <param name="connectionString"></param>
         /// <param name="factory"></param>
         /// <param name="maxConnectionCount"></param>
-        public DbConnectionPool(string connectionString, DbProviderFactory factory, int maxConnectionCount = 1000)
+        public DbConnectionPool(string connectionString, DbProviderFactory factory, int maxConnectionCount = 1024)
         {
             this._connectionString = connectionString;
             this._factory = factory;
