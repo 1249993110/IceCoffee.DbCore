@@ -21,7 +21,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
     public abstract class RepositoryBase
     {
         /// <summary>
-        /// protected dbConnectionInfo
+        /// 数据库连接信息
         /// </summary>
         public readonly DbConnectionInfo DbConnectionInfo;
 
@@ -33,6 +33,22 @@ namespace IceCoffee.DbCore.Primitives.Repository
         {
             this.DbConnectionInfo = dbConnectionInfo;
         }
+
+        /// <summary>
+        /// 得到工作单元，默认返回 <see cref="UnitOfWork.Default"/>
+        /// </summary>
+        /// <returns></returns>
+        protected virtual IUnitOfWork GetUnitOfWork()
+        {
+            IUnitOfWork unitOfWork = UnitOfWork.Default;
+            if (unitOfWork.IsBeginTransaction == false)
+            {
+                unitOfWork.EnterContext(DbConnectionInfo);
+            }
+
+            return unitOfWork;
+        }
+
         /// <summary>
         /// 执行参数化 SQL 语句
         /// </summary>
@@ -42,7 +58,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <returns>受影响的行数</returns>
         protected virtual int Execute(string sql, object param = null, bool useTransaction = false)
         {
-            IUnitOfWork unitOfWork = UnitOfWork.Default;
+            IUnitOfWork unitOfWork = GetUnitOfWork();
             IDbConnection conn = null;
             IDbTransaction tran = null;
 
@@ -85,7 +101,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <returns>受影响的行数</returns>
         protected virtual async Task<int> ExecuteAsync(string sql, object param = null, bool useTransaction = false)
         {
-            IUnitOfWork unitOfWork = UnitOfWork.Default;
+            IUnitOfWork unitOfWork = GetUnitOfWork();
             IDbConnection conn = null;
             IDbTransaction tran = null;
 
@@ -129,7 +145,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <returns></returns>
         protected virtual TReturn ExecuteScalar<TReturn>(string sql, object param = null, bool useTransaction = false)
         {
-            IUnitOfWork unitOfWork = UnitOfWork.Default;
+            IUnitOfWork unitOfWork = GetUnitOfWork();
             IDbConnection conn = null;
 
             try
@@ -160,7 +176,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <returns></returns>
         protected virtual async Task<TReturn> ExecuteScalarAsync<TReturn>(string sql, object param = null, bool useTransaction = false)
         {
-            IUnitOfWork unitOfWork = UnitOfWork.Default;
+            IUnitOfWork unitOfWork = GetUnitOfWork();
             IDbConnection conn = null;
 
             try
@@ -190,7 +206,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <returns></returns>
         protected virtual IEnumerable<TEntity> Query<TEntity>(string sql, object param = null)
         {
-            IUnitOfWork unitOfWork = UnitOfWork.Default;
+            IUnitOfWork unitOfWork = GetUnitOfWork();
             IDbConnection conn = null;
             IDbTransaction tran = null;
             try
@@ -220,7 +236,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <returns></returns>
         protected virtual async Task<IEnumerable<TEntity>> QueryAsync<TEntity>(string sql, object param = null)
         {
-            IUnitOfWork unitOfWork = UnitOfWork.Default;
+            IUnitOfWork unitOfWork = GetUnitOfWork();
             IDbConnection conn = null;
             IDbTransaction tran = null;
             try
@@ -250,7 +266,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <returns></returns>
         protected virtual IEnumerable<TReturn> ExecProcedure<TReturn>(string procName, DynamicParameters parameters)
         {
-            IUnitOfWork unitOfWork = UnitOfWork.Default;
+            IUnitOfWork unitOfWork = GetUnitOfWork();
             IDbConnection conn = null;
             IDbTransaction tran = null;
             try
@@ -281,7 +297,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <returns></returns>
         protected virtual async Task<IEnumerable<TReturn>> ExecProcedureAsync<TReturn>(string procName, DynamicParameters parameters)
         {
-            IUnitOfWork unitOfWork = UnitOfWork.Default;
+            IUnitOfWork unitOfWork = GetUnitOfWork();
             IDbConnection conn = null;
             IDbTransaction tran = null;
             try

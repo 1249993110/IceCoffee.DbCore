@@ -9,20 +9,24 @@ namespace IceCoffee.DbCore.UnitWork
     public class UnitOfWork : IUnitOfWork
     {
         /// <inheritdoc />
-        protected bool _isExplicitSubmit;
+        protected bool isBeginTransaction;
         /// <inheritdoc />
-        protected System.Timers.Timer _timer;
+        protected readonly System.Timers.Timer timer;
         /// <inheritdoc />
-        protected IDbConnection _dbConnection;
+        protected bool isExplicitSubmit;
         /// <inheritdoc />
-        protected IDbTransaction _dbTransaction;
+        protected IDbConnection dbConnection;
+        /// <inheritdoc />
+        protected IDbTransaction dbTransaction;
 
         /// <inheritdoc />
-        public bool IsExplicitSubmit => _isExplicitSubmit;
+        public bool IsBeginTransaction => isBeginTransaction;
         /// <inheritdoc />
-        public IDbConnection DbConnection => _dbConnection;
+        public bool IsExplicitSubmit => isExplicitSubmit;
         /// <inheritdoc />
-        public IDbTransaction DbTransaction => _dbTransaction;
+        public IDbConnection DbConnection => dbConnection;
+        /// <inheritdoc />
+        public IDbTransaction DbTransaction => dbTransaction;
 
         /// <summary>
         /// 实例化工作单元
@@ -33,30 +37,47 @@ namespace IceCoffee.DbCore.UnitWork
         /// </remarks>
         public UnitOfWork(double maxHoldTime = 10000)
         {
-            _timer = new System.Timers.Timer(maxHoldTime);
-            _timer.Elapsed += OnForceEnd;
-            _timer.AutoReset = false;
+            timer = new System.Timers.Timer(maxHoldTime);
+            timer.Elapsed += OnForceEnd;
+            timer.AutoReset = false;
         }
 
         /// <inheritdoc />
         private void OnForceEnd(object sender, System.Timers.ElapsedEventArgs e)
         {
-            if (_isExplicitSubmit)
+            if (isExplicitSubmit)
             {
                 ForceEnd();
             }
         }
 
         /// <inheritdoc />
+        public virtual IUnitOfWork EnterContext()
+        {
+            // 防止多次执行或跨线程使用
+            if (isExplicitSubmit == false)
+            {
+                isBeginTransaction = false;
+            }
+            else
+            {
+                throw new DbCoreException(string.Format("多次执行 {0} 或 跨线程使用工作单元", nameof(EnterContext)));
+            }
+
+            return this;
+        }
+
+        /// <inheritdoc />
         public virtual IUnitOfWork EnterContext(DbConnectionInfo dbConnectionInfo)
         {
             // 防止多次执行或跨线程使用
-            if (_isExplicitSubmit == false)
+            if (isExplicitSubmit == false)
             {
-                _isExplicitSubmit = true;
-                _dbConnection = DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
-                _dbTransaction = _dbConnection.BeginTransaction();
-                _timer.Start();
+                isExplicitSubmit = true;
+                dbConnection = DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
+                dbTransaction = dbConnection.BeginTransaction();
+                isBeginTransaction = true;
+                timer.Start();
             }
             else
             {
@@ -70,17 +91,17 @@ namespace IceCoffee.DbCore.UnitWork
         public virtual void SaveChanges()
         {
             // 防止多次执行或跨线程使用
-            if (_isExplicitSubmit)
+            if (isExplicitSubmit)
             {
-                _timer.Stop();
-                _isExplicitSubmit = false;
+                timer.Stop();
+                isExplicitSubmit = false;
 
-                _dbTransaction.Commit();
-                _dbTransaction.Dispose();
-                _dbTransaction = null;
+                dbTransaction.Commit();
+                dbTransaction.Dispose();
+                dbTransaction = null;
 
-                DbConnectionFactory.CollectDbConnectionToPool(_dbConnection);
-                _dbConnection = null;
+                DbConnectionFactory.CollectDbConnectionToPool(dbConnection);
+                dbConnection = null;
             }
             else
             {
@@ -91,17 +112,17 @@ namespace IceCoffee.DbCore.UnitWork
         public virtual void Rollback()
         {
             // 防止多次执行或跨线程使用
-            if (_isExplicitSubmit)
+            if (isExplicitSubmit)
             {
-                _timer.Stop();
-                _isExplicitSubmit = false;
+                timer.Stop();
+                isExplicitSubmit = false;
 
-                _dbTransaction.Rollback();
-                _dbTransaction.Dispose();
-                _dbTransaction = null;
+                dbTransaction.Rollback();
+                dbTransaction.Dispose();
+                dbTransaction = null;
 
-                DbConnectionFactory.CollectDbConnectionToPool(_dbConnection);
-                _dbConnection = null;
+                DbConnectionFactory.CollectDbConnectionToPool(dbConnection);
+                dbConnection = null;
             }
             else
             {
@@ -114,19 +135,18 @@ namespace IceCoffee.DbCore.UnitWork
         /// </summary>
         protected virtual void ForceEnd()
         {
-            _isExplicitSubmit = false;
+            isExplicitSubmit = false;
 
-            _dbTransaction.Rollback();
-            _dbTransaction.Dispose();
-            _dbTransaction = null;
+            dbTransaction.Rollback();
+            dbTransaction.Dispose();
+            dbTransaction = null;
 
-            _dbConnection.Dispose();
-            _dbConnection = null;
+            dbConnection.Dispose();
+            dbConnection = null;
         }
+        
         #region 默认实现
-
         private static readonly object _singleton_Lock = new object();
-
         private static ThreadLocal<IUnitOfWork> _threadLocal;
 
         /// <summary>
@@ -152,7 +172,7 @@ namespace IceCoffee.DbCore.UnitWork
 
                 return _threadLocal.Value;
             }
-        } 
+        }
 
         /// <summary>
         /// 覆盖默认工作单元
@@ -162,7 +182,6 @@ namespace IceCoffee.DbCore.UnitWork
         {
             _threadLocal = new ThreadLocal<IUnitOfWork>(func);
         }
-
         #endregion
     }
 }

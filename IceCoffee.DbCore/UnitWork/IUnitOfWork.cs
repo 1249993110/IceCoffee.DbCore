@@ -11,6 +11,19 @@ namespace IceCoffee.DbCore.UnitWork
     public interface IUnitOfWork
     {
         /// <summary>
+        /// 是否已经开启事务
+        /// <para>如果 <see cref="IsExplicitSubmit"/> 为 true 且没有开启事务</para>
+        /// <para>将从 <see cref="Primitives.Repository.RepositoryBase"/> 自动调用 <see cref="EnterContext(DbConnectionInfo)"/></para>
+        /// </summary>
+        bool IsBeginTransaction { get; }
+
+        /// <summary>
+        /// 进入工作单元上下文
+        /// </summary>
+        /// <returns></returns>
+        IUnitOfWork EnterContext();
+
+        /// <summary>
         /// 进入工作单元上下文
         /// </summary>
         /// <returns></returns>
