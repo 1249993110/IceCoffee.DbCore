@@ -1,6 +1,5 @@
 ﻿using Dapper;
 using IceCoffee.DbCore.ExceptionCatch;
-
 using IceCoffee.DbCore.OptionalAttributes;
 using IceCoffee.DbCore.Primitives.Entity;
 using IceCoffee.DbCore.UnitWork;
@@ -136,9 +135,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
             try
             {
                 conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(DbConnectionInfo);
-
                 TReturn result = conn.ExecuteScalar<TReturn>(sql, param, commandType: CommandType.Text);
-
                 return result;
             }
             catch
@@ -169,9 +166,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
             try
             {
                 conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(DbConnectionInfo);
-
                 TReturn result = await conn.ExecuteScalarAsync<TReturn>(sql, param, commandType: CommandType.Text);
-
                 return result;
             }
             catch
@@ -262,7 +257,6 @@ namespace IceCoffee.DbCore.Primitives.Repository
             {
                 conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(DbConnectionInfo);
                 tran = unitOfWork.DbTransaction;
-
                 return conn.Query<TReturn>(new CommandDefinition(commandText: procName, parameters: parameters,
                     transaction: tran, commandType: CommandType.StoredProcedure));
             }
