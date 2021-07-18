@@ -9,7 +9,7 @@ namespace IceCoffee.DbCore
     /// <summary>
     /// 数据库连接池
     /// </summary>
-    public class DbConnectionPool : ConnectionPool<IDbConnection>
+    public class DbConnectionPool : LocklessPool<IDbConnection>
     {
         private readonly string _connectionString;
 
@@ -25,56 +25,39 @@ namespace IceCoffee.DbCore
         /// </summary>
         /// <param name="connectionString"></param>
         /// <param name="factory"></param>
-        /// <param name="maxConnectionCount"></param>
-        public DbConnectionPool(string connectionString, DbProviderFactory factory, int maxConnectionCount = 1024)
+        /// <param name="maxConnectionCount">默认大小CPU*2</param>
+        public DbConnectionPool(string connectionString, DbProviderFactory factory, int maxConnectionCount = 0) : base(maxConnectionCount)
         {
             this._connectionString = connectionString;
             this._factory = factory;
-
-            Min = Environment.ProcessorCount;
-            if (Min < 2)
-            {
-                Min = 2;
-            }
-            if (Min > 8)
-            {
-                Min = 8;
-            }
-
-            Max = maxConnectionCount;
-
-            IdleTime = 60;
-            AllIdleTime = 180;
         }
+
+        /// <summary>
         /// <inheritdoc />
+        /// </summary>
+        /// <returns></returns>
         protected override IDbConnection Create()
         {
             var conn = _factory?.CreateConnection();
             if (conn == null)
             {
-                var msg = "连接创建失败！请检查驱动是否正常";
-
-                throw new DbCoreException(Name + " " + msg);
+                throw new DbCoreException("连接创建失败！请检查驱动是否正常");
             }
 
             conn.ConnectionString = _connectionString;
 
-            try
-            {
-                conn.Open();
-            }
-            catch (DbException)
-            {
-                throw;
-            }
+            conn.Open();
 
             return conn;
         }
 
-        /// <summary>申请时检查是否打开</summary>
-        public override IDbConnection Take()
+        /// <summary>
+        /// 申请时检查是否打开
+        /// </summary>
+        /// <returns></returns>
+        public override IDbConnection Get()
         {
-            var conn = base.Take();
+            var conn = base.Get();
             if (conn.State == ConnectionState.Closed)
             {
                 conn.Open();
@@ -83,27 +66,19 @@ namespace IceCoffee.DbCore
             return conn;
         }
 
-        /// <summary>释放时，返回是否有效。无效对象将会被抛弃</summary>
-        /// <param name="value"></param>
-        protected override bool OnPut(IDbConnection value)
+        /// <summary>
+        /// <inheritdoc />
+        /// </summary>
+        /// <param name="dbConnection"></param>
+        public override void Return(IDbConnection dbConnection)
         {
-            return value.State == ConnectionState.Open;
-        }
-
-        /// <summary>借一个连接执行指定操作</summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="callback"></param>
-        /// <returns></returns>
-        public T Execute<T>(Func<IDbConnection, T> callback)
-        {
-            var conn = Take();
-            try
+            if (dbConnection.State == ConnectionState.Open)
             {
-                return callback(conn);
+                base.Return(dbConnection);
             }
-            finally
+            else
             {
-                Put(conn);
+                dbConnection.Dispose();
             }
         }
     }

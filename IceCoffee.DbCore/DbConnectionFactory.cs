@@ -1,11 +1,10 @@
-﻿
+﻿using IceCoffee.Common.Pools;
 using System;
 using System.Collections.Concurrent;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Data.SQLite;
-using System.Diagnostics;
 
 namespace IceCoffee.DbCore
 {
@@ -17,14 +16,22 @@ namespace IceCoffee.DbCore
         /// <summary>
         /// 连接池字典
         /// </summary>
-        private static readonly ConcurrentDictionary<string, DbConnectionPool> _connectionPoolDict;
+        private static readonly ConcurrentDictionary<string, IObjectPool<IDbConnection>> _connectionPoolDict;
 
-        private static Func<string, DbProviderFactory, DbConnectionPool> _dbConnectionPoolGenerator;
+        /// <summary>
+        /// 覆盖数据库连接池生成器委托
+        /// </summary>
+        private static Func<string, DbProviderFactory, IObjectPool<IDbConnection>> _dbConnectionPoolGenerator;
 
         static DbConnectionFactory()
         {
-            _connectionPoolDict = new ConcurrentDictionary<string, DbConnectionPool>();
-            _dbConnectionPoolGenerator = (connStr, factory) => new DbConnectionPool(connStr, factory);
+            _connectionPoolDict = new ConcurrentDictionary<string, IObjectPool<IDbConnection>>();
+            _dbConnectionPoolGenerator = DefaultDbConnectionPoolGenerator;
+        }
+
+        private static IObjectPool<IDbConnection> DefaultDbConnectionPoolGenerator(string connStr, DbProviderFactory factory)
+        {
+            return new DbConnectionPool(connStr, factory);
         }
 
         private static DbProviderFactory GetProvider(DatabaseType databaseType)
@@ -56,7 +63,7 @@ namespace IceCoffee.DbCore
         /// 覆盖数据库连接池生成器
         /// </summary>
         /// <param name="func"></param>
-        public static void OverrideDbConnectionPoolGenerator(Func<string, DbProviderFactory, DbConnectionPool> func)
+        public static void OverrideDbConnectionPoolGenerator(Func<string, DbProviderFactory, IObjectPool<IDbConnection>> func)
         {
             _dbConnectionPoolGenerator = func;
         }
@@ -66,16 +73,16 @@ namespace IceCoffee.DbCore
         /// </summary>
         /// <param name="dbConnectionInfo"></param>
         /// <returns></returns>
-        public static DbConnectionPool GetDbConnectionPool(DbConnectionInfo dbConnectionInfo)
+        public static IObjectPool<IDbConnection> GetDbConnectionPool(DbConnectionInfo dbConnectionInfo)
         {
             string connStr = dbConnectionInfo.ConnectionString;
-            if (_connectionPoolDict.TryGetValue(connStr, out DbConnectionPool pool))
+            if (_connectionPoolDict.TryGetValue(connStr, out IObjectPool<IDbConnection> pool))
             {
                 return pool;
             }
             else
             {
-                DbConnectionPool newPool = _dbConnectionPoolGenerator(connStr, GetProvider(dbConnectionInfo.DatabaseType));
+                IObjectPool<IDbConnection> newPool = _dbConnectionPoolGenerator(connStr, GetProvider(dbConnectionInfo.DatabaseType));
                 _connectionPoolDict.TryAdd(connStr, newPool);
 
                 return newPool;
@@ -87,10 +94,14 @@ namespace IceCoffee.DbCore
         /// </summary>
         public static void ClearAll()
         {
-            foreach (var item in _connectionPoolDict)
+            foreach (var connectionPool in _connectionPoolDict.Values)
             {
-                item.Value.Dispose();
+                if(connectionPool is IDisposable disposable)
+                {
+                    disposable.Dispose();
+                }
             }
+
             _connectionPoolDict.Clear();
         }
 
@@ -101,16 +112,16 @@ namespace IceCoffee.DbCore
         public static IDbConnection GetConnectionFromPool(DbConnectionInfo dbConnectionInfo)
         {
             string connStr = dbConnectionInfo.ConnectionString;
-            if (_connectionPoolDict.TryGetValue(connStr, out DbConnectionPool pool))
+            if (_connectionPoolDict.TryGetValue(connStr, out IObjectPool<IDbConnection> pool))
             {
-                return pool.Take();
+                return pool.Get();
             }
             else
             {
-                DbConnectionPool newPool = _dbConnectionPoolGenerator(connStr, GetProvider(dbConnectionInfo.DatabaseType));
+                IObjectPool<IDbConnection> newPool = _dbConnectionPoolGenerator(connStr, GetProvider(dbConnectionInfo.DatabaseType));
                 _connectionPoolDict.TryAdd(connStr, newPool);
 
-                return newPool.Take();
+                return newPool.Get();
             }
         }
 
@@ -119,12 +130,10 @@ namespace IceCoffee.DbCore
         /// </summary>
         public static void CollectDbConnectionToPool(IDbConnection dbConnection)
         {
-            if (_connectionPoolDict.TryGetValue(dbConnection.ConnectionString, out DbConnectionPool pool))
+            if (_connectionPoolDict.TryGetValue(dbConnection.ConnectionString, out IObjectPool<IDbConnection> pool))
             {
-                if (pool.Put(dbConnection))
-                {
-                    return;
-                }
+                pool.Return(dbConnection);
+                return;
             }
 
             dbConnection.Dispose();

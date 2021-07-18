@@ -24,7 +24,7 @@ namespace IceCoffee.DbCore
         /// </summary>
         public DatabaseType DatabaseType { get; set; } = DatabaseType.Unknown;
 
-#if NETFRAMEWORK
+#if NET45
         /// <summary>
         /// 由ConfigurationManager通过key得到ConnectionString和ProviderName
         /// </summary>

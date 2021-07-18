@@ -9,8 +9,6 @@ namespace IceCoffee.DbCore.UnitWork
     public class UnitOfWork : IUnitOfWork
     {
         /// <inheritdoc />
-        protected bool isBeginTransaction;
-        /// <inheritdoc />
         protected readonly System.Timers.Timer timer;
         /// <inheritdoc />
         protected bool isExplicitSubmit;
@@ -19,8 +17,6 @@ namespace IceCoffee.DbCore.UnitWork
         /// <inheritdoc />
         protected IDbTransaction dbTransaction;
 
-        /// <inheritdoc />
-        public bool IsBeginTransaction => isBeginTransaction;
         /// <inheritdoc />
         public bool IsExplicitSubmit => isExplicitSubmit;
         /// <inheritdoc />
@@ -45,7 +41,7 @@ namespace IceCoffee.DbCore.UnitWork
         /// <inheritdoc />
         private void OnForceEnd(object sender, System.Timers.ElapsedEventArgs e)
         {
-            if (isExplicitSubmit)
+            if (dbConnection != null)
             {
                 ForceEnd();
             }
@@ -55,9 +51,9 @@ namespace IceCoffee.DbCore.UnitWork
         public virtual IUnitOfWork EnterContext()
         {
             // 防止多次执行或跨线程使用
-            if (isExplicitSubmit == false)
+            if (dbConnection == null)
             {
-                isBeginTransaction = false;
+                isExplicitSubmit = true;
             }
             else
             {
@@ -71,12 +67,11 @@ namespace IceCoffee.DbCore.UnitWork
         public virtual IUnitOfWork EnterContext(DbConnectionInfo dbConnectionInfo)
         {
             // 防止多次执行或跨线程使用
-            if (isExplicitSubmit == false)
+            if (dbConnection == null)
             {
                 isExplicitSubmit = true;
                 dbConnection = DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
                 dbTransaction = dbConnection.BeginTransaction();
-                isBeginTransaction = true;
                 timer.Start();
             }
             else
@@ -91,10 +86,10 @@ namespace IceCoffee.DbCore.UnitWork
         public virtual void SaveChanges()
         {
             // 防止多次执行或跨线程使用
-            if (isExplicitSubmit)
+            if (dbConnection != null)
             {
-                timer.Stop();
                 isExplicitSubmit = false;
+                timer.Stop();
 
                 dbTransaction.Commit();
                 dbTransaction.Dispose();
@@ -112,10 +107,10 @@ namespace IceCoffee.DbCore.UnitWork
         public virtual void Rollback()
         {
             // 防止多次执行或跨线程使用
-            if (isExplicitSubmit)
+            if (dbConnection != null)
             {
-                timer.Stop();
                 isExplicitSubmit = false;
+                timer.Stop();
 
                 dbTransaction.Rollback();
                 dbTransaction.Dispose();

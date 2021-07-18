@@ -41,7 +41,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         protected virtual IUnitOfWork GetUnitOfWork()
         {
             IUnitOfWork unitOfWork = UnitOfWork.Default;
-            if (unitOfWork.IsBeginTransaction == false)
+            if (unitOfWork.IsExplicitSubmit && unitOfWork.DbConnection == null)
             {
                 unitOfWork.EnterContext(DbConnectionInfo);
             }
