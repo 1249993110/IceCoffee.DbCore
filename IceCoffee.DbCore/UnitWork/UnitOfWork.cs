@@ -27,11 +27,11 @@ namespace IceCoffee.DbCore.UnitWork
         /// <summary>
         /// 实例化工作单元
         /// </summary>
-        /// <param name="maxHoldTime">工作单元最大被持有时长（单位：毫秒）默认值：10000 毫秒</param>
+        /// <param name="maxHoldTime">工作单元最大被持有时长（单位：毫秒）默认值：60000 毫秒</param>
         /// <remarks>
         /// 工作单元状态检查使用 <see cref="System.Timers.Timer"/>, 其精确度大约为 50 毫秒
         /// </remarks>
-        public UnitOfWork(double maxHoldTime = 10000)
+        public UnitOfWork(double maxHoldTime = 60000)
         {
             timer = new System.Timers.Timer(maxHoldTime);
             timer.Elapsed += OnForceEnd;

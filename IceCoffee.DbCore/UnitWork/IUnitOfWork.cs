@@ -5,9 +5,11 @@ namespace IceCoffee.DbCore.UnitWork
 {
     /// <summary>
     /// 工作单元
-    /// 提供一个进入当前线程工作单元上下文和保存方法，它可以对调用层公开，减少连库次数
-    /// 确保在单个线程中使用工作单元，工作单元无法跨数据库使用
     /// </summary>
+    /// <remarks>
+    /// 提供一个进入当前线程工作单元上下文和保存方法，它可以对调用层公开，减少连库次数，保证数据原子性、一致性、隔离性、持久性
+    /// <para>确保在单个线程中使用工作单元，工作单元无法跨线程、跨进程或跨数据库使用</para>
+    /// </remarks>
     public interface IUnitOfWork
     {
         /// <summary>

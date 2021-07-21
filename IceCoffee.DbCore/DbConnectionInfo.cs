@@ -57,20 +57,17 @@ namespace IceCoffee.DbCore
                     break;
             }
 
+            ConnectionName = connectionStringKey;
             ConnectionString = connStrSetting.ConnectionString;
             DatabaseType = databaseType;
         }
 #endif
 
         /// <summary>
-        /// 实例化 DbConnectionInfo
+        /// 实例化 <see cref="DbConnectionInfo"/>
         /// </summary>
-        /// <param name="connectionString"></param>
-        /// <param name="databaseType"></param>
-        public DbConnectionInfo(string connectionString, DatabaseType databaseType)
+        public DbConnectionInfo()
         {
-            ConnectionString = connectionString;
-            DatabaseType = databaseType;
         }
     }
 }
