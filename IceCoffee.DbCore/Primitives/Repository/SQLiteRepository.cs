@@ -41,7 +41,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 Select_Statement,
                 TableName,
                 whereBy == null ? string.Empty : "WHERE " + whereBy,
-                orderBy ?? (KeyNames.Length == 0 ? "1" : string.Join(",", KeyNames)),
+                orderBy ?? ((KeyNames == null || KeyNames.Length == 0) ? "1" : string.Join(",", KeyNames)),
                 pageSize,
                 (pageIndex - 1) * pageSize);
             return base.Query<TEntity>(sql, param);
@@ -94,7 +94,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 Select_Statement,
                 TableName,
                 whereBy == null ? string.Empty : "WHERE " + whereBy,
-                orderBy ?? (KeyNames.Length == 0 ? "1" : string.Join(",", KeyNames)),
+                orderBy ?? ((KeyNames == null || KeyNames.Length == 0) ? "1" : string.Join(",", KeyNames)),
                 pageSize,
                 (pageIndex - 1) * pageSize);
             return await base.QueryAsync<TEntity>(sql, param);

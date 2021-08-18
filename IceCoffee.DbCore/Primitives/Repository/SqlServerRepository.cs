@@ -51,7 +51,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// </summary>
         /// <param name="pageIndex"></param>
         /// <param name="pageSize"></param>
-        /// <param name="whereBy"></param>
+        /// <param name="whereBy">不能为空字符串""</param>
         /// <param name="orderBy"></param>
         /// <param name="param"></param>
         /// <returns></returns>
@@ -64,7 +64,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 Select_Statement, 
                 TableName,
                 whereBy == null ? string.Empty : "WHERE " + whereBy,
-                orderBy ?? (KeyNames.Length == 0 ? "1" : string.Join(",", KeyNames)),
+                orderBy ?? ((KeyNames == null || KeyNames.Length == 0) ? "1" : string.Join(",", KeyNames)),
                 (pageIndex - 1) * pageSize,
                 pageSize);
             return base.Query<TEntity>(sql, param);
@@ -120,7 +120,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// </summary>
         /// <param name="pageIndex"></param>
         /// <param name="pageSize"></param>
-        /// <param name="whereBy"></param>
+        /// <param name="whereBy">不能为空字符串""</param>
         /// <param name="orderBy"></param>
         /// <param name="param"></param>
         /// <returns></returns>
@@ -133,7 +133,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 Select_Statement,
                 TableName,
                 whereBy == null ? string.Empty : "WHERE " + whereBy,
-                orderBy ?? (KeyNames.Length == 0 ? "1" : string.Join(",", KeyNames)),
+                orderBy ?? ((KeyNames == null || KeyNames.Length == 0) ? "1" : string.Join(",", KeyNames)),
                 (pageIndex - 1) * pageSize,
                 pageSize);
             return await base.QueryAsync<TEntity>(sql, param);

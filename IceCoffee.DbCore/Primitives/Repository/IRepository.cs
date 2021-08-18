@@ -113,7 +113,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// </summary>
         /// <param name="pageIndex">页码</param>
         /// <param name="pageSize">每页数量</param>
-        /// <param name="whereBy">where条件字符串</param>
+        /// <param name="whereBy">where条件字符串，不能为空字符串""</param>
         /// <param name="orderBy">顺序字符串</param>
         /// <param name="param">带参数的匿名对象</param>
         /// <returns></returns>
