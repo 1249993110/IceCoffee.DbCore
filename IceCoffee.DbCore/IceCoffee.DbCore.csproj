@@ -4,7 +4,7 @@
     <TargetFrameworks>net45;net461;netstandard2.0;netcoreapp3.1</TargetFrameworks>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Product>IceCoffee</Product>
-    <Description>一个简单的数据库操作框架</Description>
+    <Description>一个简单的数据库CRUD操作封装库</Description>
     <Copyright>Copyright (c) 2021 IceCoffee</Copyright>
     <PackageProjectUrl>https://github.com/1249993110/IceCoffee.DbCore</PackageProjectUrl>
     <RepositoryUrl>https://github.com/1249993110/IceCoffee.DbCore</RepositoryUrl>

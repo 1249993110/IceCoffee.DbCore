@@ -41,9 +41,16 @@ namespace IceCoffee.DbCore.Primitives.Repository
         protected virtual IUnitOfWork GetUnitOfWork()
         {
             IUnitOfWork unitOfWork = UnitOfWork.Default;
-            if (unitOfWork.IsExplicitSubmit && unitOfWork.DbConnection == null)
+            if (unitOfWork.IsExplicitSubmit)
             {
-                unitOfWork.EnterContext(DbConnectionInfo);
+                if(unitOfWork.DbConnection == null)
+                {
+                    unitOfWork.EnterContext(DbConnectionInfo);
+                }
+                else if(unitOfWork.DbConnection.ConnectionString != DbConnectionInfo.ConnectionString)
+                {
+                    throw new DbCoreException("工作单元无法跨数据库使用");
+                }
             }
 
             return unitOfWork;
