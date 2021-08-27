@@ -6,6 +6,9 @@ using IceCoffee.DbCore.UnitWork;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
+using System.Data.SqlClient;
+using System.Data.SQLite;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -47,9 +50,25 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 {
                     unitOfWork.EnterContext(DbConnectionInfo);
                 }
-                else if(unitOfWork.DbConnection.ConnectionString != DbConnectionInfo.ConnectionString)
+                else
                 {
-                    throw new DbCoreException("工作单元无法跨数据库使用");
+                    var builder = new DbConnectionStringBuilder() 
+                    {
+                        ConnectionString = unitOfWork.DbConnection.ConnectionString
+                    };
+
+                    var builder1 = new DbConnectionStringBuilder()
+                    {
+                        ConnectionString = DbConnectionInfo.ConnectionString
+                    };
+
+                    // 移除键为密码的项
+                    builder1.Remove("pwd");
+
+                    if (builder.EquivalentTo(builder1) == false)
+                    {
+                        throw new DbCoreException("工作单元无法跨数据库使用");
+                    }
                 }
             }
 
