@@ -12,7 +12,7 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <Authors>IceCoffee</Authors>
     <Company>IceCoffee</Company>
-    <Version>1.0.0.43</Version>
+    <Version>1.0.0.44</Version>
   </PropertyGroup>
 
   <ItemGroup>

@@ -102,6 +102,8 @@ namespace IceCoffee.DbCore.UnitWork
 
                 DbConnectionFactory.CollectDbConnectionToPool(dbConnection);
                 dbConnection = null;
+
+                dbConnectionInfo = null;
             }
             else
             {
@@ -123,6 +125,8 @@ namespace IceCoffee.DbCore.UnitWork
 
                 DbConnectionFactory.CollectDbConnectionToPool(dbConnection);
                 dbConnection = null;
+
+                dbConnectionInfo = null;
             }
             else
             {
@@ -143,6 +147,8 @@ namespace IceCoffee.DbCore.UnitWork
 
             dbConnection.Dispose();
             dbConnection = null;
+
+            dbConnectionInfo = null;
         }
         
         #region 默认实现
