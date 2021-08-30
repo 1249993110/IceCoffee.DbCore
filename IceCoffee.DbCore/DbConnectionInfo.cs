@@ -22,7 +22,7 @@ namespace IceCoffee.DbCore
         /// <summary>
         /// 数据库类型
         /// </summary>
-        public DatabaseType DatabaseType { get; set; } = DatabaseType.Unknown;
+        public DatabaseType DatabaseType { get; set; }
 
 #if NET45
         /// <summary>

@@ -16,6 +16,8 @@ namespace IceCoffee.DbCore.UnitWork
         protected IDbConnection dbConnection;
         /// <inheritdoc />
         protected IDbTransaction dbTransaction;
+        /// <inheritdoc />
+        protected DbConnectionInfo dbConnectionInfo;
 
         /// <inheritdoc />
         public bool IsExplicitSubmit => isExplicitSubmit;
@@ -23,6 +25,8 @@ namespace IceCoffee.DbCore.UnitWork
         public IDbConnection DbConnection => dbConnection;
         /// <inheritdoc />
         public IDbTransaction DbTransaction => dbTransaction;
+        /// <inheritdoc />
+        public DbConnectionInfo DbConnectionInfo => dbConnectionInfo;
 
         /// <summary>
         /// 实例化工作单元
@@ -70,6 +74,7 @@ namespace IceCoffee.DbCore.UnitWork
             if (dbConnection == null)
             {
                 isExplicitSubmit = true;
+                this.dbConnectionInfo = dbConnectionInfo;
                 dbConnection = DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
                 dbTransaction = dbConnection.BeginTransaction();
                 timer.Start();

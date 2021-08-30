@@ -48,5 +48,10 @@ namespace IceCoffee.DbCore.UnitWork
         /// DbTransaction
         /// </summary>
         IDbTransaction DbTransaction { get; }
+
+        /// <summary>
+        /// 数据库连接信息
+        /// </summary>
+        DbConnectionInfo DbConnectionInfo { get; }
     }
 }

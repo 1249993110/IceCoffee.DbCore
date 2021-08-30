@@ -50,25 +50,10 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 {
                     unitOfWork.EnterContext(DbConnectionInfo);
                 }
-                else
+                // 判断是否跨数据库使用工作单元
+                else if (unitOfWork.DbConnectionInfo != this.DbConnectionInfo)
                 {
-                    var builder = new DbConnectionStringBuilder() 
-                    {
-                        ConnectionString = unitOfWork.DbConnection.ConnectionString
-                    };
-
-                    var builder1 = new DbConnectionStringBuilder()
-                    {
-                        ConnectionString = DbConnectionInfo.ConnectionString
-                    };
-
-                    // 移除键为密码的项
-                    builder1.Remove("pwd");
-
-                    if (builder.EquivalentTo(builder1) == false)
-                    {
-                        throw new DbCoreException("工作单元无法跨数据库使用");
-                    }
+                    throw new DbCoreException("工作单元无法跨数据库使用");
                 }
             }
 
