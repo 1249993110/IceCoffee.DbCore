@@ -11,7 +11,7 @@ namespace IceCoffee.DbCore.Primitives.Entity
         /// <summary>
         /// 主键
         /// </summary>
-        [PrimaryKey, Column("GUID"), IgnoreUpdate, IgnoreInsert]
+        [PrimaryKey, Column("Id"), IgnoreUpdate, IgnoreInsert]
         public virtual Guid Key { get; set; }
 
         /// <summary>

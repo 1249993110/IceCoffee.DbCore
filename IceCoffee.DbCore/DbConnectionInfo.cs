@@ -69,5 +69,39 @@ namespace IceCoffee.DbCore
         public DbConnectionInfo()
         {
         }
+
+        /// <inheritdoc/>
+        public static bool operator ==(DbConnectionInfo left, DbConnectionInfo right)
+        {
+            return left.ConnectionName == right.ConnectionName
+                && left.ConnectionString == right.ConnectionString
+                && left.DatabaseType == right.DatabaseType;
+        }
+        /// <inheritdoc/>
+        public static bool operator !=(DbConnectionInfo left, DbConnectionInfo right)
+        {
+            return !(left == right);
+        }
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+            {
+                return false;
+            }
+
+            if(obj is DbConnectionInfo dbConnectionInfo)
+            {
+                return this == dbConnectionInfo;
+            }
+
+            return false;
+        }
+        /// <inheritdoc/>
+        public override int GetHashCode()
+        {
+            return this.ConnectionString.GetHashCode();
+        }
+
     }
 }
