@@ -54,6 +54,8 @@ namespace IceCoffee.DbCore.Tools.UserControls
             this.textBox_preview = new System.Windows.Forms.TextBox();
             this.label_dbConnType = new System.Windows.Forms.Label();
             this.textBox_dbConnType = new System.Windows.Forms.TextBox();
+            this.textBox_subPath = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
@@ -167,7 +169,7 @@ namespace IceCoffee.DbCore.Tools.UserControls
             this.textBox_basicRepository.PlaceholderText = "输入仓储基类";
             this.textBox_basicRepository.Size = new System.Drawing.Size(683, 23);
             this.textBox_basicRepository.TabIndex = 1;
-            this.textBox_basicRepository.Text = "Primitives.DefaultRepository<TEntity>";
+            this.textBox_basicRepository.Text = "IceCoffee.DbCore.Primitives.Repository.SqlServerRepository<TEntity>";
             // 
             // label_basicRepository
             // 
@@ -184,7 +186,7 @@ namespace IceCoffee.DbCore.Tools.UserControls
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.splitContainer2.Cursor = System.Windows.Forms.Cursors.VSplit;
-            this.splitContainer2.Location = new System.Drawing.Point(29, 169);
+            this.splitContainer2.Location = new System.Drawing.Point(29, 212);
             this.splitContainer2.Name = "splitContainer2";
             // 
             // splitContainer2.Panel1
@@ -194,7 +196,7 @@ namespace IceCoffee.DbCore.Tools.UserControls
             // splitContainer2.Panel2
             // 
             this.splitContainer2.Panel2.Controls.Add(this.textBox_preview);
-            this.splitContainer2.Size = new System.Drawing.Size(805, 452);
+            this.splitContainer2.Size = new System.Drawing.Size(805, 409);
             this.splitContainer2.SplitterDistance = 499;
             this.splitContainer2.TabIndex = 9;
             // 
@@ -212,7 +214,7 @@ namespace IceCoffee.DbCore.Tools.UserControls
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.listView_columns);
-            this.splitContainer1.Size = new System.Drawing.Size(499, 452);
+            this.splitContainer1.Size = new System.Drawing.Size(499, 409);
             this.splitContainer1.SplitterDistance = 200;
             this.splitContainer1.TabIndex = 6;
             // 
@@ -234,7 +236,7 @@ namespace IceCoffee.DbCore.Tools.UserControls
             this.listView_entities.Location = new System.Drawing.Point(0, 0);
             this.listView_entities.MultiSelect = false;
             this.listView_entities.Name = "listView_entities";
-            this.listView_entities.Size = new System.Drawing.Size(200, 452);
+            this.listView_entities.Size = new System.Drawing.Size(200, 409);
             this.listView_entities.TabIndex = 1;
             this.listView_entities.UseCompatibleStateImageBehavior = false;
             this.listView_entities.View = System.Windows.Forms.View.Details;
@@ -256,7 +258,7 @@ namespace IceCoffee.DbCore.Tools.UserControls
             this.listView_columns.HideSelection = false;
             this.listView_columns.Location = new System.Drawing.Point(0, 0);
             this.listView_columns.Name = "listView_columns";
-            this.listView_columns.Size = new System.Drawing.Size(295, 452);
+            this.listView_columns.Size = new System.Drawing.Size(295, 409);
             this.listView_columns.TabIndex = 5;
             this.listView_columns.UseCompatibleStateImageBehavior = false;
             this.listView_columns.View = System.Windows.Forms.View.Details;
@@ -284,7 +286,7 @@ namespace IceCoffee.DbCore.Tools.UserControls
             this.textBox_preview.Multiline = true;
             this.textBox_preview.Name = "textBox_preview";
             this.textBox_preview.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox_preview.Size = new System.Drawing.Size(302, 452);
+            this.textBox_preview.Size = new System.Drawing.Size(302, 409);
             this.textBox_preview.TabIndex = 9;
             this.textBox_preview.WordWrap = false;
             // 
@@ -308,6 +310,26 @@ namespace IceCoffee.DbCore.Tools.UserControls
             this.textBox_dbConnType.TabIndex = 12;
             this.textBox_dbConnType.Text = "HYCX.Test.Data.Primitives.DefaultDbConnectionInfo";
             // 
+            // textBox_subPath
+            // 
+            this.textBox_subPath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox_subPath.Location = new System.Drawing.Point(151, 164);
+            this.textBox_subPath.Name = "textBox_subPath";
+            this.textBox_subPath.PlaceholderText = "输入命名空间前缀";
+            this.textBox_subPath.Size = new System.Drawing.Size(683, 23);
+            this.textBox_subPath.TabIndex = 1;
+            this.textBox_subPath.Text = "subPath";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(29, 167);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(44, 17);
+            this.label1.TabIndex = 3;
+            this.label1.Text = "子目录";
+            // 
             // UC_CodeGenerator
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
@@ -317,10 +339,12 @@ namespace IceCoffee.DbCore.Tools.UserControls
             this.Controls.Add(this.splitContainer2);
             this.Controls.Add(this.button_checkAndUncheck);
             this.Controls.Add(this.label_basicRepository);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.label_namespacePrefix);
             this.Controls.Add(this.label_rootPath);
             this.Controls.Add(this.label_dbConnectionString);
             this.Controls.Add(this.textBox_basicRepository);
+            this.Controls.Add(this.textBox_subPath);
             this.Controls.Add(this.textBox_namespacePrefix);
             this.Controls.Add(this.button_generate);
             this.Controls.Add(this.button_connect);
@@ -366,5 +390,7 @@ namespace IceCoffee.DbCore.Tools.UserControls
         private System.Windows.Forms.TextBox textBox_preview;
         private System.Windows.Forms.Label label_dbConnType;
         private System.Windows.Forms.TextBox textBox_dbConnType;
+        private System.Windows.Forms.TextBox textBox_subPath;
+        private System.Windows.Forms.Label label1;
     }
 }

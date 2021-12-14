@@ -68,7 +68,7 @@ namespace IceCoffee.DbCore.Tools.UserControls
                     IsView = isView
                 };
 
-                string subPath = isView ? "Views" : "Tables";
+                string subPath = this.textBox_subPath.Text;
 
                 string entityClass = GenerateEntityClass(entityStructure);
                 string path = Path.Combine(this.textBox_rootPath.Text, $"Entities/{subPath}/{entityName}.cs");
@@ -87,6 +87,7 @@ namespace IceCoffee.DbCore.Tools.UserControls
 
             MessageBox.Show("生成成功");
         }
+ 
 
         private string GenerateEntityClass(EntityStructure es)
         {
@@ -95,7 +96,7 @@ namespace IceCoffee.DbCore.Tools.UserControls
                 .AppendLine("using IceCoffee.DbCore.Primitives.Entity;")
                 .AppendLine("using IceCoffee.DbCore.OptionalAttributes;")
                 .AppendLine()
-                .AppendLine($"namespace {this.textBox_namespacePrefix.Text}.Entities")
+                .AppendLine($"namespace {this.textBox_namespacePrefix.Text}.Entities.{this.textBox_subPath.Text}")
                 .AppendLine("{")
                 .AppendLine("    /// <summary>")
                 .AppendLine("    /// ")
@@ -143,9 +144,9 @@ namespace IceCoffee.DbCore.Tools.UserControls
 
             string namespacePrefix = this.textBox_namespacePrefix.Text;
             StringBuilder sb = new StringBuilder(256)
-                .AppendLine($"using {namespacePrefix}.Entities;")
+                .AppendLine($"using {namespacePrefix}.Entities.{this.textBox_subPath.Text};")
                 .AppendLine()
-                .AppendLine($"namespace {namespacePrefix}.IRepositories")
+                .AppendLine($"namespace {namespacePrefix}.IRepositories.{this.textBox_subPath.Text}")
                 .AppendLine("{")
                 .AppendLine($"    public interface {repositoryName} : IceCoffee.DbCore.Primitives.Repository.IRepository<{entityName}>")
                 .AppendLine("    {")
@@ -180,10 +181,10 @@ namespace IceCoffee.DbCore.Tools.UserControls
             }
 
             StringBuilder sb = new StringBuilder(256)
-                .AppendLine($"using {namespacePrefix}.Entities;")
-                .AppendLine($"using {namespacePrefix}.IRepositories;")
+                .AppendLine($"using {namespacePrefix}.Entities.{this.textBox_subPath.Text};")
+                .AppendLine($"using {namespacePrefix}.IRepositories.{this.textBox_subPath.Text};")
                 .AppendLine()
-                .AppendLine($"namespace {namespacePrefix}.Repositories")
+                .AppendLine($"namespace {namespacePrefix}.Repositories.{this.textBox_subPath.Text}")
                 .AppendLine("{")
                 .AppendLine($"    public class {repositoryName} : {basicRepository}<{entityName}>, I{repositoryName}")
                 .AppendLine("    {")
@@ -242,17 +243,17 @@ namespace IceCoffee.DbCore.Tools.UserControls
 
         private void InitDirectory()
         {
-            CreateDirDirectory("Entities/Tables");
-            CreateDirDirectory("Entities/Views");
-            CreateDirDirectory("IRepositories/Tables");
-            CreateDirDirectory("IRepositories/Views");
-            CreateDirDirectory("Repositories/Tables");
-            CreateDirDirectory("Repositories/Views");
+            CreateDirDirectory("Entities");
+            CreateDirDirectory("Entities");
+            CreateDirDirectory("IRepositories");
+            CreateDirDirectory("IRepositories");
+            CreateDirDirectory("Repositories");
+            CreateDirDirectory("Repositories");
         }
 
         private void CreateDirDirectory(string dir)
         {
-            dir = Path.Combine(this.textBox_rootPath.Text, dir);
+            dir = Path.Combine(this.textBox_rootPath.Text, dir, this.textBox_subPath.Text);
             Directory.CreateDirectory(dir);
         }
 

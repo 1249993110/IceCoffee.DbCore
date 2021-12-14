@@ -1,18 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net45;net461;netstandard2.0;netcoreapp3.1;net5.0</TargetFrameworks>
+    <TargetFrameworks>net45;netcoreapp3.1;net6.0</TargetFrameworks>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Product>IceCoffee</Product>
     <Description>一个简单的数据库CRUD操作封装库</Description>
-    <Copyright>Copyright (c) 2021 IceCoffee</Copyright>
+    <Copyright>Copyright (c) 2022 IceCoffee</Copyright>
     <PackageProjectUrl>https://github.com/1249993110/IceCoffee.DbCore</PackageProjectUrl>
     <RepositoryUrl>https://github.com/1249993110/IceCoffee.DbCore</RepositoryUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <Authors>IceCoffee</Authors>
-    <Company>IceCoffee</Company>
-    <Version>1.0.0.45</Version>
+    <Company>LuoShuiTianYi</Company>
+    <Version>1.0.1.7</Version>
+    <LangVersion>10.0</LangVersion>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,22 +25,18 @@
       <PackagePath></PackagePath>
     </None>
   </ItemGroup>
-  
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <GenerateDocumentationFile>True</GenerateDocumentationFile>
-  </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\IceCoffee.Common\IceCoffee.Common\IceCoffee.Common.csproj" />
+	  <PackageReference Include="IceCoffee.Common" Version="1.0.1.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="PostSharp.Redist" Version="6.9.7" />
-    <PackageReference Include="PostSharp" Version="6.9.7">
+    <PackageReference Include="PostSharp.Redist" Version="6.10.5" />
+    <PackageReference Include="PostSharp" Version="6.10.5">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Mapster" Version="6.5.1" />
-    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.114.3" />
+    <PackageReference Include="Mapster" Version="7.2.0" />
+    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.115.5" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
@@ -48,10 +48,10 @@
   
   <ItemGroup Condition="'$(TargetFramework)' != 'net45'">
     <PackageReference Include="Dapper">
-      <Version>2.0.90</Version>
+      <Version>2.0.123</Version>
     </PackageReference>
     <PackageReference Include="System.Data.SqlClient">
-      <Version>4.8.2</Version>
+      <Version>4.8.3</Version>
     </PackageReference>
     <!--<PackageReference Include="Microsoft.Extensions.ObjectPool">
       <Version>5.0.8</Version>

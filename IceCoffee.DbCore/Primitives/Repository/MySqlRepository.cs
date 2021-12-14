@@ -71,26 +71,26 @@ namespace IceCoffee.DbCore.Primitives.Repository
         #region Async
         /// <inheritdoc />
         [CatchException("获取与条件匹配的所有记录的分页列表异常")]
-        public override async Task<IEnumerable<TEntity>> QueryPagedAsync(int pageIndex, int pageSize,
+        public override Task<IEnumerable<TEntity>> QueryPagedAsync(int pageIndex, int pageSize,
             string whereBy = null, string orderBy = null, object param = null)
         {
             throw new NotImplementedException();
         }
         /// <inheritdoc />
         [CatchException("插入或更新一条记录异常")]
-        public override async Task<int> ReplaceIntoAsync(TEntity entity, bool useLock = false)
+        public override Task<int> ReplaceIntoAsync(TEntity entity, bool useLock = false)
         {
             throw new NotImplementedException();
         }
         /// <inheritdoc />
         [CatchException("插入或更新多条记录异常")]
-        public override async Task<int> ReplaceIntoBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false)
+        public override Task<int> ReplaceIntoBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false)
         {
             throw new NotImplementedException();
         }
         /// <inheritdoc />
         [CatchException("插入多条记录异常")]
-        public override async Task<int> InsertIgnoreBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false)
+        public override Task<int> InsertIgnoreBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false)
         {
             throw new NotImplementedException();
         }
