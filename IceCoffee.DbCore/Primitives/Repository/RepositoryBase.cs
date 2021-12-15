@@ -6,14 +6,9 @@ using IceCoffee.DbCore.UnitWork;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
-using System.Data.SqlClient;
-using System.Data.SQLite;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace IceCoffee.DbCore.Primitives.Repository
@@ -46,7 +41,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
             IUnitOfWork unitOfWork = UnitOfWork.Default;
             if (unitOfWork.IsExplicitSubmit)
             {
-                if(unitOfWork.DbConnection == null)
+                if (unitOfWork.DbConnection == null)
                 {
                     unitOfWork.EnterContext(DbConnectionInfo);
                 }
@@ -87,13 +82,14 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
                 return result;
             }
-            catch
+            catch(Exception ex)
             {
                 if (useTransaction && unitOfWork.IsExplicitSubmit == false)
                 {
                     tran.Rollback();
                 }
-                throw;
+
+                throw new DbCoreException("Error in RepositoryBase.Execute", ex);
             }
             finally
             {
@@ -103,6 +99,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 }
             }
         }
+
         /// <summary>
         /// 异步执行参数化 SQL 语句
         /// </summary>
@@ -130,13 +127,14 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
                 return result;
             }
-            catch
+            catch(Exception ex)
             {
                 if (useTransaction && unitOfWork.IsExplicitSubmit == false)
                 {
                     tran.Rollback();
                 }
-                throw;
+
+                throw new DbCoreException("Error in RepositoryBase.ExecuteAsync", ex);
             }
             finally
             {
@@ -146,6 +144,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 }
             }
         }
+
         /// <summary>
         /// 执行参数化 SQL 语句，选择单个值
         /// </summary>
@@ -158,16 +157,30 @@ namespace IceCoffee.DbCore.Primitives.Repository
         {
             IUnitOfWork unitOfWork = GetUnitOfWork();
             IDbConnection conn = null;
+            IDbTransaction tran = null;
 
             try
             {
                 conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(DbConnectionInfo);
+                tran = unitOfWork.DbTransaction ?? (useTransaction ? conn.BeginTransaction() : null);
+
                 TReturn result = conn.ExecuteScalar<TReturn>(sql, param, commandType: CommandType.Text);
+
+                if (useTransaction && unitOfWork.IsExplicitSubmit == false)
+                {
+                    tran.Commit();
+                }
+
                 return result;
             }
-            catch
+            catch(Exception ex)
             {
-                throw;
+                if (useTransaction && unitOfWork.IsExplicitSubmit == false)
+                {
+                    tran.Rollback();
+                }
+
+                throw new DbCoreException("Error in RepositoryBase.ExecuteScalar", ex);
             }
             finally
             {
@@ -177,6 +190,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 }
             }
         }
+
         /// <summary>
         /// 异步执行参数化 SQL 语句，选择单个值
         /// </summary>
@@ -189,16 +203,29 @@ namespace IceCoffee.DbCore.Primitives.Repository
         {
             IUnitOfWork unitOfWork = GetUnitOfWork();
             IDbConnection conn = null;
+            IDbTransaction tran = null;
 
             try
             {
                 conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(DbConnectionInfo);
+                tran = unitOfWork.DbTransaction ?? (useTransaction ? conn.BeginTransaction() : null);
+
                 TReturn result = await conn.ExecuteScalarAsync<TReturn>(sql, param, commandType: CommandType.Text);
+                if (useTransaction && unitOfWork.IsExplicitSubmit == false)
+                {
+                    tran.Commit();
+                }
+
                 return result;
             }
-            catch
+            catch(Exception ex)
             {
-                throw;
+                if (useTransaction && unitOfWork.IsExplicitSubmit == false)
+                {
+                    tran.Rollback();
+                }
+
+                throw new DbCoreException("Error in RepositoryBase.ExecuteScalarAsync", ex);
             }
             finally
             {
@@ -208,6 +235,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 }
             }
         }
+
         /// <summary>
         /// 执行查询语句
         /// </summary>
@@ -226,9 +254,9 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 tran = unitOfWork.DbTransaction;
                 return conn.Query<TEntity>(sql, param, tran, commandType: CommandType.Text);
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw new DbCoreException("Error in RepositoryBase.Query", ex);
             }
             finally
             {
@@ -238,6 +266,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 }
             }
         }
+
         /// <summary>
         /// 异步执行查询语句
         /// </summary>
@@ -256,9 +285,9 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 tran = unitOfWork.DbTransaction;
                 return await conn.QueryAsync<TEntity>(sql, param, tran, commandType: CommandType.Text);
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw new DbCoreException("Error in RepositoryBase.QueryAsync", ex);
             }
             finally
             {
@@ -268,6 +297,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 }
             }
         }
+
         /// <summary>
         /// 执行存储过程
         /// </summary>
@@ -287,9 +317,9 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 return conn.Query<TReturn>(new CommandDefinition(commandText: procName, parameters: parameters,
                     transaction: tran, commandType: CommandType.StoredProcedure));
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw new DbCoreException("Error in RepositoryBase.ExecProcedure", ex);
             }
             finally
             {
@@ -299,6 +329,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 }
             }
         }
+
         /// <summary>
         /// 异步执行存储过程
         /// </summary>
@@ -319,9 +350,9 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 return await conn.QueryAsync<TReturn>(new CommandDefinition(commandText: procName, parameters: parameters,
                     transaction: tran, commandType: CommandType.StoredProcedure));
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                throw new DbCoreException("Error in RepositoryBase.ExecProcedureAsync", ex);
             }
             finally
             {
@@ -480,6 +511,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 throw new DbCoreException("初始化实体映射异常", ex);
             }
         }
+
         /// <summary>
         /// 实例化 RepositoryBase
         /// </summary>
@@ -491,14 +523,14 @@ namespace IceCoffee.DbCore.Primitives.Repository
         #endregion 构造
 
         #region Insert
+
         /// <inheritdoc />
-        [CatchException("插入数据异常")]
         public virtual int Insert(TEntity entity)
         {
             return base.Execute(string.Format("INSERT INTO {0} {1}", TableName, Insert_Statement), entity);
         }
+
         /// <inheritdoc />
-        [CatchException("批量插入数据异常")]
         public virtual int InsertBatch(IEnumerable<TEntity> entities, bool useTransaction = false)
         {
             return base.Execute(string.Format("INSERT INTO {0} {1}", TableName, Insert_Statement), entities, useTransaction);
@@ -507,82 +539,84 @@ namespace IceCoffee.DbCore.Primitives.Repository
         #endregion Insert
 
         #region Delete
+
         /// <inheritdoc />
-        [CatchException("删除数据异常")]
         public virtual int Delete(string whereBy, object param = null, bool useTransaction = false)
         {
             string sql = string.Format("DELETE FROM {0} {1}", TableName, whereBy == null ? string.Empty : "WHERE " + whereBy);
             return base.Execute(sql, param, useTransaction);
         }
+
         /// <inheritdoc />
-        [CatchException("删除数据异常")]
         public virtual int Delete(TEntity entity)
         {
             string sql = string.Format("DELETE FROM {0} WHERE {1}", TableName, KeyNameWhereBy);
             return base.Execute(sql, entity);
         }
+
         /// <inheritdoc />
-        [CatchException("批量删除数据异常")]
         public virtual int DeleteBatch(IEnumerable<TEntity> entities, bool useTransaction = false)
         {
             string sql = string.Format("DELETE FROM {0} WHERE {1}", TableName, KeyNameWhereBy);
             return base.Execute(sql, entities, useTransaction);
         }
+
         /// <inheritdoc />
-        [CatchException("通过Id删除数据异常")]
         public virtual int DeleteById<TId>(string idColumnName, TId id)
         {
             string sql = string.Format("DELETE FROM {0} WHERE {1}=@Id", TableName, idColumnName);
             return base.Execute(sql, new { Id = id });
         }
+
         /// <inheritdoc />
-        [CatchException("通过Id批量删除数据异常")]
         public virtual int DeleteBatchByIds<TId>(string idColumnName, IEnumerable<TId> ids, bool useTransaction = false)
         {
             string sql = string.Format("DELETE FROM {0} WHERE {1} IN @Ids", TableName, idColumnName);
             return Execute(sql, new { Ids = ids }, useTransaction);
         }
+
         #endregion Delete
 
         #region Query
+
         /// <inheritdoc />
-        [CatchException("查询数据异常")]
         public virtual IEnumerable<TEntity> Query(string whereBy = null, string orderBy = null, object param = null)
         {
-            string sql = string.Format("SELECT {0} FROM {1} {2} {3}", Select_Statement, TableName, 
-                whereBy == null ? string.Empty : "WHERE " + whereBy, 
+            string sql = string.Format("SELECT {0} FROM {1} {2} {3}", Select_Statement, TableName,
+                whereBy == null ? string.Empty : "WHERE " + whereBy,
                 orderBy == null ? string.Empty : "ORDER BY " + orderBy);
             return base.Query<TEntity>(sql, param);
         }
+
         /// <inheritdoc />
-        [CatchException("查询所有数据异常")]
         public virtual IEnumerable<TEntity> QueryAll(string orderBy = null)
         {
-            string sql = string.Format("SELECT {0} FROM {1} {2}", Select_Statement, TableName, 
+            string sql = string.Format("SELECT {0} FROM {1} {2}", Select_Statement, TableName,
                 orderBy == null ? string.Empty : "ORDER BY " + orderBy);
             return base.Query<TEntity>(sql, null);
         }
+
         /// <inheritdoc />
-        [CatchException("通过Id查询数据异常")]
         public virtual IEnumerable<TEntity> QueryById<TId>(string idColumnName, TId id)
         {
             string sql = string.Format("SELECT {0} FROM {1} WHERE {2}=@Id", Select_Statement, TableName, idColumnName);
             return base.Query<TEntity>(sql, new { Id = id });
         }
+
         /// <inheritdoc />
-        [CatchException("通过Id批量查询数据异常")]
         public virtual IEnumerable<TEntity> QueryByIds<TId>(string idColumnName, IEnumerable<TId> ids)
         {
             string sql = string.Format("SELECT {0} FROM {1} WHERE {2} IN @Ids", Select_Statement, TableName, idColumnName);
             return base.Query<TEntity>(sql, new { Ids = ids });
         }
+
         /// <inheritdoc />
-        [CatchException("获取记录条数异常")]
-        public virtual long QueryRecordCount(string whereBy = null, object param = null)
+        public virtual uint QueryRecordCount(string whereBy = null, object param = null)
         {
             string sql = string.Format("SELECT COUNT(*) FROM {0} {1}", TableName, whereBy == null ? string.Empty : "WHERE " + whereBy);
-            return base.ExecuteScalar<long>(sql, param);
+            return base.ExecuteScalar<uint>(sql, param);
         }
+
         /// <inheritdoc />
         public abstract IEnumerable<TEntity> QueryPaged(int pageIndex, int pageSize,
            string whereBy = null, string orderBy = null, object param = null);
@@ -590,36 +624,36 @@ namespace IceCoffee.DbCore.Primitives.Repository
         #endregion Query
 
         #region Update
+
         /// <inheritdoc />
-        [CatchException("更新数据异常")]
         public virtual int Update(string setClause, string whereBy, object param, bool useTransaction = false)
         {
             string sql = string.Format("UPDATE {0} SET {1} {2}", TableName, setClause, whereBy == null ? string.Empty : "WHERE " + whereBy);
             return base.Execute(sql, param, useTransaction);
         }
+
         /// <inheritdoc />
-        [CatchException("更新数据异常")]
         public virtual int Update(TEntity entity)
         {
             string sql = string.Format("UPDATE {0} SET {1} WHERE {2}", TableName, UpdateSet_Statement, KeyNameWhereBy);
             return base.Execute(sql, entity);
         }
+
         /// <inheritdoc />
-        [CatchException("批量更新数据异常")]
         public virtual int UpdateBatch(IEnumerable<TEntity> entities, bool useTransaction = false)
         {
             string sql = string.Format("UPDATE {0} SET {1} WHERE {2}", TableName, UpdateSet_Statement, KeyNameWhereBy);
             return base.Execute(sql, entities, useTransaction);
         }
+
         /// <inheritdoc />
-        [CatchException("通过Id更新数据异常")]
         public virtual int UpdateById(string idColumnName, TEntity entity)
         {
             string sql = string.Format("UPDATE {0} SET {1} WHERE {2}=@{2}", TableName, UpdateSet_Statement, idColumnName);
             return base.Execute(sql, entity);
         }
+
         /// <inheritdoc />
-        [CatchException("通过Id更新记录的一列异常")]
         public virtual int UpdateColumnById<TId, TValue>(string idColumnName, TId id, string valueColumnName, TValue value)
         {
             string sql = string.Format("UPDATE {0} SET {1}=@Value WHERE {2}=@Id", TableName, valueColumnName, idColumnName);
@@ -627,18 +661,23 @@ namespace IceCoffee.DbCore.Primitives.Repository
         }
 
         #endregion Update
-        /// <inheritdoc />
-        public abstract int ReplaceInto(TEntity entity, bool useLock = false);
-        /// <inheritdoc />
-        public abstract int ReplaceIntoBatch(IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false);
-        /// <inheritdoc />
-        public abstract int InsertIgnoreBatch(IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false);
 
         /// <inheritdoc />
-        public abstract int ReplaceInto(string tableName, TEntity entity, bool useLock = false);
+        public abstract int ReplaceInto(TEntity entity);
+
         /// <inheritdoc />
-        public abstract int ReplaceIntoBatch(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false);
+        public abstract int ReplaceIntoBatch(IEnumerable<TEntity> entities, bool useTransaction = false);
+
         /// <inheritdoc />
-        public abstract int InsertIgnoreBatch(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false);
+        public abstract int InsertIgnoreBatch(IEnumerable<TEntity> entities, bool useTransaction = false);
+
+        /// <inheritdoc />
+        public abstract int ReplaceInto(string tableName, TEntity entity);
+
+        /// <inheritdoc />
+        public abstract int ReplaceIntoBatch(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false);
+
+        /// <inheritdoc />
+        public abstract int InsertIgnoreBatch(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false);
     }
 }

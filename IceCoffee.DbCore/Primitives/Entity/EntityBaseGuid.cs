@@ -11,8 +11,8 @@ namespace IceCoffee.DbCore.Primitives.Entity
         /// <summary>
         /// 主键
         /// </summary>
-        [PrimaryKey, Column("Id"), IgnoreUpdate, IgnoreInsert]
-        public virtual Guid Key { get; set; }
+        [PrimaryKey, IgnoreUpdate, IgnoreInsert]
+        public virtual Guid Id { get; set; }
 
         /// <summary>
         /// 创建日期
@@ -20,14 +20,5 @@ namespace IceCoffee.DbCore.Primitives.Entity
         [IgnoreUpdate, IgnoreInsert]
         public DateTime CreatedDate { get; set; }
 
-        /// <summary>
-        /// 初始化，默认不生成主键，不生成创建日期，应由数据库生成
-        /// </summary>
-        public override object Init()
-        {
-            // Key = Guid.NewGuid();
-            // CreatedDate = DateTime.Now;
-            return this;
-        }
     }
 }

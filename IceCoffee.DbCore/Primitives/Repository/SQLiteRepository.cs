@@ -1,9 +1,6 @@
-﻿
-using IceCoffee.DbCore.ExceptionCatch;
+﻿using IceCoffee.DbCore.ExceptionCatch;
 using IceCoffee.DbCore.Primitives.Entity;
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace IceCoffee.DbCore.Primitives.Repository
@@ -31,8 +28,8 @@ namespace IceCoffee.DbCore.Primitives.Repository
         }
 
         #region Sync
+
         /// <inheritdoc />
-        [CatchException("获取与条件匹配的所有记录的分页列表异常")]
         public override IEnumerable<TEntity> QueryPaged(int pageIndex, int pageSize,
             string whereBy = null, string orderBy = null, object param = null)
         {
@@ -46,47 +43,51 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 (pageIndex - 1) * pageSize);
             return base.Query<TEntity>(sql, param);
         }
-        /// <inheritdoc />        
-        public override int ReplaceInto(TEntity entity, bool useLock = false)
-        {
-            return ReplaceInto(TableName, entity, useLock);
-        }
+
         /// <inheritdoc />
-        
-        public override int ReplaceIntoBatch(IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false)
+        public override int ReplaceInto(TEntity entity)
         {
-            return ReplaceIntoBatch(TableName, entities, useTransaction, useLock);
+            return ReplaceInto(TableName, entity);
         }
+
         /// <inheritdoc />
-        
-        public override int InsertIgnoreBatch(IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false)
+
+        public override int ReplaceIntoBatch(IEnumerable<TEntity> entities, bool useTransaction = false)
         {
-            return InsertIgnoreBatch(TableName, entities, useTransaction, useLock);
+            return ReplaceIntoBatch(TableName, entities, useTransaction);
         }
+
         /// <inheritdoc />
-        [CatchException("插入或更新一条记录异常")]
-        public override int ReplaceInto(string tableName, TEntity entity, bool useLock = false)
+
+        public override int InsertIgnoreBatch(IEnumerable<TEntity> entities, bool useTransaction = false)
+        {
+            return InsertIgnoreBatch(TableName, entities, useTransaction);
+        }
+
+        /// <inheritdoc />
+        public override int ReplaceInto(string tableName, TEntity entity)
         {
             return base.Execute(string.Format("REPLACE INTO {0} {1}", tableName, Insert_Statement), entity);
         }
+
         /// <inheritdoc />
-        [CatchException("插入或更新多条记录异常")]
-        public override int ReplaceIntoBatch(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false)
+        public override int ReplaceIntoBatch(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false)
         {
             return base.Execute(string.Format("REPLACE INTO {0} {1}", tableName, Insert_Statement), entities);
         }
+
         /// <inheritdoc />
-        [CatchException("插入多条记录异常")]
-        public override int InsertIgnoreBatch(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false)
+        public override int InsertIgnoreBatch(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false)
         {
             return base.Execute(string.Format("INSERT OR IGNORE INTO {0} {1}", tableName, Insert_Statement), entities);
         }
-        #endregion
+
+        #endregion Sync
 
         #region Async
+
         /// <inheritdoc />
-        [CatchException("获取与条件匹配的所有记录的分页列表异常")]
-        public override async Task<IEnumerable<TEntity>> QueryPagedAsync(int pageIndex, int pageSize,
+        public override Task<IEnumerable<TEntity>> QueryPagedAsync(int pageIndex, int pageSize,
             string whereBy = null, string orderBy = null, object param = null)
         {
             string sql = string.Format(
@@ -97,43 +98,45 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 orderBy ?? ((KeyNames == null || KeyNames.Length == 0) ? "1" : string.Join(",", KeyNames)),
                 pageSize,
                 (pageIndex - 1) * pageSize);
-            return await base.QueryAsync<TEntity>(sql, param);
-        }
-        /// <inheritdoc />
-        public override async Task<int> ReplaceIntoAsync(TEntity entity, bool useLock = false)
-        {
-            return await ReplaceIntoAsync(TableName, entity, useLock);
-        }
-        /// <inheritdoc />
-        public override async Task<int> ReplaceIntoBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false)
-        {
-            return await ReplaceIntoBatchAsync(TableName, entities, useTransaction, useLock);
-        }
-        /// <inheritdoc />
-        public override async Task<int> InsertIgnoreBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false)
-        {
-            return await InsertIgnoreBatchAsync(TableName, entities, useTransaction, useLock);
-        }
-        /// <inheritdoc />
-        [CatchException("插入或更新一条记录异常")]
-        public override async Task<int> ReplaceIntoAsync(string tableName, TEntity entity, bool useLock = false)
-        {
-            return await base.ExecuteAsync(string.Format("REPLACE INTO {0} {1}", tableName, Insert_Statement), entity);
-        }
-        /// <inheritdoc />
-        [CatchException("插入或更新多条记录异常")]
-        public override async Task<int> ReplaceIntoBatchAsync(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false)
-        {
-            return await base.ExecuteAsync(string.Format("REPLACE INTO {0} {1}", tableName, Insert_Statement), entities);
-        }
-        /// <inheritdoc />
-        [CatchException("插入多条记录异常")]
-        public override async Task<int> InsertIgnoreBatchAsync(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false)
-        {
-            return await base.ExecuteAsync(string.Format("INSERT OR IGNORE INTO {0} {1}", tableName, Insert_Statement), entities);
+            return base.QueryAsync<TEntity>(sql, param);
         }
 
-        
-        #endregion
+        /// <inheritdoc />
+        public override Task<int> ReplaceIntoAsync(TEntity entity)
+        {
+            return ReplaceIntoAsync(TableName, entity);
+        }
+
+        /// <inheritdoc />
+        public override Task<int> ReplaceIntoBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false)
+        {
+            return ReplaceIntoBatchAsync(TableName, entities, useTransaction);
+        }
+
+        /// <inheritdoc />
+        public override Task<int> InsertIgnoreBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false)
+        {
+            return InsertIgnoreBatchAsync(TableName, entities, useTransaction);
+        }
+
+        /// <inheritdoc />
+        public override Task<int> ReplaceIntoAsync(string tableName, TEntity entity)
+        {
+            return base.ExecuteAsync(string.Format("REPLACE INTO {0} {1}", tableName, Insert_Statement), entity);
+        }
+
+        /// <inheritdoc />
+        public override Task<int> ReplaceIntoBatchAsync(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false)
+        {
+            return base.ExecuteAsync(string.Format("REPLACE INTO {0} {1}", tableName, Insert_Statement), entities);
+        }
+
+        /// <inheritdoc />
+        public override Task<int> InsertIgnoreBatchAsync(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false)
+        {
+            return base.ExecuteAsync(string.Format("INSERT OR IGNORE INTO {0} {1}", tableName, Insert_Statement), entities);
+        }
+
+        #endregion Async
     }
 }

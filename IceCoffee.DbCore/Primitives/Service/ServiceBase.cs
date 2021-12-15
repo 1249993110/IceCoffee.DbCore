@@ -57,23 +57,16 @@ namespace IceCoffee.DbCore.Primitives.Service
 
         #region 默认实现
         /// <inheritdoc />
-        public virtual TDto Add(TDto dto)
+        public virtual int Add(TDto dto)
         {
             TEntity entity = DtoToEntity(dto);
-            entity.Init();
-            Repository.Insert(entity);
-            return EntityToDto(entity);
+            return Repository.Insert(entity);
         }
         /// <inheritdoc />
-        public virtual List<TDto> AddBatch(IEnumerable<TDto> dtos, bool useTransaction = false)
+        public virtual int AddBatch(IEnumerable<TDto> dtos, bool useTransaction = false)
         {
             List<TEntity> entities = DtoToEntity(dtos);
-            foreach (var entity in entities)
-            {
-                entity.Init();
-            }
-            Repository.InsertBatch(entities, useTransaction);
-            return EntityToDto(entities);
+            return Repository.InsertBatch(entities, useTransaction);
         }
         /// <inheritdoc />
         public virtual int Remove(string whereBy, object param = null, bool useTransaction = false)
@@ -101,7 +94,7 @@ namespace IceCoffee.DbCore.Primitives.Service
             return EntityToDto(Repository.QueryAll(orderBy));
         }
         /// <inheritdoc />
-        public virtual long GetRecordCount(string whereBy = null, object param = null)
+        public virtual uint GetRecordCount(string whereBy = null, object param = null)
         {
             return Repository.QueryRecordCount(whereBy, param);
         }

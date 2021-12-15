@@ -1,5 +1,4 @@
 ﻿using IceCoffee.DbCore.Primitives.Entity;
-using IceCoffee.DbCore.UnitWork;
 using System.Collections.Generic;
 
 namespace IceCoffee.DbCore.Primitives.Repository
@@ -57,7 +56,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <typeparam name="TId"></typeparam>
         /// <param name="idColumnName"></param>
         /// <param name="id"></param>
-        /// 
+        ///
         /// <returns></returns>
         int DeleteById<TId>(string idColumnName, TId id);
 
@@ -70,6 +69,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <param name="useTransaction"></param>
         /// <returns></returns>
         int DeleteBatchByIds<TId>(string idColumnName, IEnumerable<TId> ids, bool useTransaction = false);
+
         #endregion Delete
 
         #region Query
@@ -125,7 +125,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <param name="whereBy"></param>
         /// <param name="param"></param>
         /// <returns></returns>
-        long QueryRecordCount(string whereBy = null, object param = null);
+        uint QueryRecordCount(string whereBy = null, object param = null);
 
         #endregion Query
 
@@ -182,9 +182,8 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// 插入或更新一条记录
         /// </summary>
         /// <param name="entity"></param>
-        /// <param name="useLock"></param>
         /// <returns></returns>
-        int ReplaceInto(TEntity entity, bool useLock = false);
+        int ReplaceInto(TEntity entity);
 
         /// <summary>
         /// 插入或更新多条记录
@@ -192,9 +191,8 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// </summary>
         /// <param name="entities"></param>
         /// <param name="useTransaction"></param>
-        /// <param name="useLock"></param>
         /// <returns></returns>
-        int ReplaceIntoBatch(IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false);
+        int ReplaceIntoBatch(IEnumerable<TEntity> entities, bool useTransaction = false);
 
         /// <summary>
         /// 插入多条记录，忽略已经存在的冲突记录
@@ -202,19 +200,16 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// </summary>
         /// <param name="entities"></param>
         /// <param name="useTransaction"></param>
-        /// <param name="useLock"></param>
         /// <returns></returns>
-        int InsertIgnoreBatch(IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false);
-
+        int InsertIgnoreBatch(IEnumerable<TEntity> entities, bool useTransaction = false);
 
         /// <summary>
         /// 插入或更新一条记录
         /// </summary>
         /// <param name="tableName"></param>
         /// <param name="entity"></param>
-        /// <param name="useLock"></param>
         /// <returns></returns>
-        int ReplaceInto(string tableName, TEntity entity, bool useLock = false);
+        int ReplaceInto(string tableName, TEntity entity);
 
         /// <summary>
         /// 插入或更新多条记录
@@ -223,9 +218,8 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <param name="tableName"></param>
         /// <param name="entities"></param>
         /// <param name="useTransaction"></param>
-        /// <param name="useLock"></param>
         /// <returns></returns>
-        int ReplaceIntoBatch(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false);
+        int ReplaceIntoBatch(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false);
 
         /// <summary>
         /// 插入多条记录，忽略已经存在的冲突记录
@@ -234,9 +228,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <param name="tableName"></param>
         /// <param name="entities"></param>
         /// <param name="useTransaction"></param>
-        /// <param name="useLock"></param>
         /// <returns></returns>
-        int InsertIgnoreBatch(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false);
-
+        int InsertIgnoreBatch(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false);
     }
 }

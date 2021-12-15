@@ -12,11 +12,10 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <Authors>IceCoffee</Authors>
     <Company>LuoShuiTianYi</Company>
-    <Version>1.0.1.7</Version>
+    <Version>1.0.1.8</Version>
     <LangVersion>10.0</LangVersion>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
-    <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
   </PropertyGroup>
 
   <ItemGroup>
@@ -31,10 +30,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="PostSharp.Redist" Version="6.10.5" />
-    <PackageReference Include="PostSharp" Version="6.10.5">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
     <PackageReference Include="Mapster" Version="7.2.0" />
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.115.5" />
   </ItemGroup>

@@ -8,25 +8,21 @@ namespace IceCoffee.DbCore.UnitWork
     /// <inheritdoc cref="IUnitOfWork"/>
     public class UnitOfWork : IUnitOfWork
     {
-        /// <inheritdoc />
-        protected readonly System.Timers.Timer timer;
-        /// <inheritdoc />
-        protected bool isExplicitSubmit;
-        /// <inheritdoc />
-        protected IDbConnection dbConnection;
-        /// <inheritdoc />
-        protected IDbTransaction dbTransaction;
-        /// <inheritdoc />
-        protected DbConnectionInfo dbConnectionInfo;
+        private readonly Timer _timer;
+        private readonly int _maxHoldTime;
+        private bool _isExplicitSubmit;
+        private IDbConnection _dbConnection;
+        private IDbTransaction _dbTransaction;
+        private DbConnectionInfo _dbConnectionInfo;
 
         /// <inheritdoc />
-        public bool IsExplicitSubmit => isExplicitSubmit;
+        public bool IsExplicitSubmit => _isExplicitSubmit;
         /// <inheritdoc />
-        public IDbConnection DbConnection => dbConnection;
+        public IDbConnection DbConnection => _dbConnection;
         /// <inheritdoc />
-        public IDbTransaction DbTransaction => dbTransaction;
+        public IDbTransaction DbTransaction => _dbTransaction;
         /// <inheritdoc />
-        public DbConnectionInfo DbConnectionInfo => dbConnectionInfo;
+        public DbConnectionInfo DbConnectionInfo => _dbConnectionInfo;
 
         /// <summary>
         /// 实例化工作单元
@@ -35,17 +31,16 @@ namespace IceCoffee.DbCore.UnitWork
         /// <remarks>
         /// 工作单元状态检查使用 <see cref="System.Timers.Timer"/>, 其精确度大约为 50 毫秒
         /// </remarks>
-        public UnitOfWork(double maxHoldTime = 60000)
+        public UnitOfWork(int maxHoldTime = 60000)
         {
-            timer = new System.Timers.Timer(maxHoldTime);
-            timer.Elapsed += OnForceEnd;
-            timer.AutoReset = false;
+            _maxHoldTime = maxHoldTime;
+            _timer = new Timer(OnForceEnd, null, Timeout.Infinite, Timeout.Infinite);
         }
 
         /// <inheritdoc />
-        private void OnForceEnd(object sender, System.Timers.ElapsedEventArgs e)
+        private void OnForceEnd(object state)
         {
-            if (dbConnection != null)
+            if (_dbConnection != null)
             {
                 ForceEnd();
             }
@@ -55,9 +50,9 @@ namespace IceCoffee.DbCore.UnitWork
         public virtual IUnitOfWork EnterContext()
         {
             // 防止多次执行或跨线程使用
-            if (dbConnection == null)
+            if (_dbConnection == null)
             {
-                isExplicitSubmit = true;
+                _isExplicitSubmit = true;
             }
             else
             {
@@ -71,13 +66,13 @@ namespace IceCoffee.DbCore.UnitWork
         public virtual IUnitOfWork EnterContext(DbConnectionInfo dbConnectionInfo)
         {
             // 防止多次执行或跨线程使用
-            if (dbConnection == null)
+            if (_dbConnection == null)
             {
-                isExplicitSubmit = true;
-                this.dbConnectionInfo = dbConnectionInfo;
-                dbConnection = DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
-                dbTransaction = dbConnection.BeginTransaction();
-                timer.Start();
+                _isExplicitSubmit = true;
+                this._dbConnectionInfo = dbConnectionInfo;
+                _dbConnection = DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
+                _dbTransaction = _dbConnection.BeginTransaction();
+                _timer.Change(_maxHoldTime, Timeout.Infinite);
             }
             else
             {
@@ -91,19 +86,19 @@ namespace IceCoffee.DbCore.UnitWork
         public virtual void SaveChanges()
         {
             // 防止多次执行或跨线程使用
-            if (dbConnection != null)
+            if (_dbConnection != null)
             {
-                isExplicitSubmit = false;
-                timer.Stop();
+                _isExplicitSubmit = false;
+                _timer.Change(Timeout.Infinite, Timeout.Infinite);
 
-                dbTransaction.Commit();
-                dbTransaction.Dispose();
-                dbTransaction = null;
+                _dbTransaction.Commit();
+                _dbTransaction.Dispose();
+                _dbTransaction = null;
 
-                DbConnectionFactory.CollectDbConnectionToPool(dbConnection);
-                dbConnection = null;
+                DbConnectionFactory.CollectDbConnectionToPool(_dbConnection);
+                _dbConnection = null;
 
-                dbConnectionInfo = null;
+                _dbConnectionInfo = null;
             }
             else
             {
@@ -114,19 +109,19 @@ namespace IceCoffee.DbCore.UnitWork
         public virtual void Rollback()
         {
             // 防止多次执行或跨线程使用
-            if (dbConnection != null)
+            if (_dbConnection != null)
             {
-                isExplicitSubmit = false;
-                timer.Stop();
+                _isExplicitSubmit = false;
+                _timer.Change(Timeout.Infinite, Timeout.Infinite);
 
-                dbTransaction.Rollback();
-                dbTransaction.Dispose();
-                dbTransaction = null;
+                _dbTransaction.Rollback();
+                _dbTransaction.Dispose();
+                _dbTransaction = null;
 
-                DbConnectionFactory.CollectDbConnectionToPool(dbConnection);
-                dbConnection = null;
+                DbConnectionFactory.CollectDbConnectionToPool(_dbConnection);
+                _dbConnection = null;
 
-                dbConnectionInfo = null;
+                _dbConnectionInfo = null;
             }
             else
             {
@@ -139,16 +134,16 @@ namespace IceCoffee.DbCore.UnitWork
         /// </summary>
         protected virtual void ForceEnd()
         {
-            isExplicitSubmit = false;
+            _isExplicitSubmit = false;
 
-            dbTransaction.Rollback();
-            dbTransaction.Dispose();
-            dbTransaction = null;
+            _dbTransaction.Rollback();
+            _dbTransaction.Dispose();
+            _dbTransaction = null;
 
-            dbConnection.Dispose();
-            dbConnection = null;
+            _dbConnection.Dispose();
+            _dbConnection = null;
 
-            dbConnectionInfo = null;
+            _dbConnectionInfo = null;
         }
         
         #region 默认实现

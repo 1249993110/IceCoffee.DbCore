@@ -185,9 +185,8 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// 插入或更新一条记录
         /// </summary>
         /// <param name="entity"></param>
-        /// <param name="useLock"></param>
         /// <returns></returns>
-        Task<int> ReplaceIntoAsync(TEntity entity, bool useLock = false);
+        Task<int> ReplaceIntoAsync(TEntity entity);
 
         /// <summary>
         /// 插入或更新多条记录
@@ -195,9 +194,8 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// </summary>
         /// <param name="entities"></param>
         /// <param name="useTransaction"></param>
-        /// <param name="useLock"></param>
         /// <returns></returns>
-        Task<int> ReplaceIntoBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false);
+        Task<int> ReplaceIntoBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false);
 
         /// <summary>
         /// 插入多条记录，忽略已经存在的冲突记录
@@ -205,19 +203,16 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// </summary>
         /// <param name="entities"></param>
         /// <param name="useTransaction"></param>
-        /// <param name="useLock"></param>
         /// <returns></returns>
-        Task<int> InsertIgnoreBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false);
-
+        Task<int> InsertIgnoreBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false);
 
         /// <summary>
         /// 插入或更新一条记录
         /// </summary>
         /// <param name="tableName"></param>
         /// <param name="entity"></param>
-        /// <param name="useLock"></param>
         /// <returns></returns>
-        Task<int> ReplaceIntoAsync(string tableName, TEntity entity, bool useLock = false);
+        Task<int> ReplaceIntoAsync(string tableName, TEntity entity);
 
         /// <summary>
         /// 插入或更新多条记录
@@ -226,9 +221,8 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <param name="tableName"></param>
         /// <param name="entities"></param>
         /// <param name="useTransaction"></param>
-        /// <param name="useLock"></param>
         /// <returns></returns>
-        Task<int> ReplaceIntoBatchAsync(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false);
+        Task<int> ReplaceIntoBatchAsync(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false);
 
         /// <summary>
         /// 插入多条记录，忽略已经存在的冲突记录
@@ -237,8 +231,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <param name="tableName"></param>
         /// <param name="entities"></param>
         /// <param name="useTransaction"></param>
-        /// <param name="useLock"></param>
         /// <returns></returns>
-        Task<int> InsertIgnoreBatchAsync(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false, bool useLock = false);
+        Task<int> InsertIgnoreBatchAsync(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false);
     }
 }

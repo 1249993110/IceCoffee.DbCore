@@ -14,7 +14,7 @@ namespace IceCoffee.DbCore.Primitives.Service
         /// 添加数据
         /// </summary>
         /// <returns></returns>
-        TDto Add(TDto dto);
+        int Add(TDto dto);
 
         /// <summary>
         /// 批量添加数据
@@ -22,7 +22,7 @@ namespace IceCoffee.DbCore.Primitives.Service
         /// <param name="dtos"></param>
         /// <param name="useTransaction"></param>
         /// <returns></returns>
-        List<TDto> AddBatch(IEnumerable<TDto> dtos, bool useTransaction = false);
+        int AddBatch(IEnumerable<TDto> dtos, bool useTransaction = false);
 
         /// <summary>
         /// 根据条件和匿名对象删除任意数据
@@ -69,7 +69,7 @@ namespace IceCoffee.DbCore.Primitives.Service
         /// <param name="whereBy"></param>
         /// <param name="param"></param>
         /// <returns></returns>
-        long GetRecordCount(string whereBy = null, object param = null);
+        uint GetRecordCount(string whereBy = null, object param = null);
 
         /// <summary>
         /// 更新数据

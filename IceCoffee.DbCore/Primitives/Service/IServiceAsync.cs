@@ -10,7 +10,7 @@ namespace IceCoffee.DbCore.Primitives.Service
         /// 添加数据
         /// </summary>
         /// <returns></returns>
-        Task<TDto> AddAsync(TDto dto);
+        Task<int> AddAsync(TDto dto);
 
         /// <summary>
         /// 删除数据
