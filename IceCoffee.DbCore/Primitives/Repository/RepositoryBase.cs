@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using IceCoffee.DbCore.ExceptionCatch;
 using IceCoffee.DbCore.OptionalAttributes;
+using IceCoffee.DbCore.Primitives.Dto;
 using IceCoffee.DbCore.Primitives.Entity;
 using IceCoffee.DbCore.UnitWork;
 using System;
@@ -621,6 +622,11 @@ namespace IceCoffee.DbCore.Primitives.Repository
         public abstract IEnumerable<TEntity> QueryPaged(int pageIndex, int pageSize,
            string whereBy = null, string orderBy = null, object param = null);
 
+        /// <inheritdoc />
+        public abstract PaginationResultDto QueryPaged(PaginationQueryDto dto, string keywordMappedPropName);
+
+        /// <inheritdoc />
+        public abstract Task<PaginationResultDto> QueryPagedAsync(PaginationQueryDto dto, string keywordMappedPropName);
         #endregion Query
 
         #region Update

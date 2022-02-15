@@ -13,8 +13,6 @@ namespace IceCoffee.DbCore
     {
         private readonly string _connectionString;
 
-        private readonly DbProviderFactory _factory;
-
         /// <summary>
         /// 连接字符串
         /// </summary>
@@ -24,31 +22,10 @@ namespace IceCoffee.DbCore
         /// 实例化数据库连接池
         /// </summary>
         /// <param name="connectionString"></param>
-        /// <param name="factory"></param>
-        /// <param name="maxConnectionCount">默认大小CPU*2</param>
-        public DbConnectionPool(string connectionString, DbProviderFactory factory, int maxConnectionCount = 0) : base(maxConnectionCount)
+        /// <param name="connectionGenerator"></param>
+        public DbConnectionPool(string connectionString, Func<IDbConnection> connectionGenerator) : base(connectionGenerator)
         {
             this._connectionString = connectionString;
-            this._factory = factory;
-        }
-
-        /// <summary>
-        /// <inheritdoc />
-        /// </summary>
-        /// <returns></returns>
-        protected override IDbConnection Create()
-        {
-            var conn = _factory?.CreateConnection();
-            if (conn == null)
-            {
-                throw new DbCoreException("连接创建失败！请检查驱动是否正常");
-            }
-
-            conn.ConnectionString = _connectionString;
-
-            conn.Open();
-
-            return conn;
         }
 
         /// <summary>
@@ -57,13 +34,22 @@ namespace IceCoffee.DbCore
         /// <returns></returns>
         public override IDbConnection Get()
         {
-            var conn = base.Get();
-            if (conn.State == ConnectionState.Closed)
+            try
             {
-                conn.Open();
-            }
+                var conn = base.Get();
 
-            return conn;
+                if (conn.State == ConnectionState.Closed)
+                {
+                    conn.ConnectionString = _connectionString;
+                    conn.Open();
+                }
+
+                return conn;
+            }
+            catch (Exception ex)
+            {
+                throw new DbCoreException("数据库连接打开失败！请检查驱动是否正常", ex);
+            }
         }
 
         /// <summary>

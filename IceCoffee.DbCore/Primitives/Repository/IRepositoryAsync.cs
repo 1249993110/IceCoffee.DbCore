@@ -1,4 +1,5 @@
-﻿using IceCoffee.DbCore.Primitives.Entity;
+﻿using IceCoffee.DbCore.Primitives.Dto;
+using IceCoffee.DbCore.Primitives.Entity;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -123,12 +124,20 @@ namespace IceCoffee.DbCore.Primitives.Repository
         Task<IEnumerable<TEntity>> QueryPagedAsync(int pageIndex, int pageSize, string whereBy = null, string orderBy = null, object param = null);
 
         /// <summary>
+        /// 获取与条件匹配的所有记录的分页列表
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <param name="keywordMappedPropName">关键词对应的属性名称</param>
+        /// <returns></returns>
+        Task<PaginationResultDto> QueryPagedAsync(PaginationQueryDto dto, string keywordMappedPropName);
+
+        /// <summary>
         /// 获取与条件匹配的所有记录的计数
         /// </summary>
         /// <param name="whereBy"></param>
         /// <param name="param"></param>
         /// <returns></returns>
-        Task<long> QueryRecordCountAsync(string whereBy = null, object param = null);
+        Task<uint> QueryRecordCountAsync(string whereBy = null, object param = null);
 
         #endregion Query
 

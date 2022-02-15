@@ -1,7 +1,10 @@
 ﻿using IceCoffee.DbCore.ExceptionCatch;
+using IceCoffee.DbCore.Primitives.Dto;
 using IceCoffee.DbCore.Primitives.Entity;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace IceCoffee.DbCore.Primitives.Repository
 {
@@ -61,6 +64,12 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 (pageIndex - 1) * pageSize,
                 pageSize);
             return base.Query<TEntity>(sql, param);
+        }
+
+        /// <inheritdoc />
+        public override PaginationResultDto QueryPaged(PaginationQueryDto dto, string keywordMappedPropName)
+        {
+            return QueryPagedAsync(dto, keywordMappedPropName).Result;
         }
 
         /// <inheritdoc />
@@ -133,6 +142,33 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 (pageIndex - 1) * pageSize,
                 pageSize);
             return base.QueryAsync<TEntity>(sql, param);
+        }
+
+        /// <inheritdoc />
+        public override async Task<PaginationResultDto> QueryPagedAsync(PaginationQueryDto dto, string keywordMappedPropName)
+        {
+            string orderBy = null;
+
+            if (string.IsNullOrEmpty(dto.Order) == false)
+            {
+                // 避免sql注入
+                if ((dto.Order.Contains(',') && dto.Order.Split(',').All(x => typeof(TEntity).GetProperty(x, BindingFlags.Instance | BindingFlags.Public) != null))
+                    || typeof(TEntity).GetProperty(dto.Order, BindingFlags.Instance | BindingFlags.Public) != null)
+                {
+                    orderBy = dto.Order + (dto.Desc ? "DESC" : "ASC");
+                }
+            }
+
+            string whereBy = null;
+            if (string.IsNullOrEmpty(dto.Keyword) == false)
+            {
+                whereBy = $"{keywordMappedPropName} LIKE CONCAT('%',@Keyword,'%')";
+            }
+
+            var items = await this.QueryPagedAsync(dto.PageIndex, dto.PageSize, whereBy, orderBy, dto);
+            uint total = await this.QueryRecordCountAsync(whereBy, dto);
+
+            return new PaginationResultDto() { Items = items, Total = total };
         }
 
         /// <inheritdoc />

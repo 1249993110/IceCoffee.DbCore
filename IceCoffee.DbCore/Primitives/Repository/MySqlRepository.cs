@@ -1,4 +1,5 @@
 ﻿using IceCoffee.DbCore.ExceptionCatch;
+using IceCoffee.DbCore.Primitives.Dto;
 using IceCoffee.DbCore.Primitives.Entity;
 using System;
 using System.Collections.Generic;
@@ -68,6 +69,11 @@ namespace IceCoffee.DbCore.Primitives.Repository
             throw new NotImplementedException();
         }
 
+        public override PaginationResultDto QueryPaged(PaginationQueryDto dto, string keywordMappedPropName)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion Sync
 
         #region Async
@@ -111,6 +117,11 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
         /// <inheritdoc />
         public override Task<int> InsertIgnoreBatchAsync(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override Task<PaginationResultDto> QueryPagedAsync(PaginationQueryDto dto, string keywordMappedPropName)
         {
             throw new NotImplementedException();
         }

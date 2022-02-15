@@ -31,7 +31,7 @@ namespace IceCoffee.DbCore
 
         private static IObjectPool<IDbConnection> DefaultDbConnectionPoolGenerator(string connStr, DbProviderFactory factory)
         {
-            return new DbConnectionPool(connStr, factory);
+            return new DbConnectionPool(connStr, factory.CreateConnection);
         }
 
         private static DbProviderFactory GetProvider(DatabaseType databaseType)
