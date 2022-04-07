@@ -14,14 +14,14 @@ namespace IceCoffee.DbCore.Primitives.Dto
         public int PageIndex { get; set; }
 
         /// <summary>
-        /// 每页数量
+        /// 每页数量，值小于 0 时返回所有记录
         /// </summary>
         public int PageSize { get; set; }
 
         /// <summary>
         /// 排序
         /// </summary>
-        public string Order { get; set; }
+        public string? Order { get; set; }
 
         /// <summary>
         /// 是否降序
@@ -31,6 +31,6 @@ namespace IceCoffee.DbCore.Primitives.Dto
         /// <summary>
         /// 关键词
         /// </summary>
-        public string Keyword { get; set; }
+        public string? Keyword { get; set; }
     }
 }

@@ -9,13 +9,14 @@
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 		<LangVersion>10.0</LangVersion>
 		<NoWarn>$(NoWarn);1591</NoWarn>
+		<Nullable>enable</Nullable>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageProjectUrl>https://github.com/1249993110/IceCoffee.DbCore</PackageProjectUrl>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<Product>IceCoffee</Product>
 		<RepositoryUrl>https://github.com/1249993110/IceCoffee.DbCore</RepositoryUrl>
 		<TargetFrameworks>net6.0;netcoreapp3.1;net461</TargetFrameworks>
-		<Version>1.0.2.0</Version>
+		<Version>1.0.2.4</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -27,7 +28,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="IceCoffee.Common" Version="1.0.2.1" />
+		<PackageReference Include="IceCoffee.Common" Version="1.0.2.2" />
 		<PackageReference Include="Mapster" Version="7.2.0" />
 		<PackageReference Include="System.Data.SQLite.Core" Version="1.0.115.5" />
 		<PackageReference Include="Dapper" Version="2.0.123" />

@@ -165,7 +165,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(DbConnectionInfo);
                 tran = unitOfWork.DbTransaction ?? (useTransaction ? conn.BeginTransaction() : null);
 
-                TReturn result = conn.ExecuteScalar<TReturn>(sql, param, commandType: CommandType.Text);
+                TReturn result = conn.ExecuteScalar<TReturn>(sql, param, tran, commandType: CommandType.Text);
 
                 if (useTransaction && unitOfWork.IsExplicitSubmit == false)
                 {
@@ -211,7 +211,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(DbConnectionInfo);
                 tran = unitOfWork.DbTransaction ?? (useTransaction ? conn.BeginTransaction() : null);
 
-                TReturn result = await conn.ExecuteScalarAsync<TReturn>(sql, param, commandType: CommandType.Text);
+                TReturn result = await conn.ExecuteScalarAsync<TReturn>(sql, param, tran, commandType: CommandType.Text);
                 if (useTransaction && unitOfWork.IsExplicitSubmit == false)
                 {
                     tran.Commit();
@@ -624,9 +624,8 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
         /// <inheritdoc />
         public abstract PaginationResultDto QueryPaged(PaginationQueryDto dto, string keywordMappedPropName);
-
         /// <inheritdoc />
-        public abstract Task<PaginationResultDto> QueryPagedAsync(PaginationQueryDto dto, string keywordMappedPropName);
+        public abstract PaginationResultDto QueryPaged(PaginationQueryDto dto, string[] keywordMappedPropNames);
         #endregion Query
 
         #region Update

@@ -116,7 +116,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// 获取与条件匹配的所有记录的分页列表
         /// </summary>
         /// <param name="pageIndex">页码</param>
-        /// <param name="pageSize">每页数量</param>
+        /// <param name="pageSize">每页数量，值小于 0 时返回所有记录</param>
         /// <param name="whereBy">where条件字符串，不能为空字符串""</param>
         /// <param name="orderBy">顺序字符串</param>
         /// <param name="param">带参数的匿名对象</param>
@@ -130,6 +130,14 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <param name="keywordMappedPropName">关键词对应的属性名称</param>
         /// <returns></returns>
         Task<PaginationResultDto> QueryPagedAsync(PaginationQueryDto dto, string keywordMappedPropName);
+
+        /// <summary>
+        /// 获取与条件匹配的所有记录的分页列表
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <param name="keywordMappedPropNames">关键词对应的属性名称数组</param>
+        /// <returns></returns>
+        Task<PaginationResultDto> QueryPagedAsync(PaginationQueryDto dto, string[] keywordMappedPropNames);
 
         /// <summary>
         /// 获取与条件匹配的所有记录的计数

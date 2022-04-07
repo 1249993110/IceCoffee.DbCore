@@ -10,6 +10,6 @@ namespace IceCoffee.DbCore.Primitives.Dto
     {
         public uint Total { get; set; }
 
-        public object Items { get; set; }
+        public object? Items { get; set; }
     }
 }

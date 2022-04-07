@@ -126,6 +126,16 @@ namespace IceCoffee.DbCore.Primitives.Repository
             throw new NotImplementedException();
         }
 
+        public override Task<PaginationResultDto> QueryPagedAsync(PaginationQueryDto dto, string[] keywordMappedPropNames)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override PaginationResultDto QueryPaged(PaginationQueryDto dto, string[] keywordMappedPropNames)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion Async
     }
 }

@@ -55,6 +55,11 @@ namespace IceCoffee.DbCore.Primitives.Repository
         public override IEnumerable<TEntity> QueryPaged(int pageIndex, int pageSize,
             string whereBy = null, string orderBy = null, object param = null)
         {
+            if(pageSize < 0)
+            {
+                return base.Query(whereBy, orderBy, param);
+            }
+
             string sql = string.Format(
                 QueryPaged_Statement,
                 Select_Statement,
@@ -70,6 +75,12 @@ namespace IceCoffee.DbCore.Primitives.Repository
         public override PaginationResultDto QueryPaged(PaginationQueryDto dto, string keywordMappedPropName)
         {
             return QueryPagedAsync(dto, keywordMappedPropName).Result;
+        }
+
+        /// <inheritdoc />
+        public override PaginationResultDto QueryPaged(PaginationQueryDto dto, string[] keywordMappedPropNames)
+        {
+            return QueryPagedAsync(dto, keywordMappedPropNames).Result;
         }
 
         /// <inheritdoc />
@@ -133,6 +144,11 @@ namespace IceCoffee.DbCore.Primitives.Repository
         public override Task<IEnumerable<TEntity>> QueryPagedAsync(int pageIndex, int pageSize,
             string whereBy = null, string orderBy = null, object param = null)
         {
+            if (pageSize < 0)
+            {
+                return base.QueryAsync(whereBy, orderBy, param);
+            }
+
             string sql = string.Format(
                 QueryPaged_Statement,
                 Select_Statement,
@@ -152,10 +168,9 @@ namespace IceCoffee.DbCore.Primitives.Repository
             if (string.IsNullOrEmpty(dto.Order) == false)
             {
                 // 避免sql注入
-                if ((dto.Order.Contains(',') && dto.Order.Split(',').All(x => typeof(TEntity).GetProperty(x, BindingFlags.Instance | BindingFlags.Public) != null))
-                    || typeof(TEntity).GetProperty(dto.Order, BindingFlags.Instance | BindingFlags.Public) != null)
+                if (typeof(TEntity).GetProperty(dto.Order, BindingFlags.Instance | BindingFlags.Public) != null)
                 {
-                    orderBy = dto.Order + (dto.Desc ? "DESC" : "ASC");
+                    orderBy = dto.Order + (dto.Desc ? " DESC" : " ASC");
                 }
             }
 
@@ -163,6 +178,36 @@ namespace IceCoffee.DbCore.Primitives.Repository
             if (string.IsNullOrEmpty(dto.Keyword) == false)
             {
                 whereBy = $"{keywordMappedPropName} LIKE CONCAT('%',@Keyword,'%')";
+            }
+
+            var items = await this.QueryPagedAsync(dto.PageIndex, dto.PageSize, whereBy, orderBy, dto);
+            uint total = await this.QueryRecordCountAsync(whereBy, dto);
+
+            return new PaginationResultDto() { Items = items, Total = total };
+        }
+
+        /// <inheritdoc />
+        public override async Task<PaginationResultDto> QueryPagedAsync(PaginationQueryDto dto, string[] keywordMappedPropNames)
+        {
+            string orderBy = null;
+
+            if (string.IsNullOrEmpty(dto.Order) == false)
+            {
+                // 避免sql注入
+                if (typeof(TEntity).GetProperty(dto.Order, BindingFlags.Instance | BindingFlags.Public) != null)
+                {
+                    orderBy = dto.Order + (dto.Desc ? " DESC" : " ASC");
+                }
+            }
+
+            string whereBy = null;
+            if (string.IsNullOrEmpty(dto.Keyword) == false)
+            {
+                whereBy = $"{keywordMappedPropNames[0]} LIKE CONCAT('%',@Keyword,'%')";
+                for (int i = 1, len = keywordMappedPropNames.Length; i < len; ++i)
+                {
+                    whereBy += $" OR {keywordMappedPropNames[i]} LIKE CONCAT('%',@Keyword,'%')";
+                }
             }
 
             var items = await this.QueryPagedAsync(dto.PageIndex, dto.PageSize, whereBy, orderBy, dto);
