@@ -4,7 +4,7 @@ using System;
 namespace IceCoffee.DbCore.ExceptionCatch
 {
     /// <summary>
-    /// 数据库封装异常
+    /// 数据库核心异常
     /// </summary>
     public class DbCoreException : CustomExceptionBase
     {

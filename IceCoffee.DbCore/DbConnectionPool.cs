@@ -2,7 +2,6 @@
 using IceCoffee.DbCore.ExceptionCatch;
 using System;
 using System.Data;
-using System.Data.Common;
 
 namespace IceCoffee.DbCore
 {
@@ -14,11 +13,6 @@ namespace IceCoffee.DbCore
         private readonly string _connectionString;
 
         /// <summary>
-        /// 连接字符串
-        /// </summary>
-        public string ConnectionString => _connectionString;
-
-        /// <summary>
         /// 实例化数据库连接池
         /// </summary>
         /// <param name="connectionString"></param>
@@ -27,6 +21,11 @@ namespace IceCoffee.DbCore
         {
             this._connectionString = connectionString;
         }
+
+        /// <summary>
+        /// 连接字符串
+        /// </summary>
+        public string ConnectionString => _connectionString;
 
         /// <summary>
         /// 申请时检查是否打开

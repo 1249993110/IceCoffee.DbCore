@@ -22,71 +22,6 @@ namespace IceCoffee.DbCore.Utils
         }
 
         /// <summary>
-        /// 删除SQLite数据库
-        /// </summary>
-        public static void DeleteSQLiteDB(string path)
-        {
-            if (System.IO.File.Exists(path))
-            {
-                System.IO.File.Delete(path);
-            }
-        }
-
-        /// <summary>
-        /// 从连接池中获取数据库连接，以执行sql语句
-        /// </summary>
-        /// <param name="dbConnectionInfo"></param>
-        /// <param name="sql"></param>
-        /// <param name="param"></param>
-        public static int ExecuteSql(DbConnectionInfo dbConnectionInfo, string sql, object param = null)
-        {
-            IDbConnection connection = null;
-            try
-            {
-                connection = DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
-                return connection.Execute(sql, param);
-            }
-            catch(Exception ex)
-            {
-                throw new DbCoreException("执行 SQL 语句异常", ex);
-            }
-            finally
-            {
-                if(connection != null)
-                {
-                    DbConnectionFactory.CollectDbConnectionToPool(connection);
-                }
-            }
-        }
-
-        /// <summary>
-        /// 从连接池中获取数据库连接，以执行sql语句
-        /// </summary>
-        /// <param name="dbConnectionInfo"></param>
-        /// <param name="sql"></param>
-        /// <param name="param"></param>
-        public static IEnumerable<TEntity> QueryAny<TEntity>(DbConnectionInfo dbConnectionInfo, string sql, object param = null)
-        {
-            IDbConnection connection = null;
-            try
-            {
-                connection = DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
-                return connection.Query<TEntity>(sql, param);
-            }
-            catch (Exception ex)
-            {
-                throw new DbCoreException("执行 SQL 语句异常", ex);
-            }
-            finally
-            {
-                if (connection != null)
-                {
-                    DbConnectionFactory.CollectDbConnectionToPool(connection);
-                }
-            }
-        }
-
-        /// <summary>
         /// 创建表
         /// </summary>
         /// <param name="dbConnectionInfo"></param>
@@ -106,6 +41,17 @@ namespace IceCoffee.DbCore.Utils
         }
 
         /// <summary>
+        /// 删除SQLite数据库
+        /// </summary>
+        public static void DeleteSQLiteDB(string path)
+        {
+            if (System.IO.File.Exists(path))
+            {
+                System.IO.File.Delete(path);
+            }
+        }
+
+        /// <summary>
         /// 删除表
         /// </summary>
         /// <param name="dbConnectionInfo"></param>
@@ -120,6 +66,58 @@ namespace IceCoffee.DbCore.Utils
             catch (Exception ex)
             {
                 throw new DbCoreException("删除表异常", ex);
+            }
+        }
+
+        /// <summary>
+        /// 从连接池中获取数据库连接，以执行sql语句
+        /// </summary>
+        /// <param name="dbConnectionInfo"></param>
+        /// <param name="sql"></param>
+        /// <param name="param"></param>
+        public static int ExecuteSql(DbConnectionInfo dbConnectionInfo, string sql, object? param = null)
+        {
+            IDbConnection connection = DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
+            try
+            {
+                return connection.Execute(sql, param);
+            }
+            catch (Exception ex)
+            {
+                throw new DbCoreException("执行 SQL 语句异常", ex);
+            }
+            finally
+            {
+                if (connection != null)
+                {
+                    DbConnectionFactory.CollectDbConnectionToPool(connection);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 从连接池中获取数据库连接，以执行sql语句
+        /// </summary>
+        /// <param name="dbConnectionInfo"></param>
+        /// <param name="sql"></param>
+        /// <param name="param"></param>
+        public static IEnumerable<TEntity> QueryAny<TEntity>(DbConnectionInfo dbConnectionInfo, string sql, object? param = null)
+        {
+            IDbConnection connection = DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
+            try
+            {
+                return connection.Query<TEntity>(sql, param);
+            }
+            catch (Exception ex)
+            {
+                throw new DbCoreException("执行 SQL 语句异常", ex);
+            }
+            finally
+            {
+                if (connection != null)
+                {
+                    DbConnectionFactory.CollectDbConnectionToPool(connection);
+                }
             }
         }
     }

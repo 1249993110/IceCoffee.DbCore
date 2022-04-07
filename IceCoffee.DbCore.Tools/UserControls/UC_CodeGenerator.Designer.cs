@@ -169,7 +169,7 @@ namespace IceCoffee.DbCore.Tools.UserControls
             this.textBox_basicRepository.PlaceholderText = "输入仓储基类";
             this.textBox_basicRepository.Size = new System.Drawing.Size(683, 23);
             this.textBox_basicRepository.TabIndex = 1;
-            this.textBox_basicRepository.Text = "IceCoffee.DbCore.Primitives.Repository.SqlServerRepository<TEntity>";
+            this.textBox_basicRepository.Text = "IceCoffee.DbCore.Repositories.SqlServerRepository<TEntity>";
             // 
             // label_basicRepository
             // 

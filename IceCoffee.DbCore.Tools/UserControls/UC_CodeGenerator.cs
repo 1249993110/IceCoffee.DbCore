@@ -148,7 +148,7 @@ namespace IceCoffee.DbCore.Tools.UserControls
                 .AppendLine()
                 .AppendLine($"namespace {namespacePrefix}.IRepositories.{this.textBox_subPath.Text}")
                 .AppendLine("{")
-                .AppendLine($"    public interface {repositoryName} : IceCoffee.DbCore.Primitives.Repository.IRepository<{entityName}>")
+                .AppendLine($"    public interface {repositoryName} : IceCoffee.DbCore.Repositories.IRepository<{entityName}>")
                 .AppendLine("    {")
                 .AppendLine("    }")
                 .AppendLine("}");

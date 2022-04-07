@@ -1,10 +1,9 @@
-﻿using IceCoffee.DbCore.Primitives.Dto;
-using IceCoffee.DbCore.Primitives.Entity;
+﻿using IceCoffee.DbCore.Dtos;
 using System.Collections.Generic;
 
-namespace IceCoffee.DbCore.Primitives.Repository
+namespace IceCoffee.DbCore.Repositories
 {
-    public partial interface IRepository<TEntity> where TEntity : IEntity
+    public partial interface IRepository<TEntity>
     {
         #region Insert
 
@@ -34,7 +33,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <param name="param"></param>
         /// <param name="useTransaction"></param>
         /// <returns></returns>
-        int Delete(string whereBy, object param = null, bool useTransaction = false);
+        int Delete(string whereBy, object? param = null, bool useTransaction = false);
 
         /// <summary>
         /// 通过默认主键删除记录
@@ -82,14 +81,14 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <param name="orderBy"></param>
         /// <param name="param"></param>
         /// <returns></returns>
-        IEnumerable<TEntity> Query(string whereBy = null, string orderBy = null, object param = null);
+        IEnumerable<TEntity> Query(string? whereBy = null, string? orderBy = null, object? param = null);
 
         /// <summary>
         /// 查询关联表的所有记录
         /// </summary>
         /// <param name="orderBy"></param>
         /// <returns></returns>
-        IEnumerable<TEntity> QueryAll(string orderBy = null);
+        IEnumerable<TEntity> QueryAll(string? orderBy = null);
 
         /// <summary>
         /// 通过Id获取记录
@@ -118,7 +117,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <param name="orderBy">顺序字符串</param>
         /// <param name="param">带参数的匿名对象</param>
         /// <returns></returns>
-        IEnumerable<TEntity> QueryPaged(int pageIndex, int pageSize, string whereBy = null, string orderBy = null, object param = null);
+        IEnumerable<TEntity> QueryPaged(int pageIndex, int pageSize, string? whereBy = null, string? orderBy = null, object? param = null);
 
         /// <summary>
         /// 获取与条件匹配的所有记录的分页列表
@@ -142,7 +141,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <param name="whereBy"></param>
         /// <param name="param"></param>
         /// <returns></returns>
-        uint QueryRecordCount(string whereBy = null, object param = null);
+        uint QueryRecordCount(string? whereBy = null, object? param = null);
 
         #endregion Query
 
@@ -195,6 +194,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
         #endregion Update
 
+        #region Other
         /// <summary>
         /// 插入或更新一条记录
         /// </summary>
@@ -247,5 +247,6 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <param name="useTransaction"></param>
         /// <returns></returns>
         int InsertIgnoreBatch(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false);
+        #endregion
     }
 }

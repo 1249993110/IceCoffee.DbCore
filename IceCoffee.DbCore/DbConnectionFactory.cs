@@ -5,6 +5,7 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Data.SQLite;
+#pragma warning disable
 
 namespace IceCoffee.DbCore
 {
@@ -36,7 +37,7 @@ namespace IceCoffee.DbCore
 
         private static DbProviderFactory GetProvider(DatabaseType databaseType)
         {
-            DbProviderFactory factory = null;
+            DbProviderFactory factory;
             switch (databaseType)
             {
                 case DatabaseType.SQLite:
@@ -46,16 +47,14 @@ namespace IceCoffee.DbCore
                 case DatabaseType.SQLServer:
                     factory = SqlClientFactory.Instance;
                     break;
-
+                case DatabaseType.Aceess:
+                case DatabaseType.PostgreSQL:
                 case DatabaseType.MySQL:
-                    break;
-
                 case DatabaseType.Oracle:
-                    break;
-
                 default:
                     throw new ExceptionCatch.DbCoreException("未定义的数据库类型");
             }
+
             return factory;
         }
 
@@ -76,7 +75,8 @@ namespace IceCoffee.DbCore
         public static IObjectPool<IDbConnection> GetDbConnectionPool(DbConnectionInfo dbConnectionInfo)
         {
             string connStr = dbConnectionInfo.ConnectionString;
-            if (_connectionPoolDict.TryGetValue(connStr, out IObjectPool<IDbConnection> pool))
+
+            if (_connectionPoolDict.TryGetValue(connStr, out IObjectPool<IDbConnection>? pool))
             {
                 return pool;
             }

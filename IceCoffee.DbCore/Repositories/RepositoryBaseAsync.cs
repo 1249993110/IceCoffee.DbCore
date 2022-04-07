@@ -1,12 +1,11 @@
 ﻿using IceCoffee.DbCore.ExceptionCatch;
-using IceCoffee.DbCore.Primitives.Dto;
-using IceCoffee.DbCore.Primitives.Entity;
+using IceCoffee.DbCore.Dtos;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace IceCoffee.DbCore.Primitives.Repository
+namespace IceCoffee.DbCore.Repositories
 {
-    public abstract partial class RepositoryBase<TEntity> : IRepository<TEntity> where TEntity : IEntity
+    public abstract partial class RepositoryBase<TEntity> : IRepository<TEntity>
     {
         #region Insert
         /// <inheritdoc />
@@ -24,7 +23,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
         #region Delete
         /// <inheritdoc />
-        public virtual Task<int> DeleteAsync(string whereBy, object param = null, bool useTransaction = false)
+        public virtual Task<int> DeleteAsync(string whereBy, object? param = null, bool useTransaction = false)
         {
             string sql = string.Format("DELETE FROM {0} {1}", TableName, whereBy == null ? string.Empty : "WHERE " + whereBy);
             return base.ExecuteAsync(sql, param, useTransaction);
@@ -57,7 +56,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
         #region Query
         /// <inheritdoc />
-        public virtual Task<IEnumerable<TEntity>> QueryAsync(string whereBy = null, string orderBy = null, object param = null)
+        public virtual Task<IEnumerable<TEntity>> QueryAsync(string? whereBy = null, string? orderBy = null, object? param = null)
         {
             string sql = string.Format("SELECT {0} FROM {1} {2} {3}", Select_Statement, TableName,
                 whereBy == null ? string.Empty : "WHERE " + whereBy,
@@ -65,7 +64,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
             return base.QueryAsync<TEntity>(sql, param);
         }
         /// <inheritdoc />
-        public virtual Task<IEnumerable<TEntity>> QueryAllAsync(string orderBy = null)
+        public virtual Task<IEnumerable<TEntity>> QueryAllAsync(string? orderBy = null)
         {
             string sql = string.Format("SELECT {0} FROM {1} {2}", Select_Statement, TableName,
                 orderBy == null ? string.Empty : "ORDER BY " + orderBy);
@@ -84,14 +83,14 @@ namespace IceCoffee.DbCore.Primitives.Repository
             return base.QueryAsync<TEntity>(sql, new { Ids = ids });
         }
         /// <inheritdoc />
-        public virtual Task<uint> QueryRecordCountAsync(string whereBy = null, object param = null)
+        public virtual Task<uint> QueryRecordCountAsync(string? whereBy = null, object? param = null)
         {
             string sql = string.Format("SELECT COUNT(*) FROM {0} {1}", TableName, whereBy == null ? string.Empty : "WHERE " + whereBy);
             return base.ExecuteScalarAsync<uint>(sql, param);
         }
         /// <inheritdoc />
         public abstract Task<IEnumerable<TEntity>> QueryPagedAsync(int pageIndex, int pageSize,
-           string whereBy = null, string orderBy = null, object param = null);
+           string? whereBy = null, string? orderBy = null, object? param = null);
 
         /// <inheritdoc />
         public abstract Task<PaginationResultDto> QueryPagedAsync(PaginationQueryDto dto, string keywordMappedPropName);
@@ -133,6 +132,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
         #endregion Update
 
+        #region Other
         /// <inheritdoc />
         public abstract Task<int> ReplaceIntoAsync(TEntity entity);
         /// <inheritdoc />
@@ -146,5 +146,6 @@ namespace IceCoffee.DbCore.Primitives.Repository
         public abstract Task<int> ReplaceIntoBatchAsync(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false);
         /// <inheritdoc />
         public abstract Task<int> InsertIgnoreBatchAsync(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false);
+        #endregion
     }
 }

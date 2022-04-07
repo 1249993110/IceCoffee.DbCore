@@ -1,16 +1,15 @@
 ﻿using IceCoffee.DbCore.ExceptionCatch;
-using IceCoffee.DbCore.Primitives.Dto;
-using IceCoffee.DbCore.Primitives.Entity;
+using IceCoffee.DbCore.Dtos;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace IceCoffee.DbCore.Primitives.Repository
+namespace IceCoffee.DbCore.Repositories
 {
     /// <summary>
     /// MySql数据库仓储
     /// </summary>
-    public class MySqlRepository<TEntity> : RepositoryBase<TEntity> where TEntity : IEntity
+    public class MySqlRepository<TEntity> : RepositoryBase<TEntity>
     {
         /// <summary>
         /// 实例化 MySqlRepository
@@ -28,7 +27,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
         /// <inheritdoc />
         public override IEnumerable<TEntity> QueryPaged(int pageIndex, int pageSize,
-            string whereBy = null, string orderBy = null, object param = null)
+            string? whereBy = null, string? orderBy = null, object? param = null)
         {
             throw new NotImplementedException();
         }
@@ -80,7 +79,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
         /// <inheritdoc />
         public override Task<IEnumerable<TEntity>> QueryPagedAsync(int pageIndex, int pageSize,
-            string whereBy = null, string orderBy = null, object param = null)
+            string? whereBy = null, string? orderBy = null, object? param = null)
         {
             throw new NotImplementedException();
         }

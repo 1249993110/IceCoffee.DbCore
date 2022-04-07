@@ -1,5 +1,4 @@
-﻿
-using System.Data;
+﻿using System.Data;
 
 namespace IceCoffee.DbCore.UnitWork
 {
@@ -43,15 +42,16 @@ namespace IceCoffee.DbCore.UnitWork
         /// <summary>
         /// DbConnection
         /// </summary>
-        IDbConnection DbConnection { get; }
+        IDbConnection? DbConnection { get; }
+
         /// <summary>
         /// DbTransaction
         /// </summary>
-        IDbTransaction DbTransaction { get; }
+        IDbTransaction? DbTransaction { get; }
 
         /// <summary>
         /// 数据库连接信息
         /// </summary>
-        DbConnectionInfo DbConnectionInfo { get; }
+        DbConnectionInfo? DbConnectionInfo { get; }
     }
 }

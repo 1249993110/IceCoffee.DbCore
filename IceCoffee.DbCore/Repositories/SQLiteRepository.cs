@@ -1,17 +1,16 @@
 ﻿using IceCoffee.DbCore.ExceptionCatch;
-using IceCoffee.DbCore.Primitives.Dto;
-using IceCoffee.DbCore.Primitives.Entity;
+using IceCoffee.DbCore.Dtos;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace IceCoffee.DbCore.Primitives.Repository
+namespace IceCoffee.DbCore.Repositories
 {
     /// <summary>
     /// SQLite 数据库仓储
     /// </summary>
-    public class SQLiteRepository<TEntity> : RepositoryBase<TEntity> where TEntity : IEntity
+    public class SQLiteRepository<TEntity> : RepositoryBase<TEntity>
     {
         /// <summary>
         /// 分页查询 SQL 语句
@@ -34,7 +33,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
         /// <inheritdoc />
         public override IEnumerable<TEntity> QueryPaged(int pageIndex, int pageSize,
-            string whereBy = null, string orderBy = null, object param = null)
+            string? whereBy = null, string? orderBy = null, object? param = null)
         {
             string sql = string.Format(
                 QueryPaged_Statement,
@@ -103,7 +102,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
         /// <inheritdoc />
         public override Task<IEnumerable<TEntity>> QueryPagedAsync(int pageIndex, int pageSize,
-            string whereBy = null, string orderBy = null, object param = null)
+            string? whereBy = null, string? orderBy = null, object? param = null)
         {
             string sql = string.Format(
                 QueryPaged_Statement,
@@ -119,7 +118,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <inheritdoc />
         public override async Task<PaginationResultDto> QueryPagedAsync(PaginationQueryDto dto, string keywordMappedPropName)
         {
-            string orderBy = null;
+            string? orderBy = null;
 
             if (string.IsNullOrEmpty(dto.Order) == false)
             {
@@ -130,7 +129,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 }
             }
 
-            string whereBy = null;
+            string? whereBy = null;
             if (string.IsNullOrEmpty(dto.Keyword) == false)
             {
                 whereBy = $"{keywordMappedPropName} LIKE '%'||@Keyword||'%'";
@@ -144,7 +143,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
         public override async Task<PaginationResultDto> QueryPagedAsync(PaginationQueryDto dto, string[] keywordMappedPropNames)
         {
-            string orderBy = null;
+            string? orderBy = null;
 
             if (string.IsNullOrEmpty(dto.Order) == false)
             {
@@ -155,7 +154,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 }
             }
 
-            string whereBy = null;
+            string? whereBy = null;
             if (string.IsNullOrEmpty(dto.Keyword) == false)
             {
                 whereBy = $"{keywordMappedPropNames[0]} LIKE '%'||@Keyword||'%'";

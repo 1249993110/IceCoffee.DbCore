@@ -33,6 +33,11 @@
         /// <summary>
         /// Aceess数据库
         /// </summary>
-        Aceess
+        Aceess,
+
+        /// <summary>
+        /// PostgreSQL数据库
+        /// </summary>
+        PostgreSQL
     }
 }

@@ -1,8 +1,7 @@
 ﻿using Dapper;
 using IceCoffee.DbCore.ExceptionCatch;
 using IceCoffee.DbCore.OptionalAttributes;
-using IceCoffee.DbCore.Primitives.Dto;
-using IceCoffee.DbCore.Primitives.Entity;
+using IceCoffee.DbCore.Dtos;
 using IceCoffee.DbCore.UnitWork;
 using System;
 using System.Collections.Generic;
@@ -12,7 +11,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IceCoffee.DbCore.Primitives.Repository
+namespace IceCoffee.DbCore.Repositories
 {
     /// <summary>
     /// RepositoryBase
@@ -39,7 +38,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <returns></returns>
         protected virtual IUnitOfWork GetUnitOfWork()
         {
-            IUnitOfWork unitOfWork = UnitOfWork.Default;
+            var unitOfWork = UnitOfWork.Default;
             if (unitOfWork.IsExplicitSubmit)
             {
                 if (unitOfWork.DbConnection == null)
@@ -63,22 +62,19 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <param name="param"></param>
         /// <param name="useTransaction"></param>
         /// <returns>受影响的行数</returns>
-        protected virtual int Execute(string sql, object param = null, bool useTransaction = false)
+        protected virtual int Execute(string sql, object? param = null, bool useTransaction = false)
         {
-            IUnitOfWork unitOfWork = GetUnitOfWork();
-            IDbConnection conn = null;
-            IDbTransaction tran = null;
+            var unitOfWork = GetUnitOfWork();
+            var conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(DbConnectionInfo);
+            var tran = unitOfWork.DbTransaction ?? (useTransaction ? conn.BeginTransaction() : null);
 
             try
             {
-                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(DbConnectionInfo);
-                tran = unitOfWork.DbTransaction ?? (useTransaction ? conn.BeginTransaction() : null);
-
                 int result = conn.Execute(sql, param, tran, commandType: CommandType.Text);
 
                 if (useTransaction && unitOfWork.IsExplicitSubmit == false)
                 {
-                    tran.Commit();
+                    tran?.Commit();
                 }
 
                 return result;
@@ -87,14 +83,14 @@ namespace IceCoffee.DbCore.Primitives.Repository
             {
                 if (useTransaction && unitOfWork.IsExplicitSubmit == false)
                 {
-                    tran.Rollback();
+                    tran?.Rollback();
                 }
 
                 throw new DbCoreException("Error in RepositoryBase.Execute", ex);
             }
             finally
             {
-                if (conn != null && unitOfWork.IsExplicitSubmit == false)
+                if (unitOfWork.IsExplicitSubmit == false)
                 {
                     DbConnectionFactory.CollectDbConnectionToPool(conn);
                 }
@@ -108,22 +104,19 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <param name="param"></param>
         /// <param name="useTransaction"></param>
         /// <returns>受影响的行数</returns>
-        protected virtual async Task<int> ExecuteAsync(string sql, object param = null, bool useTransaction = false)
+        protected virtual async Task<int> ExecuteAsync(string sql, object? param = null, bool useTransaction = false)
         {
-            IUnitOfWork unitOfWork = GetUnitOfWork();
-            IDbConnection conn = null;
-            IDbTransaction tran = null;
+            var unitOfWork = GetUnitOfWork();
+            var conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(DbConnectionInfo);
+            var tran = unitOfWork.DbTransaction ?? (useTransaction ? conn.BeginTransaction() : null);
 
             try
             {
-                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(DbConnectionInfo);
-                tran = unitOfWork.DbTransaction ?? (useTransaction ? conn.BeginTransaction() : null);
-
                 int result = await conn.ExecuteAsync(sql, param, tran, commandType: CommandType.Text);
 
                 if (useTransaction && unitOfWork.IsExplicitSubmit == false)
                 {
-                    tran.Commit();
+                    tran?.Commit();
                 }
 
                 return result;
@@ -132,14 +125,14 @@ namespace IceCoffee.DbCore.Primitives.Repository
             {
                 if (useTransaction && unitOfWork.IsExplicitSubmit == false)
                 {
-                    tran.Rollback();
+                    tran?.Rollback();
                 }
 
                 throw new DbCoreException("Error in RepositoryBase.ExecuteAsync", ex);
             }
             finally
             {
-                if (conn != null && unitOfWork.IsExplicitSubmit == false)
+                if (unitOfWork.IsExplicitSubmit == false)
                 {
                     DbConnectionFactory.CollectDbConnectionToPool(conn);
                 }
@@ -154,22 +147,19 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <param name="param"></param>
         /// <param name="useTransaction"></param>
         /// <returns></returns>
-        protected virtual TReturn ExecuteScalar<TReturn>(string sql, object param = null, bool useTransaction = false)
+        protected virtual TReturn ExecuteScalar<TReturn>(string sql, object? param = null, bool useTransaction = false)
         {
-            IUnitOfWork unitOfWork = GetUnitOfWork();
-            IDbConnection conn = null;
-            IDbTransaction tran = null;
+            var unitOfWork = GetUnitOfWork();
+            var conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(DbConnectionInfo);
+            var tran = unitOfWork.DbTransaction ?? (useTransaction ? conn.BeginTransaction() : null);
 
             try
             {
-                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(DbConnectionInfo);
-                tran = unitOfWork.DbTransaction ?? (useTransaction ? conn.BeginTransaction() : null);
-
-                TReturn result = conn.ExecuteScalar<TReturn>(sql, param, tran, commandType: CommandType.Text);
+                var result = conn.ExecuteScalar<TReturn>(sql, param, tran, commandType: CommandType.Text);
 
                 if (useTransaction && unitOfWork.IsExplicitSubmit == false)
                 {
-                    tran.Commit();
+                    tran?.Commit();
                 }
 
                 return result;
@@ -178,14 +168,14 @@ namespace IceCoffee.DbCore.Primitives.Repository
             {
                 if (useTransaction && unitOfWork.IsExplicitSubmit == false)
                 {
-                    tran.Rollback();
+                    tran?.Rollback();
                 }
 
                 throw new DbCoreException("Error in RepositoryBase.ExecuteScalar", ex);
             }
             finally
             {
-                if (conn != null && unitOfWork.IsExplicitSubmit == false)
+                if (unitOfWork.IsExplicitSubmit == false)
                 {
                     DbConnectionFactory.CollectDbConnectionToPool(conn);
                 }
@@ -200,21 +190,18 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <param name="param"></param>
         /// <param name="useTransaction"></param>
         /// <returns></returns>
-        protected virtual async Task<TReturn> ExecuteScalarAsync<TReturn>(string sql, object param = null, bool useTransaction = false)
+        protected virtual async Task<TReturn> ExecuteScalarAsync<TReturn>(string sql, object? param = null, bool useTransaction = false)
         {
-            IUnitOfWork unitOfWork = GetUnitOfWork();
-            IDbConnection conn = null;
-            IDbTransaction tran = null;
+            var unitOfWork = GetUnitOfWork();
+            var conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(DbConnectionInfo);
+            var tran = unitOfWork.DbTransaction ?? (useTransaction ? conn.BeginTransaction() : null);
 
             try
             {
-                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(DbConnectionInfo);
-                tran = unitOfWork.DbTransaction ?? (useTransaction ? conn.BeginTransaction() : null);
-
-                TReturn result = await conn.ExecuteScalarAsync<TReturn>(sql, param, tran, commandType: CommandType.Text);
+                var result = await conn.ExecuteScalarAsync<TReturn>(sql, param, tran, commandType: CommandType.Text);
                 if (useTransaction && unitOfWork.IsExplicitSubmit == false)
                 {
-                    tran.Commit();
+                    tran?.Commit();
                 }
 
                 return result;
@@ -223,14 +210,14 @@ namespace IceCoffee.DbCore.Primitives.Repository
             {
                 if (useTransaction && unitOfWork.IsExplicitSubmit == false)
                 {
-                    tran.Rollback();
+                    tran?.Rollback();
                 }
 
                 throw new DbCoreException("Error in RepositoryBase.ExecuteScalarAsync", ex);
             }
             finally
             {
-                if (conn != null && unitOfWork.IsExplicitSubmit == false)
+                if (unitOfWork.IsExplicitSubmit == false)
                 {
                     DbConnectionFactory.CollectDbConnectionToPool(conn);
                 }
@@ -244,15 +231,13 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <param name="sql"></param>
         /// <param name="param"></param>
         /// <returns></returns>
-        protected virtual IEnumerable<TEntity> Query<TEntity>(string sql, object param = null)
+        protected virtual IEnumerable<TEntity> Query<TEntity>(string sql, object? param = null)
         {
-            IUnitOfWork unitOfWork = GetUnitOfWork();
-            IDbConnection conn = null;
-            IDbTransaction tran = null;
+            var unitOfWork = GetUnitOfWork();
+            var conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(DbConnectionInfo);
+            var tran = unitOfWork.DbTransaction;
             try
             {
-                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(DbConnectionInfo);
-                tran = unitOfWork.DbTransaction;
                 return conn.Query<TEntity>(sql, param, tran, commandType: CommandType.Text);
             }
             catch (Exception ex)
@@ -261,7 +246,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
             }
             finally
             {
-                if (conn != null && unitOfWork.IsExplicitSubmit == false)
+                if (unitOfWork.IsExplicitSubmit == false)
                 {
                     DbConnectionFactory.CollectDbConnectionToPool(conn);
                 }
@@ -275,15 +260,13 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <param name="sql"></param>
         /// <param name="param"></param>
         /// <returns></returns>
-        protected virtual async Task<IEnumerable<TEntity>> QueryAsync<TEntity>(string sql, object param = null)
+        protected virtual async Task<IEnumerable<TEntity>> QueryAsync<TEntity>(string sql, object? param = null)
         {
-            IUnitOfWork unitOfWork = GetUnitOfWork();
-            IDbConnection conn = null;
-            IDbTransaction tran = null;
+            var unitOfWork = GetUnitOfWork();
+            var conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(DbConnectionInfo);
+            var tran = unitOfWork.DbTransaction;
             try
             {
-                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(DbConnectionInfo);
-                tran = unitOfWork.DbTransaction;
                 return await conn.QueryAsync<TEntity>(sql, param, tran, commandType: CommandType.Text);
             }
             catch (Exception ex)
@@ -292,7 +275,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
             }
             finally
             {
-                if (conn != null && unitOfWork.IsExplicitSubmit == false)
+                if (unitOfWork.IsExplicitSubmit == false)
                 {
                     DbConnectionFactory.CollectDbConnectionToPool(conn);
                 }
@@ -308,13 +291,11 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <returns></returns>
         protected virtual IEnumerable<TReturn> ExecProcedure<TReturn>(string procName, DynamicParameters parameters)
         {
-            IUnitOfWork unitOfWork = GetUnitOfWork();
-            IDbConnection conn = null;
-            IDbTransaction tran = null;
+            var unitOfWork = GetUnitOfWork();
+            var conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(DbConnectionInfo);
+            var tran = unitOfWork.DbTransaction;
             try
             {
-                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(DbConnectionInfo);
-                tran = unitOfWork.DbTransaction;
                 return conn.Query<TReturn>(new CommandDefinition(commandText: procName, parameters: parameters,
                     transaction: tran, commandType: CommandType.StoredProcedure));
             }
@@ -324,7 +305,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
             }
             finally
             {
-                if (conn != null && unitOfWork.IsExplicitSubmit == false)
+                if (unitOfWork.IsExplicitSubmit == false)
                 {
                     DbConnectionFactory.CollectDbConnectionToPool(conn);
                 }
@@ -340,14 +321,11 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <returns></returns>
         protected virtual async Task<IEnumerable<TReturn>> ExecProcedureAsync<TReturn>(string procName, DynamicParameters parameters)
         {
-            IUnitOfWork unitOfWork = GetUnitOfWork();
-            IDbConnection conn = null;
-            IDbTransaction tran = null;
+            var unitOfWork = GetUnitOfWork();
+            var conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(DbConnectionInfo);
+            var tran = unitOfWork.DbTransaction;
             try
             {
-                conn = unitOfWork.DbConnection ?? DbConnectionFactory.GetConnectionFromPool(DbConnectionInfo);
-                tran = unitOfWork.DbTransaction;
-
                 return await conn.QueryAsync<TReturn>(new CommandDefinition(commandText: procName, parameters: parameters,
                     transaction: tran, commandType: CommandType.StoredProcedure));
             }
@@ -357,7 +335,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
             }
             finally
             {
-                if (conn != null && unitOfWork.IsExplicitSubmit == false)
+                if (unitOfWork.IsExplicitSubmit == false)
                 {
                     DbConnectionFactory.CollectDbConnectionToPool(conn);
                 }
@@ -371,19 +349,19 @@ namespace IceCoffee.DbCore.Primitives.Repository
     /// <para>https://docs.microsoft.com/zh-cn/dotnet/api/system.data.common.dbcommand.executenonqueryasync</para>
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
-    public abstract partial class RepositoryBase<TEntity> : RepositoryBase, IRepository<TEntity> where TEntity : IEntity
+    public abstract partial class RepositoryBase<TEntity> : RepositoryBase, IRepository<TEntity>
     {
         #region 公共静态属性
 
         /// <summary>
         /// 主键列名
         /// </summary>
-        public static string[] KeyNames { get; private set; }
+        public static string[]? KeyNames { get; private set; }
 
         /// <summary>
         /// 默认实体删除更新Where约束
         /// </summary>
-        public static string KeyNameWhereBy { get; private set; }
+        public static string? KeyNameWhereBy { get; private set; }
 
         /// <summary>
         /// 表名
@@ -421,10 +399,10 @@ namespace IceCoffee.DbCore.Primitives.Repository
                 if (keyPropInfos.Any())
                 {
                     StringBuilder keyNameWhereByBuilder = new StringBuilder();
-                    List<string> _keyNames = new List<string>();
+                    var _keyNames = new List<string>();
                     foreach (var item in keyPropInfos)
                     {
-                        string _keyName = null;
+                        string? _keyName = null;
                         var attribute = item.GetCustomAttribute<ColumnAttribute>(true);
 
                         if (attribute == null)
@@ -447,20 +425,19 @@ namespace IceCoffee.DbCore.Primitives.Repository
                     KeyNameWhereBy = keyNameWhereByBuilder.ToString();
                 }
 
-                TableName = typeof(TEntity).GetCustomAttribute<TableAttribute>(true)?.Name;
-                TableName = TableName ?? typeof(TEntity).Name;
+                TableName = typeof(TEntity).GetCustomAttribute<TableAttribute>(true)?.Name ?? typeof(TEntity).Name;
 
-                StringBuilder stringBuilder1 = new StringBuilder();
-                StringBuilder stringBuilder2 = new StringBuilder();
-                StringBuilder stringBuilder3 = new StringBuilder();
-                StringBuilder stringBuilder4 = new StringBuilder();
+                var stringBuilder1 = new StringBuilder();
+                var stringBuilder2 = new StringBuilder();
+                var stringBuilder3 = new StringBuilder();
+                var stringBuilder4 = new StringBuilder();
 
                 foreach (PropertyInfo prop in properties)
                 {
                     string propertyName = prop.Name;
                     string columnName;
 
-                    ColumnAttribute columnAttribute = prop.GetCustomAttribute<ColumnAttribute>(true);
+                    var columnAttribute = prop.GetCustomAttribute<ColumnAttribute>(true);
                     columnName = columnAttribute != null ? columnAttribute.Name : prop.Name;
 
                     // 过滤定义了IgnoreInsert特性的属性
@@ -542,7 +519,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         #region Delete
 
         /// <inheritdoc />
-        public virtual int Delete(string whereBy, object param = null, bool useTransaction = false)
+        public virtual int Delete(string whereBy, object? param = null, bool useTransaction = false)
         {
             string sql = string.Format("DELETE FROM {0} {1}", TableName, whereBy == null ? string.Empty : "WHERE " + whereBy);
             return base.Execute(sql, param, useTransaction);
@@ -581,7 +558,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         #region Query
 
         /// <inheritdoc />
-        public virtual IEnumerable<TEntity> Query(string whereBy = null, string orderBy = null, object param = null)
+        public virtual IEnumerable<TEntity> Query(string? whereBy = null, string? orderBy = null, object? param = null)
         {
             string sql = string.Format("SELECT {0} FROM {1} {2} {3}", Select_Statement, TableName,
                 whereBy == null ? string.Empty : "WHERE " + whereBy,
@@ -590,7 +567,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         }
 
         /// <inheritdoc />
-        public virtual IEnumerable<TEntity> QueryAll(string orderBy = null)
+        public virtual IEnumerable<TEntity> QueryAll(string? orderBy = null)
         {
             string sql = string.Format("SELECT {0} FROM {1} {2}", Select_Statement, TableName,
                 orderBy == null ? string.Empty : "ORDER BY " + orderBy);
@@ -612,7 +589,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         }
 
         /// <inheritdoc />
-        public virtual uint QueryRecordCount(string whereBy = null, object param = null)
+        public virtual uint QueryRecordCount(string? whereBy = null, object? param = null)
         {
             string sql = string.Format("SELECT COUNT(*) FROM {0} {1}", TableName, whereBy == null ? string.Empty : "WHERE " + whereBy);
             return base.ExecuteScalar<uint>(sql, param);
@@ -620,7 +597,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
         /// <inheritdoc />
         public abstract IEnumerable<TEntity> QueryPaged(int pageIndex, int pageSize,
-           string whereBy = null, string orderBy = null, object param = null);
+           string? whereBy = null, string? orderBy = null, object? param = null);
 
         /// <inheritdoc />
         public abstract PaginationResultDto QueryPaged(PaginationQueryDto dto, string keywordMappedPropName);
@@ -667,6 +644,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
         #endregion Update
 
+        #region Other
         /// <inheritdoc />
         public abstract int ReplaceInto(TEntity entity);
 
@@ -684,5 +662,6 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
         /// <inheritdoc />
         public abstract int InsertIgnoreBatch(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false);
+        #endregion
     }
 }

@@ -1,15 +1,14 @@
-﻿using IceCoffee.DbCore.Primitives.Dto;
-using IceCoffee.DbCore.Primitives.Entity;
+﻿using IceCoffee.DbCore.Dtos;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace IceCoffee.DbCore.Primitives.Repository
+namespace IceCoffee.DbCore.Repositories
 {
     /// <summary>
     /// 使用 Task 执行异步操作
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
-    public partial interface IRepository<TEntity> where TEntity : IEntity
+    public partial interface IRepository<TEntity>
     {
         #region Insert
 
@@ -39,7 +38,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <param name="param"></param>
         /// <param name="useTransaction"></param>
         /// <returns></returns>
-        Task<int> DeleteAsync(string whereBy, object param = null, bool useTransaction = false);
+        Task<int> DeleteAsync(string whereBy, object? param = null, bool useTransaction = false);
 
         /// <summary>
         /// 通过默认主键删除记录
@@ -86,13 +85,13 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <param name="orderBy"></param>
         /// <param name="param"></param>
         /// <returns></returns>
-        Task<IEnumerable<TEntity>> QueryAsync(string whereBy = null, string orderBy = null, object param = null);
+        Task<IEnumerable<TEntity>> QueryAsync(string? whereBy = null, string? orderBy = null, object? param = null);
 
         /// <summary>
         /// 查询关联表的所有记录
         /// </summary>
         /// <returns></returns>
-        Task<IEnumerable<TEntity>> QueryAllAsync(string orderBy = null);
+        Task<IEnumerable<TEntity>> QueryAllAsync(string? orderBy = null);
 
         /// <summary>
         /// 通过ID获取记录
@@ -121,7 +120,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <param name="orderBy">顺序字符串</param>
         /// <param name="param">带参数的匿名对象</param>
         /// <returns></returns>
-        Task<IEnumerable<TEntity>> QueryPagedAsync(int pageIndex, int pageSize, string whereBy = null, string orderBy = null, object param = null);
+        Task<IEnumerable<TEntity>> QueryPagedAsync(int pageIndex, int pageSize, string? whereBy = null, string? orderBy = null, object? param = null);
 
         /// <summary>
         /// 获取与条件匹配的所有记录的分页列表
@@ -145,7 +144,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <param name="whereBy"></param>
         /// <param name="param"></param>
         /// <returns></returns>
-        Task<uint> QueryRecordCountAsync(string whereBy = null, object param = null);
+        Task<uint> QueryRecordCountAsync(string? whereBy = null, object? param = null);
 
         #endregion Query
 
@@ -198,6 +197,7 @@ namespace IceCoffee.DbCore.Primitives.Repository
 
         #endregion Update
 
+        #region Other
         /// <summary>
         /// 插入或更新一条记录
         /// </summary>
@@ -250,5 +250,6 @@ namespace IceCoffee.DbCore.Primitives.Repository
         /// <param name="useTransaction"></param>
         /// <returns></returns>
         Task<int> InsertIgnoreBatchAsync(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false);
+        #endregion
     }
 }

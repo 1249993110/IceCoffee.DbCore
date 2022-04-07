@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IceCoffee.DbCore.UnitWork;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -21,7 +22,7 @@ namespace IceCoffee.DbCore.Tools
             _mainThreadContext = SynchronizationContext.Current;
 
             InitializeComponent();
-
+            
             base.Text = "数据库工具 v" + Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
             LoadUserControl();

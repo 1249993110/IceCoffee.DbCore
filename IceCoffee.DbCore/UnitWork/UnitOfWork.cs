@@ -11,25 +11,25 @@ namespace IceCoffee.DbCore.UnitWork
         private readonly Timer _timer;
         private readonly int _maxHoldTime;
         private bool _isExplicitSubmit;
-        private IDbConnection _dbConnection;
-        private IDbTransaction _dbTransaction;
-        private DbConnectionInfo _dbConnectionInfo;
+        private IDbConnection? _dbConnection;
+        private IDbTransaction? _dbTransaction;
+        private DbConnectionInfo? _dbConnectionInfo;
 
         /// <inheritdoc />
         public bool IsExplicitSubmit => _isExplicitSubmit;
         /// <inheritdoc />
-        public IDbConnection DbConnection => _dbConnection;
+        public IDbConnection? DbConnection => _dbConnection;
         /// <inheritdoc />
-        public IDbTransaction DbTransaction => _dbTransaction;
+        public IDbTransaction? DbTransaction => _dbTransaction;
         /// <inheritdoc />
-        public DbConnectionInfo DbConnectionInfo => _dbConnectionInfo;
+        public DbConnectionInfo? DbConnectionInfo => _dbConnectionInfo;
 
         /// <summary>
         /// 实例化工作单元
         /// </summary>
         /// <param name="maxHoldTime">工作单元最大被持有时长（单位：毫秒）默认值：60000 毫秒</param>
         /// <remarks>
-        /// 工作单元状态检查使用 <see cref="System.Timers.Timer"/>, 其精确度大约为 50 毫秒
+        /// 工作单元状态检查使用 <see cref="System.Threading.Timer"/>, 其精确度大约为 50 毫秒
         /// </remarks>
         public UnitOfWork(int maxHoldTime = 60000)
         {
@@ -38,12 +38,9 @@ namespace IceCoffee.DbCore.UnitWork
         }
 
         /// <inheritdoc />
-        private void OnForceEnd(object state)
+        private void OnForceEnd(object? state)
         {
-            if (_dbConnection != null)
-            {
-                ForceEnd();
-            }
+            ForceEnd();
         }
 
         /// <inheritdoc />
@@ -86,7 +83,7 @@ namespace IceCoffee.DbCore.UnitWork
         public virtual void SaveChanges()
         {
             // 防止多次执行或跨线程使用
-            if (_dbConnection != null)
+            if (_dbConnection != null && _dbTransaction != null)
             {
                 _isExplicitSubmit = false;
                 _timer.Change(Timeout.Infinite, Timeout.Infinite);
@@ -109,7 +106,7 @@ namespace IceCoffee.DbCore.UnitWork
         public virtual void Rollback()
         {
             // 防止多次执行或跨线程使用
-            if (_dbConnection != null)
+            if (_dbConnection != null && _dbTransaction != null)
             {
                 _isExplicitSubmit = false;
                 _timer.Change(Timeout.Infinite, Timeout.Infinite);
@@ -134,21 +131,24 @@ namespace IceCoffee.DbCore.UnitWork
         /// </summary>
         protected virtual void ForceEnd()
         {
-            _isExplicitSubmit = false;
+            if(_dbConnection != null && _dbTransaction != null)
+            {
+                _isExplicitSubmit = false;
 
-            _dbTransaction.Rollback();
-            _dbTransaction.Dispose();
-            _dbTransaction = null;
+                _dbTransaction.Rollback();
+                _dbTransaction.Dispose();
+                _dbTransaction = null;
 
-            _dbConnection.Dispose();
-            _dbConnection = null;
+                _dbConnection.Dispose();
+                _dbConnection = null;
 
-            _dbConnectionInfo = null;
+                _dbConnectionInfo = null;
+            }
         }
         
         #region 默认实现
         private static readonly object _singleton_Lock = new object();
-        private static ThreadLocal<IUnitOfWork> _threadLocal;
+        private static ThreadLocal<IUnitOfWork>? _threadLocal;
 
         /// <summary>
         /// 获得默认工作单元实例在当前线程的实例值
@@ -171,7 +171,7 @@ namespace IceCoffee.DbCore.UnitWork
                     }
                 }
 
-                return _threadLocal.Value;
+                return _threadLocal.Value ?? throw new InvalidOperationException("无法在当前线程初始化默认工作单元实例");
             }
         }
 
