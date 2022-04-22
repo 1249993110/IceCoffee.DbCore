@@ -71,13 +71,13 @@ namespace IceCoffee.DbCore.Repositories
         }
 
         /// <inheritdoc />
-        public override PaginationResultDto QueryPaged(PaginationQueryDto dto, string keywordMappedPropName)
+        public override PaginationResultDto<TEntity> QueryPaged(PaginationQueryDto dto, string keywordMappedPropName)
         {
             return QueryPagedAsync(dto, keywordMappedPropName).Result;
         }
 
         /// <inheritdoc />
-        public override PaginationResultDto QueryPaged(PaginationQueryDto dto, string[] keywordMappedPropNames)
+        public override PaginationResultDto<TEntity> QueryPaged(PaginationQueryDto dto, string[] keywordMappedPropNames)
         {
             return QueryPagedAsync(dto, keywordMappedPropNames).Result;
         }
@@ -160,7 +160,7 @@ namespace IceCoffee.DbCore.Repositories
         }
 
         /// <inheritdoc />
-        public override async Task<PaginationResultDto> QueryPagedAsync(PaginationQueryDto dto, string keywordMappedPropName)
+        public override async Task<PaginationResultDto<TEntity>> QueryPagedAsync(PaginationQueryDto dto, string keywordMappedPropName)
         {
             string? orderBy = null;
 
@@ -182,11 +182,11 @@ namespace IceCoffee.DbCore.Repositories
             var items = await this.QueryPagedAsync(dto.PageIndex, dto.PageSize, whereBy, orderBy, dto);
             uint total = await this.QueryRecordCountAsync(whereBy, dto);
 
-            return new PaginationResultDto() { Items = items, Total = total };
+            return new PaginationResultDto<TEntity>() { Items = items, Total = total };
         }
 
         /// <inheritdoc />
-        public override async Task<PaginationResultDto> QueryPagedAsync(PaginationQueryDto dto, string[] keywordMappedPropNames)
+        public override async Task<PaginationResultDto<TEntity>> QueryPagedAsync(PaginationQueryDto dto, string[] keywordMappedPropNames)
         {
             string? orderBy = null;
 
@@ -212,7 +212,7 @@ namespace IceCoffee.DbCore.Repositories
             var items = await this.QueryPagedAsync(dto.PageIndex, dto.PageSize, whereBy, orderBy, dto);
             uint total = await this.QueryRecordCountAsync(whereBy, dto);
 
-            return new PaginationResultDto() { Items = items, Total = total };
+            return new PaginationResultDto<TEntity>() { Items = items, Total = total };
         }
 
         /// <inheritdoc />

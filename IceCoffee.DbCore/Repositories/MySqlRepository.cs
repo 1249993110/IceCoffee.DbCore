@@ -68,7 +68,7 @@ namespace IceCoffee.DbCore.Repositories
             throw new NotImplementedException();
         }
 
-        public override PaginationResultDto QueryPaged(PaginationQueryDto dto, string keywordMappedPropName)
+        public override PaginationResultDto<TEntity> QueryPaged(PaginationQueryDto dto, string keywordMappedPropName)
         {
             throw new NotImplementedException();
         }
@@ -120,17 +120,17 @@ namespace IceCoffee.DbCore.Repositories
             throw new NotImplementedException();
         }
 
-        public override Task<PaginationResultDto> QueryPagedAsync(PaginationQueryDto dto, string keywordMappedPropName)
+        public override Task<PaginationResultDto<TEntity>> QueryPagedAsync(PaginationQueryDto dto, string keywordMappedPropName)
         {
             throw new NotImplementedException();
         }
 
-        public override Task<PaginationResultDto> QueryPagedAsync(PaginationQueryDto dto, string[] keywordMappedPropNames)
+        public override Task<PaginationResultDto<TEntity>> QueryPagedAsync(PaginationQueryDto dto, string[] keywordMappedPropNames)
         {
             throw new NotImplementedException();
         }
 
-        public override PaginationResultDto QueryPaged(PaginationQueryDto dto, string[] keywordMappedPropNames)
+        public override PaginationResultDto<TEntity> QueryPaged(PaginationQueryDto dto, string[] keywordMappedPropNames)
         {
             throw new NotImplementedException();
         }

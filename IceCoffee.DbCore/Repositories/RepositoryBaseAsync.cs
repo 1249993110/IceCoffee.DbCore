@@ -93,9 +93,9 @@ namespace IceCoffee.DbCore.Repositories
            string? whereBy = null, string? orderBy = null, object? param = null);
 
         /// <inheritdoc />
-        public abstract Task<PaginationResultDto> QueryPagedAsync(PaginationQueryDto dto, string keywordMappedPropName);
+        public abstract Task<PaginationResultDto<TEntity>> QueryPagedAsync(PaginationQueryDto dto, string keywordMappedPropName);
         /// <inheritdoc />
-        public abstract Task<PaginationResultDto> QueryPagedAsync(PaginationQueryDto dto, string[] keywordMappedPropNames);
+        public abstract Task<PaginationResultDto<TEntity>> QueryPagedAsync(PaginationQueryDto dto, string[] keywordMappedPropNames);
         #endregion Query
 
         #region Update

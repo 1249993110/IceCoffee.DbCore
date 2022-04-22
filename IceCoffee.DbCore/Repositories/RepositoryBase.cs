@@ -600,9 +600,9 @@ namespace IceCoffee.DbCore.Repositories
            string? whereBy = null, string? orderBy = null, object? param = null);
 
         /// <inheritdoc />
-        public abstract PaginationResultDto QueryPaged(PaginationQueryDto dto, string keywordMappedPropName);
+        public abstract PaginationResultDto<TEntity> QueryPaged(PaginationQueryDto dto, string keywordMappedPropName);
         /// <inheritdoc />
-        public abstract PaginationResultDto QueryPaged(PaginationQueryDto dto, string[] keywordMappedPropNames);
+        public abstract PaginationResultDto<TEntity> QueryPaged(PaginationQueryDto dto, string[] keywordMappedPropNames);
         #endregion Query
 
         #region Update

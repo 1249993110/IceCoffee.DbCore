@@ -128,7 +128,7 @@ namespace IceCoffee.DbCore.Repositories
         /// <param name="dto"></param>
         /// <param name="keywordMappedPropName">关键词对应的属性名称</param>
         /// <returns></returns>
-        Task<PaginationResultDto> QueryPagedAsync(PaginationQueryDto dto, string keywordMappedPropName);
+        Task<PaginationResultDto<TEntity>> QueryPagedAsync(PaginationQueryDto dto, string keywordMappedPropName);
 
         /// <summary>
         /// 获取与条件匹配的所有记录的分页列表
@@ -136,7 +136,7 @@ namespace IceCoffee.DbCore.Repositories
         /// <param name="dto"></param>
         /// <param name="keywordMappedPropNames">关键词对应的属性名称数组</param>
         /// <returns></returns>
-        Task<PaginationResultDto> QueryPagedAsync(PaginationQueryDto dto, string[] keywordMappedPropNames);
+        Task<PaginationResultDto<TEntity>> QueryPagedAsync(PaginationQueryDto dto, string[] keywordMappedPropNames);
 
         /// <summary>
         /// 获取与条件匹配的所有记录的计数

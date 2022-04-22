@@ -1,8 +1,9 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 
 namespace IceCoffee.DbCore.Dtos
 {
-    public class PaginationResultDto
+    public class PaginationResultDto<T>
     {
         /// <summary>
         /// 总计
@@ -12,6 +13,6 @@ namespace IceCoffee.DbCore.Dtos
         /// <summary>
         /// 项目
         /// </summary>
-        public IEnumerable? Items { get; set; }
+        public IEnumerable<T>? Items { get; set; }
     }
 }
