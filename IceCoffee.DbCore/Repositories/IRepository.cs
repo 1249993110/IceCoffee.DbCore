@@ -141,7 +141,7 @@ namespace IceCoffee.DbCore.Repositories
         /// <param name="whereBy"></param>
         /// <param name="param"></param>
         /// <returns></returns>
-        uint QueryRecordCount(string? whereBy = null, object? param = null);
+        int QueryRecordCount(string? whereBy = null, object? param = null);
 
         #endregion Query
 

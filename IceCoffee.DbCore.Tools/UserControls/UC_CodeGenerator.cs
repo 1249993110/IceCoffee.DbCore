@@ -93,7 +93,6 @@ namespace IceCoffee.DbCore.Tools.UserControls
         {
             StringBuilder sb = new StringBuilder(2048)
                 .AppendLine("using System;")
-                .AppendLine("using IceCoffee.DbCore.Primitives.Entity;")
                 .AppendLine("using IceCoffee.DbCore.OptionalAttributes;")
                 .AppendLine()
                 .AppendLine($"namespace {this.textBox_namespacePrefix.Text}.Entities.{this.textBox_subPath.Text}")
@@ -101,7 +100,7 @@ namespace IceCoffee.DbCore.Tools.UserControls
                 .AppendLine("    /// <summary>")
                 .AppendLine("    /// ")
                 .AppendLine("    /// </summary>")
-                .AppendLine($"    public class {es.EntityName} : EntityBase")
+                .AppendLine($"    public class {es.EntityName}")
                 .AppendLine("    {");
 
             int length = es.ColumnStructures.Count;

@@ -83,10 +83,10 @@ namespace IceCoffee.DbCore.Repositories
             return base.QueryAsync<TEntity>(sql, new { Ids = ids });
         }
         /// <inheritdoc />
-        public virtual Task<uint> QueryRecordCountAsync(string? whereBy = null, object? param = null)
+        public virtual Task<int> QueryRecordCountAsync(string? whereBy = null, object? param = null)
         {
             string sql = string.Format("SELECT COUNT(*) FROM {0} {1}", TableName, whereBy == null ? string.Empty : "WHERE " + whereBy);
-            return base.ExecuteScalarAsync<uint>(sql, param);
+            return base.ExecuteScalarAsync<int>(sql, param);
         }
         /// <inheritdoc />
         public abstract Task<IEnumerable<TEntity>> QueryPagedAsync(int pageIndex, int pageSize,

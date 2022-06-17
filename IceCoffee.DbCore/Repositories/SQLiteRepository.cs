@@ -135,8 +135,17 @@ namespace IceCoffee.DbCore.Repositories
                 whereBy = $"{keywordMappedPropName} LIKE '%'||@Keyword||'%'";
             }
 
-            var items = await this.QueryPagedAsync(dto.PageIndex, dto.PageSize, whereBy, orderBy, dto);
-            uint total = await this.QueryRecordCountAsync(whereBy, dto);
+            IEnumerable<TEntity> items;
+            int total = await this.QueryRecordCountAsync(whereBy, dto);
+
+            if (total == 0)
+            {
+                items = Enumerable.Empty<TEntity>();
+            }
+            else
+            {
+                items = await this.QueryPagedAsync(dto.PageIndex, dto.PageSize, whereBy, orderBy, dto);
+            }
 
             return new PaginationResultDto<TEntity>() { Items = items, Total = total };
         }
@@ -164,8 +173,17 @@ namespace IceCoffee.DbCore.Repositories
                 }
             }
 
-            var items = await this.QueryPagedAsync(dto.PageIndex, dto.PageSize, whereBy, orderBy, dto);
-            uint total = await this.QueryRecordCountAsync(whereBy, dto);
+            IEnumerable<TEntity> items;
+            int total = await this.QueryRecordCountAsync(whereBy, dto);
+
+            if (total == 0)
+            {
+                items = Enumerable.Empty<TEntity>();
+            }
+            else
+            {
+                items = await this.QueryPagedAsync(dto.PageIndex, dto.PageSize, whereBy, orderBy, dto);
+            }
 
             return new PaginationResultDto<TEntity>() { Items = items, Total = total };
         }

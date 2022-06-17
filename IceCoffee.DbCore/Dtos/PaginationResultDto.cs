@@ -8,7 +8,7 @@ namespace IceCoffee.DbCore.Dtos
         /// <summary>
         /// 总计
         /// </summary>
-        public uint Total { get; set; }
+        public int Total { get; set; }
 
         /// <summary>
         /// 项目

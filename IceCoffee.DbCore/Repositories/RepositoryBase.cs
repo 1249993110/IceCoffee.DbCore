@@ -589,10 +589,10 @@ namespace IceCoffee.DbCore.Repositories
         }
 
         /// <inheritdoc />
-        public virtual uint QueryRecordCount(string? whereBy = null, object? param = null)
+        public virtual int QueryRecordCount(string? whereBy = null, object? param = null)
         {
             string sql = string.Format("SELECT COUNT(*) FROM {0} {1}", TableName, whereBy == null ? string.Empty : "WHERE " + whereBy);
-            return base.ExecuteScalar<uint>(sql, param);
+            return base.ExecuteScalar<int>(sql, param);
         }
 
         /// <inheritdoc />

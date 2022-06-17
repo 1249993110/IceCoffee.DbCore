@@ -8,30 +8,30 @@ using System.Linq;
 namespace IceCoffee.DbCore.Repositories
 {
     /// <summary>
-    /// SqlServer 数据库仓储
+    /// PostgreSQL 数据库仓储, 仅支持 PostgreSQL 9.5 +
     /// </summary>
-    public class SqlServerRepository<TEntity> : RepositoryBase<TEntity>
+    public class PostgreSqlRepository<TEntity> : RepositoryBase<TEntity>
     {
         /// <summary>
         /// 分页查询 SQL 语句
         /// </summary>
-        public const string QueryPaged_Statement = "SELECT {0} FROM {1} {2} ORDER BY {3} OFFSET {4} ROWS FETCH NEXT {5} ROWS ONLY";
+        public const string QueryPaged_Statement = "SELECT {0} FROM {1} {2} ORDER BY {3} LIMIT {4} OFFSET {5} ";
 
         /// <summary>
         /// 插入或更新 SQL 语句
         /// </summary>
-        public const string ReplaceInto_Statement = "IF EXISTS(SELECT 1 FROM {0} WHERE {1}) BEGIN UPDATE {0} SET {2} WHERE {1} END ELSE BEGIN INSERT INTO {0} {3} END";
+        public const string ReplaceInto_Statement = "INSERT INTO {0} {3} ON CONFLICT WHERE {1} DO UPDATE {0} SET {2}";
 
         /// <summary>
         /// 插入或忽略 SQL 语句
         /// </summary>
-        public const string InsertIgnore_Statement = "IF NOT EXISTS(SELECT 1 FROM {0} WHERE {1}) BEGIN INSERT INTO {0} {2} END";
+        public const string InsertIgnore_Statement = "INSERT INTO {0} {3} ON CONFLICT WHERE {1} DO NOTHING";
 
         /// <summary>
-        /// 实例化 SqlServerRepository
+        /// 实例化 PostgreSqlRepository
         /// </summary>
         /// <param name="dbConnectionInfo"></param>
-        public SqlServerRepository(DbConnectionInfo dbConnectionInfo) : base(dbConnectionInfo)
+        public PostgreSqlRepository(DbConnectionInfo dbConnectionInfo) : base(dbConnectionInfo)
         {
             if (dbConnectionInfo.DatabaseType != DatabaseType.SQLServer)
             {
