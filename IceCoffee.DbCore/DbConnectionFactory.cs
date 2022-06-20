@@ -1,4 +1,6 @@
 ﻿using IceCoffee.Common.Pools;
+using MySql.Data.MySqlClient;
+using Npgsql;
 using System;
 using System.Collections.Concurrent;
 using System.Data;
@@ -49,7 +51,11 @@ namespace IceCoffee.DbCore
                     break;
                 case DatabaseType.Aceess:
                 case DatabaseType.PostgreSQL:
+                    factory = NpgsqlFactory.Instance;
+                    break;
                 case DatabaseType.MySQL:
+                    factory = MySqlClientFactory.Instance;
+                    break;
                 case DatabaseType.Oracle:
                 default:
                     throw new ExceptionCatch.DbCoreException("未定义的数据库类型");
