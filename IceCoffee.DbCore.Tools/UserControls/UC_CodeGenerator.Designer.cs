@@ -75,8 +75,7 @@ namespace IceCoffee.DbCore.Tools.UserControls
             this.textBox_dbConnectionString.PlaceholderText = "输入数据库连接串";
             this.textBox_dbConnectionString.Size = new System.Drawing.Size(683, 23);
             this.textBox_dbConnectionString.TabIndex = 1;
-            this.textBox_dbConnectionString.Text = "Data Source=.;Initial Catalog=Test;uid=sa;pwd=1a2b3c4D;pooling=true;connection li" +
-    "fetime=10;min pool size=5;max pool size=50;";
+            this.textBox_dbConnectionString.Text = "Data Source=.;Initial Catalog=Test;uid=sa;pwd=;TrustServerCertificate=True;";
             // 
             // button_connect
             // 
@@ -223,7 +222,6 @@ namespace IceCoffee.DbCore.Tools.UserControls
             this.listView_entities.CheckBoxes = true;
             this.listView_entities.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader});
-            this.listView_entities.Cursor = System.Windows.Forms.Cursors.Default;
             this.listView_entities.Dock = System.Windows.Forms.DockStyle.Fill;
             listViewGroup1.Header = "表";
             listViewGroup1.Name = "listViewGroup_tables";
@@ -253,7 +251,6 @@ namespace IceCoffee.DbCore.Tools.UserControls
             this.columnHeader_typeName,
             this.columnHeader_nullable,
             this.columnHeader_primaryKey});
-            this.listView_columns.Cursor = System.Windows.Forms.Cursors.Default;
             this.listView_columns.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listView_columns.HideSelection = false;
             this.listView_columns.Location = new System.Drawing.Point(0, 0);
