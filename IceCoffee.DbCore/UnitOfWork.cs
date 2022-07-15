@@ -3,7 +3,7 @@ using System;
 using System.Data;
 using System.Threading;
 
-namespace IceCoffee.DbCore.UnitWork
+namespace IceCoffee.DbCore
 {
     /// <inheritdoc cref="IUnitOfWork"/>
     public class UnitOfWork : IUnitOfWork
@@ -29,7 +29,7 @@ namespace IceCoffee.DbCore.UnitWork
         /// </summary>
         /// <param name="maxHoldTime">工作单元最大被持有时长（单位：毫秒）默认值：60000 毫秒</param>
         /// <remarks>
-        /// 工作单元状态检查使用 <see cref="System.Threading.Timer"/>, 其精确度大约为 50 毫秒
+        /// 工作单元状态检查使用 <see cref="Timer"/>, 其精确度大约为 50 毫秒
         /// </remarks>
         public UnitOfWork(int maxHoldTime = 60000)
         {
@@ -66,7 +66,7 @@ namespace IceCoffee.DbCore.UnitWork
             if (_dbConnection == null)
             {
                 _isExplicitSubmit = true;
-                this._dbConnectionInfo = dbConnectionInfo;
+                _dbConnectionInfo = dbConnectionInfo;
                 _dbConnection = DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
                 _dbTransaction = _dbConnection.BeginTransaction();
                 _timer.Change(_maxHoldTime, Timeout.Infinite);
@@ -99,7 +99,7 @@ namespace IceCoffee.DbCore.UnitWork
             }
             else
             {
-                throw new DbCoreException(string.Format("设计错误，多次执行 {0} 或 跨线程使用工作单元", nameof(SaveChanges)));
+                throw new DbCoreException(string.Format("设计错误, 多次执行 {0} 或 跨线程使用工作单元", nameof(SaveChanges)));
             }
         }
         /// <inheritdoc />
@@ -122,7 +122,7 @@ namespace IceCoffee.DbCore.UnitWork
             }
             else
             {
-                throw new DbCoreException(string.Format("设计错误，多次执行 {0} 或 跨线程使用工作单元", nameof(Rollback)));
+                throw new DbCoreException(string.Format("设计错误, 多次执行 {0} 或 跨线程使用工作单元", nameof(Rollback)));
             }
         }
 
@@ -131,7 +131,7 @@ namespace IceCoffee.DbCore.UnitWork
         /// </summary>
         protected virtual void ForceEnd()
         {
-            if(_dbConnection != null && _dbTransaction != null)
+            if (_dbConnection != null && _dbTransaction != null)
             {
                 _isExplicitSubmit = false;
 
@@ -145,7 +145,7 @@ namespace IceCoffee.DbCore.UnitWork
                 _dbConnectionInfo = null;
             }
         }
-        
+
         #region 默认实现
         private static readonly object _singleton_Lock = new object();
         private static ThreadLocal<IUnitOfWork>? _threadLocal;
@@ -153,7 +153,7 @@ namespace IceCoffee.DbCore.UnitWork
         /// <summary>
         /// 获得默认工作单元实例在当前线程的实例值
         /// </summary>
-        public static IUnitOfWork Default 
+        public static IUnitOfWork Default
         {
             get
             {

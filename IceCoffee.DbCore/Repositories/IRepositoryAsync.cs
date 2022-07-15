@@ -115,8 +115,8 @@ namespace IceCoffee.DbCore.Repositories
         /// 获取与条件匹配的所有记录的分页列表
         /// </summary>
         /// <param name="pageIndex">页码</param>
-        /// <param name="pageSize">每页数量，值小于 0 时返回所有记录</param>
-        /// <param name="whereBy">where条件字符串，不能为空字符串""</param>
+        /// <param name="pageSize">每页数量, 值小于 0 时返回所有记录</param>
+        /// <param name="whereBy">where条件字符串, 不能为空字符串""</param>
         /// <param name="orderBy">顺序字符串</param>
         /// <param name="param">带参数的匿名对象</param>
         /// <returns></returns>
@@ -207,7 +207,7 @@ namespace IceCoffee.DbCore.Repositories
 
         /// <summary>
         /// 插入或更新多条记录
-        /// 先尝试更新，如结果为 0，则进行批量插入
+        /// 先尝试更新, 如结果为 0, 则进行批量插入
         /// </summary>
         /// <param name="entities"></param>
         /// <param name="useTransaction"></param>
@@ -215,7 +215,7 @@ namespace IceCoffee.DbCore.Repositories
         Task<int> ReplaceIntoBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false);
 
         /// <summary>
-        /// 插入多条记录，忽略已经存在的冲突记录
+        /// 插入多条记录, 忽略已经存在的冲突记录
         /// 先通过主键过滤已存在再批量插入
         /// </summary>
         /// <param name="entities"></param>
@@ -233,7 +233,7 @@ namespace IceCoffee.DbCore.Repositories
 
         /// <summary>
         /// 插入或更新多条记录
-        /// 先尝试更新，如结果为 0，则进行批量插入
+        /// 先尝试更新, 如结果为 0, 则进行批量插入
         /// </summary>
         /// <param name="tableName"></param>
         /// <param name="entities"></param>
@@ -242,7 +242,7 @@ namespace IceCoffee.DbCore.Repositories
         Task<int> ReplaceIntoBatchAsync(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false);
 
         /// <summary>
-        /// 插入多条记录，忽略已经存在的冲突记录
+        /// 插入多条记录, 忽略已经存在的冲突记录
         /// 先通过主键过滤已存在再批量插入
         /// </summary>
         /// <param name="tableName"></param>

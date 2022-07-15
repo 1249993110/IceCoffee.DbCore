@@ -8,7 +8,7 @@
         public int PageIndex { get; set; }
 
         /// <summary>
-        /// 每页数量，值小于 0 时返回所有记录
+        /// 每页数量, 值小于 0 时返回所有记录
         /// </summary>
         public int PageSize { get; set; }
 

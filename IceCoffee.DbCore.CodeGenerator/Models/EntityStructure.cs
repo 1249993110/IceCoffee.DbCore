@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace IceCoffee.DbCore.Tools.Models.CodeGenerator
+namespace IceCoffee.DbCore.CodeGenerator.Models
 {
     class EntityStructure
     {
         public string EntityName { get; set; }
 
-        public IList<ColumnStructure> ColumnStructures { get; set; }
+        public IEnumerable<FieldInfo> FieldInfos { get; set; }
 
         public bool IsView { get; set; }
 

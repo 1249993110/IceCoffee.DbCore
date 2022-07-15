@@ -25,7 +25,7 @@ namespace IceCoffee.DbCore.Repositories
         /// <summary>
         /// 插入或忽略 SQL 语句
         /// </summary>
-        public const string InsertIgnore_Statement = "INSERT INTO {0} {3} ON CONFLICT WHERE {1} DO NOTHING";
+        public const string InsertIgnore_Statement = "INSERT INTO {0} {2} ON CONFLICT WHERE {1} DO NOTHING";
 
         /// <summary>
         /// 实例化 PostgreSqlRepository
@@ -33,7 +33,7 @@ namespace IceCoffee.DbCore.Repositories
         /// <param name="dbConnectionInfo"></param>
         public PostgreSqlRepository(DbConnectionInfo dbConnectionInfo) : base(dbConnectionInfo)
         {
-            if (dbConnectionInfo.DatabaseType != DatabaseType.SQLServer)
+            if (dbConnectionInfo.DatabaseType != DatabaseType.PostgreSQL)
             {
                 throw new DbCoreException("数据库类型不匹配");
             }
@@ -176,7 +176,7 @@ namespace IceCoffee.DbCore.Repositories
             string? whereBy = null;
             if (string.IsNullOrEmpty(dto.Keyword) == false)
             {
-                whereBy = $"{keywordMappedPropName} LIKE CONCAT('%',@Keyword,'%')";
+                whereBy = $"{keywordMappedPropName} ILIKE CONCAT('%',@Keyword,'%')";
             }
 
             IEnumerable<TEntity> items;
@@ -211,10 +211,10 @@ namespace IceCoffee.DbCore.Repositories
             string? whereBy = null;
             if (string.IsNullOrEmpty(dto.Keyword) == false)
             {
-                whereBy = $"{keywordMappedPropNames[0]} LIKE CONCAT('%',@Keyword,'%')";
+                whereBy = $"{keywordMappedPropNames[0]} ILIKE CONCAT('%',@Keyword,'%')";
                 for (int i = 1, len = keywordMappedPropNames.Length; i < len; ++i)
                 {
-                    whereBy += $" OR {keywordMappedPropNames[i]} LIKE CONCAT('%',@Keyword,'%')";
+                    whereBy += $" OR {keywordMappedPropNames[i]} ILIKE CONCAT('%',@Keyword,'%')";
                 }
             }
 

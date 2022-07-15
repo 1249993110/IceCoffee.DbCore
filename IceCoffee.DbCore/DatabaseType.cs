@@ -11,14 +11,9 @@
         Unknown,
 
         /// <summary>
-        /// SQLite数据库
+        /// Oracle数据库
         /// </summary>
-        SQLite,
-
-        /// <summary>
-        /// SQL Server数据库
-        /// </summary>
-        SQLServer,
+        Oracle,
 
         /// <summary>
         /// MySQL数据库
@@ -26,18 +21,38 @@
         MySQL,
 
         /// <summary>
-        /// Oracle数据库
+        /// Microsoft SQL Server数据库
         /// </summary>
-        Oracle,
-
-        /// <summary>
-        /// Aceess数据库
-        /// </summary>
-        Aceess,
+        SQLServer,
 
         /// <summary>
         /// PostgreSQL数据库
         /// </summary>
-        PostgreSQL
+        PostgreSQL,
+
+        /// <summary>
+        /// IBM Db2数据库
+        /// </summary>
+        IBM_Db2,
+
+        /// <summary>
+        /// Microsoft Access数据库
+        /// </summary>
+        Aceess,
+
+        /// <summary>
+        /// SQLite数据库
+        /// </summary>
+        SQLite,
+
+        /// <summary>
+        /// MariaDB数据库
+        /// </summary>
+        MariaDB,
+
+        /// <summary>
+        /// Snowflake数据库
+        /// </summary>
+        Snowflake,
     }
 }

@@ -1,14 +1,8 @@
-﻿using IceCoffee.DbCore.UnitWork;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System;
 using System.Data;
-using System.Drawing;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace IceCoffee.DbCore.Tools
@@ -17,12 +11,13 @@ namespace IceCoffee.DbCore.Tools
     {
         private static SynchronizationContext _mainThreadContext;
         public static SynchronizationContext MainThreadContext => _mainThreadContext;
+
         public MainForm()
         {
             _mainThreadContext = SynchronizationContext.Current;
 
             InitializeComponent();
-            
+
             base.Text = "数据库工具 v" + Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
             LoadUserControl();

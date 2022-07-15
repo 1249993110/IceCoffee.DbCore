@@ -1,10 +1,8 @@
 ﻿using Dapper;
-
 using IceCoffee.DbCore.ExceptionCatch;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SQLite;
 
 namespace IceCoffee.DbCore.Utils
 {
@@ -14,110 +12,109 @@ namespace IceCoffee.DbCore.Utils
     public static class DBHelper
     {
         /// <summary>
-        /// 创建SQLite数据库
-        /// </summary>
-        public static void CreateSQLiteDB(string path)
-        {
-            SQLiteConnection.CreateFile(path);
-        }
-
-        /// <summary>
-        /// 创建表
-        /// </summary>
-        /// <param name="dbConnectionInfo"></param>
-        /// <param name="tableName"></param>
-        /// <param name="propertyList"></param>
-        public static void CreateTable(DbConnectionInfo dbConnectionInfo, string tableName, string[] propertyList)
-        {
-            try
-            {
-                var connection = DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
-                connection.Execute(string.Format("CREATE TABLE IF NOT EXISTS {0}({1})", tableName, string.Join(",", propertyList)));
-            }
-            catch (Exception ex)
-            {
-                throw new DbCoreException("创建表异常", ex);
-            }
-        }
-
-        /// <summary>
-        /// 删除SQLite数据库
-        /// </summary>
-        public static void DeleteSQLiteDB(string path)
-        {
-            if (System.IO.File.Exists(path))
-            {
-                System.IO.File.Delete(path);
-            }
-        }
-
-        /// <summary>
-        /// 删除表
-        /// </summary>
-        /// <param name="dbConnectionInfo"></param>
-        /// <param name="tableName"></param>
-        public static void DropTable(DbConnectionInfo dbConnectionInfo, string tableName)
-        {
-            try
-            {
-                var connection = DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
-                connection.Execute(string.Format("DROP TABLE IF EXISTS {0}", tableName));
-            }
-            catch (Exception ex)
-            {
-                throw new DbCoreException("删除表异常", ex);
-            }
-        }
-
-        /// <summary>
-        /// 从连接池中获取数据库连接，以执行sql语句
+        /// 从连接池中获取数据库连接, 以执行任意sql语句
         /// </summary>
         /// <param name="dbConnectionInfo"></param>
         /// <param name="sql"></param>
         /// <param name="param"></param>
-        public static int ExecuteSql(DbConnectionInfo dbConnectionInfo, string sql, object? param = null)
+        /// <param name="useTransaction"></param>
+        public static int ExecuteAny(DbConnectionInfo dbConnectionInfo, string sql, object? param = null, bool useTransaction = false)
         {
-            IDbConnection connection = DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
+            var conn = DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
+            var tran = useTransaction ? conn.BeginTransaction() : null;
+
             try
             {
-                return connection.Execute(sql, param);
+                int result = conn.Execute(sql, param, tran, commandType: CommandType.Text);
+
+                if (useTransaction)
+                {
+                    tran?.Commit();
+                }
+
+                return result;
             }
             catch (Exception ex)
             {
-                throw new DbCoreException("执行 SQL 语句异常", ex);
+                if (useTransaction)
+                {
+                    tran?.Rollback();
+                }
+
+                throw new DbCoreException("Error in DBHelper.ExecuteAny", ex);
             }
             finally
             {
-                if (connection != null)
+                if (conn != null)
                 {
-                    DbConnectionFactory.CollectDbConnectionToPool(connection);
+                    DbConnectionFactory.CollectDbConnectionToPool(conn);
                 }
             }
         }
 
         /// <summary>
-        /// 从连接池中获取数据库连接，以执行sql语句
+        /// 从连接池中获取数据库连接, 以执行任意查询sql语句
         /// </summary>
         /// <param name="dbConnectionInfo"></param>
         /// <param name="sql"></param>
         /// <param name="param"></param>
         public static IEnumerable<TEntity> QueryAny<TEntity>(DbConnectionInfo dbConnectionInfo, string sql, object? param = null)
         {
-            IDbConnection connection = DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
+            var conn = DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
             try
             {
-                return connection.Query<TEntity>(sql, param);
+                return conn.Query<TEntity>(sql, param);
             }
             catch (Exception ex)
             {
-                throw new DbCoreException("执行 SQL 语句异常", ex);
+                throw new DbCoreException("Error in DBHelper.QueryAny", ex);
             }
             finally
             {
-                if (connection != null)
+                if (conn != null)
                 {
-                    DbConnectionFactory.CollectDbConnectionToPool(connection);
+                    DbConnectionFactory.CollectDbConnectionToPool(conn);
                 }
+            }
+        }
+
+        /// <summary>
+        /// 从连接池中获取数据库连接, 执行参数化 SQL 语句, 选择单个值
+        /// </summary>
+        /// <typeparam name="TReturn"></typeparam>
+        /// <param name="dbConnectionInfo"></param>
+        /// <param name="sql"></param>
+        /// <param name="param"></param>
+        /// <param name="useTransaction"></param>
+        /// <returns></returns>
+        public static TReturn ExecuteScalar<TReturn>(DbConnectionInfo dbConnectionInfo, string sql, object? param = null, bool useTransaction = false)
+        {
+            var conn = DbConnectionFactory.GetConnectionFromPool(dbConnectionInfo);
+            var tran = useTransaction ? conn.BeginTransaction() : null;
+
+            try
+            {
+                var result = conn.ExecuteScalar<TReturn>(sql, param, tran, commandType: CommandType.Text);
+
+                if (useTransaction)
+                {
+                    tran?.Commit();
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                if (useTransaction)
+                {
+                    tran?.Rollback();
+                }
+
+                throw new DbCoreException("Error in DBHelper.ExecuteScalar", ex);
+            }
+            finally
+            {
+                DbConnectionFactory.CollectDbConnectionToPool(conn);
             }
         }
     }

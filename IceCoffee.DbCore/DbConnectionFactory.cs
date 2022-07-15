@@ -1,18 +1,18 @@
 ﻿using IceCoffee.Common.Pools;
+using Microsoft.Data.SqlClient;
 using MySql.Data.MySqlClient;
 using Npgsql;
 using System;
 using System.Collections.Concurrent;
 using System.Data;
 using System.Data.Common;
-using System.Data.SqlClient;
 using System.Data.SQLite;
 #pragma warning disable
 
 namespace IceCoffee.DbCore
 {
     /// <summary>
-    /// 数据库连接工厂，为每一个连接串建立一个连接池
+    /// 数据库连接工厂, 为每一个连接串建立一个连接池
     /// </summary>
     public static class DbConnectionFactory
     {
@@ -100,15 +100,18 @@ namespace IceCoffee.DbCore
         /// </summary>
         public static void ClearAll()
         {
-            foreach (var connectionPool in _connectionPoolDict.Values)
+            lock (_connectionPoolDict)
             {
-                if(connectionPool is IDisposable disposable)
+                foreach (var connectionPool in _connectionPoolDict.Values)
                 {
-                    disposable.Dispose();
+                    if (connectionPool is IDisposable disposable)
+                    {
+                        disposable.Dispose();
+                    }
                 }
-            }
 
-            _connectionPoolDict.Clear();
+                _connectionPoolDict.Clear();
+            }
         }
 
         /// <summary>

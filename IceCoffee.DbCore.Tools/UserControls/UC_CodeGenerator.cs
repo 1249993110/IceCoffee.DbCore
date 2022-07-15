@@ -242,15 +242,12 @@ namespace IceCoffee.DbCore.Tools.UserControls
 
         private void InitDirectory()
         {
-            CreateDirDirectory("Entities");
-            CreateDirDirectory("Entities");
-            CreateDirDirectory("IRepositories");
-            CreateDirDirectory("IRepositories");
-            CreateDirDirectory("Repositories");
-            CreateDirDirectory("Repositories");
+            CreateDirectory("Entities");
+            CreateDirectory("IRepositories");
+            CreateDirectory("Repositories");
         }
 
-        private void CreateDirDirectory(string dir)
+        private void CreateDirectory(string dir)
         {
             dir = Path.Combine(this.textBox_rootPath.Text, dir, this.textBox_subPath.Text);
             Directory.CreateDirectory(dir);

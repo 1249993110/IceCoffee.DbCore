@@ -16,7 +16,7 @@
 		<Product>IceCoffee</Product>
 		<RepositoryUrl>https://github.com/1249993110/IceCoffee.DbCore</RepositoryUrl>
 		<TargetFrameworks>net6.0;netcoreapp3.1;net461</TargetFrameworks>
-		<Version>1.0.4.2</Version>
+		<Version>1.0.4.5</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -30,11 +30,11 @@
 	<ItemGroup>
 		<PackageReference Include="IceCoffee.Common" Version="1.0.2.5" />
 		<PackageReference Include="Mapster" Version="7.3.0" />
+		<PackageReference Include="Microsoft.Data.SqlClient" Version="4.1.0" />
 		<PackageReference Include="MySql.Data" Version="8.0.29" />
 		<PackageReference Include="Npgsql" Version="6.0.5" />
 		<PackageReference Include="System.Data.SQLite.Core" Version="1.0.116" />
 		<PackageReference Include="Dapper" Version="2.0.123" />
-		<PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
 	</ItemGroup>
 
 </Project>
