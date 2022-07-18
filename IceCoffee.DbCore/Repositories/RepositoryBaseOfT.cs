@@ -1,11 +1,8 @@
 ﻿using Dapper;
+using IceCoffee.DbCore.Dtos;
 using IceCoffee.DbCore.ExceptionCatch;
 using IceCoffee.DbCore.OptionalAttributes;
-using IceCoffee.DbCore.Dtos;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -22,6 +19,11 @@ namespace IceCoffee.DbCore.Repositories
         #region 公共静态属性
 
         /// <summary>
+        /// 基于实体上列名的插入语句
+        /// </summary>
+        public static string Insert_Statement { get; private set; }
+
+        /// <summary>
         /// 主键列名
         /// </summary>
         public static string[]? KeyNames { get; private set; }
@@ -32,19 +34,14 @@ namespace IceCoffee.DbCore.Repositories
         public static string? KeyNameWhereBy { get; private set; }
 
         /// <summary>
-        /// 表名
-        /// </summary>
-        public static string TableName { get; private set; }
-
-        /// <summary>
-        /// 基于实体上列名的插入语句
-        /// </summary>
-        public static string Insert_Statement { get; private set; }
-
-        /// <summary>
         /// 基于实体上列名的选择语句
         /// </summary>
         public static string Select_Statement { get; private set; }
+
+        /// <summary>
+        /// 表名
+        /// </summary>
+        public static string TableName { get; private set; }
 
         /// <summary>
         /// 基于实体上列名的更新语句
@@ -168,168 +165,191 @@ namespace IceCoffee.DbCore.Repositories
 
         #endregion 构造
 
-        #region Insert
-
-        /// <inheritdoc />
-        public virtual int Insert(TEntity entity)
-        {
-            return base.Execute(string.Format("INSERT INTO {0} {1}", TableName, Insert_Statement), entity);
-        }
-
-        /// <inheritdoc />
-        public virtual int InsertBatch(IEnumerable<TEntity> entities, bool useTransaction = false)
-        {
-            return base.Execute(string.Format("INSERT INTO {0} {1}", TableName, Insert_Statement), entities, useTransaction);
-        }
-
-        #endregion Insert
-
-        #region Delete
-
-        /// <inheritdoc />
         public virtual int Delete(string whereBy, object? param = null, bool useTransaction = false)
         {
-            string sql = string.Format("DELETE FROM {0} {1}", TableName, whereBy == null ? string.Empty : "WHERE " + whereBy);
-            return base.Execute(sql, param, useTransaction);
+            return this.DeleteAsync(whereBy, param, useTransaction).Result;
         }
 
-        /// <inheritdoc />
         public virtual int Delete(TEntity entity)
         {
-            string sql = string.Format("DELETE FROM {0} WHERE {1}", TableName, KeyNameWhereBy);
-            return base.Execute(sql, entity);
+            return this.DeleteAsync(entity).Result;
         }
 
-        /// <inheritdoc />
         public virtual int DeleteBatch(IEnumerable<TEntity> entities, bool useTransaction = false)
         {
-            string sql = string.Format("DELETE FROM {0} WHERE {1}", TableName, KeyNameWhereBy);
-            return base.Execute(sql, entities, useTransaction);
+            return this.DeleteBatchAsync(entities, useTransaction).Result;
         }
 
-        /// <inheritdoc />
-        public virtual int DeleteById<TId>(string idColumnName, TId id)
-        {
-            string sql = string.Format("DELETE FROM {0} WHERE {1}=@Id", TableName, idColumnName);
-            return base.Execute(sql, new { Id = id });
-        }
-
-        /// <inheritdoc />
         public virtual int DeleteBatchByIds<TId>(string idColumnName, IEnumerable<TId> ids, bool useTransaction = false)
         {
-            string sql = string.Format("DELETE FROM {0} WHERE {1} IN @Ids", TableName, idColumnName);
-            return Execute(sql, new { Ids = ids }, useTransaction);
+            return this.DeleteBatchByIdsAsync(idColumnName, ids, useTransaction).Result;
         }
 
-        #endregion Delete
+        public virtual int DeleteBatchByTableName(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false)
+        {
+            return this.DeleteBatchByTableNameAsync(tableName, entities, useTransaction).Result;
+        }
 
-        #region Query
+        public virtual int DeleteById<TId>(string idColumnName, TId id)
+        {
+            return this.DeleteByIdAsync(idColumnName, id).Result;
+        }
 
-        /// <inheritdoc />
+        public virtual int DeleteByTableName(string tableName, TEntity entity)
+        {
+            return this.DeleteByTableNameAsync(tableName, entity).Result;
+        }
+
+        public virtual int DeleteByTableName(string tableName, string whereBy, object? param = null, bool useTransaction = false)
+        {
+            return this.DeleteByTableNameAsync(tableName, whereBy, param, useTransaction).Result;
+        }
+
+        public virtual int Insert(TEntity entity)
+        {
+            return this.InsertAsync(entity).Result;
+        }
+
+        public virtual int InsertBatch(IEnumerable<TEntity> entities, bool useTransaction = false)
+        {
+            return this.InsertBatchAsync(entities, useTransaction).Result;
+        }
+
+        public virtual int InsertBatchByTableName(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false)
+        {
+            return this.InsertBatchByTableNameAsync(tableName, entities, useTransaction).Result;
+        }
+
+        public virtual int InsertByTableName(string tableName, TEntity entity)
+        {
+            return this.InsertByTableNameAsync(tableName, entity).Result;
+        }
+
+        public virtual int InsertIgnoreBatch(IEnumerable<TEntity> entities, bool useTransaction = false)
+        {
+            return this.InsertIgnoreBatchAsync(entities, useTransaction).Result;
+        }
+
+        public virtual int InsertIgnoreBatchByTableName(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false)
+        {
+            return this.InsertIgnoreBatchByTableNameAsync(tableName, entities, useTransaction).Result;
+        }
+
         public virtual IEnumerable<TEntity> Query(string? whereBy = null, string? orderBy = null, object? param = null)
         {
-            string sql = string.Format("SELECT {0} FROM {1} {2} {3}", Select_Statement, TableName,
-                whereBy == null ? string.Empty : "WHERE " + whereBy,
-                orderBy == null ? string.Empty : "ORDER BY " + orderBy);
-            return base.Query<TEntity>(sql, param);
+            return this.QueryAsync(whereBy, orderBy, param).Result;
         }
 
-        /// <inheritdoc />
         public virtual IEnumerable<TEntity> QueryAll(string? orderBy = null)
         {
-            string sql = string.Format("SELECT {0} FROM {1} {2}", Select_Statement, TableName,
-                orderBy == null ? string.Empty : "ORDER BY " + orderBy);
-            return base.Query<TEntity>(sql, null);
+            return this.QueryAllAsync(orderBy).Result;
         }
 
-        /// <inheritdoc />
         public virtual IEnumerable<TEntity> QueryById<TId>(string idColumnName, TId id)
         {
-            string sql = string.Format("SELECT {0} FROM {1} WHERE {2}=@Id", Select_Statement, TableName, idColumnName);
-            return base.Query<TEntity>(sql, new { Id = id });
+            return this.QueryByIdAsync(idColumnName, id).Result;
         }
 
-        /// <inheritdoc />
         public virtual IEnumerable<TEntity> QueryByIds<TId>(string idColumnName, IEnumerable<TId> ids)
         {
-            string sql = string.Format("SELECT {0} FROM {1} WHERE {2} IN @Ids", Select_Statement, TableName, idColumnName);
-            return base.Query<TEntity>(sql, new { Ids = ids });
+            return this.QueryByIdsAsync(idColumnName, ids).Result;
         }
 
-        /// <inheritdoc />
+        public virtual IEnumerable<TEntity> QueryByTableName(string tableName, string? whereBy = null, string? orderBy = null, object? param = null)
+        {
+            return this.QueryByTableNameAsync(tableName, whereBy, orderBy, param).Result;
+        }
+
+        public virtual IEnumerable<TEntity> QueryPaged(int pageIndex, int pageSize,
+           string? whereBy = null, string? orderBy = null, object? param = null)
+        {
+            return this.QueryPagedAsync(pageIndex, pageSize, whereBy, orderBy, param).Result;
+        }
+
+        public virtual IEnumerable<TEntity> QueryPagedByTableName(string tableName, int pageIndex, int pageSize,
+           string? whereBy = null, string? orderBy = null, object? param = null)
+        {
+            return this.QueryPagedByTableNameAsync(tableName, pageIndex, pageSize, whereBy, orderBy, param).Result;
+        }
+
+        public virtual PaginationResultDto<TEntity> QueryPaged(PaginationQueryDto dto, params string[] keywordMappedColumnNames)
+        {
+            return this.QueryPagedAsync(dto, keywordMappedColumnNames).Result;
+        }
+
+        public virtual PaginationResultDto<TEntity> QueryPagedByTableName(string tableName, PaginationQueryDto dto, params string[] keywordMappedColumnNames)
+        {
+            return this.QueryPagedByTableNameAsync(tableName, dto, keywordMappedColumnNames).Result;
+        }
+
         public virtual int QueryRecordCount(string? whereBy = null, object? param = null)
         {
-            string sql = string.Format("SELECT COUNT(*) FROM {0} {1}", TableName, whereBy == null ? string.Empty : "WHERE " + whereBy);
-            return base.ExecuteScalar<int>(sql, param);
+            return this.QueryRecordCountAsync(whereBy, param).Result;
         }
 
-        /// <inheritdoc />
-        public abstract IEnumerable<TEntity> QueryPaged(int pageIndex, int pageSize,
-           string? whereBy = null, string? orderBy = null, object? param = null);
+        public virtual int QueryRecordCountByTableName(string tableName, string? whereBy = null, object? param = null)
+        {
+            return this.QueryRecordCountByTableNameAsync(tableName, whereBy, param).Result;
+        }
 
-        /// <inheritdoc />
-        public abstract PaginationResultDto<TEntity> QueryPaged(PaginationQueryDto dto, string keywordMappedPropName);
-        /// <inheritdoc />
-        public abstract PaginationResultDto<TEntity> QueryPaged(PaginationQueryDto dto, string[] keywordMappedPropNames);
-        #endregion Query
+        public virtual int ReplaceInto(TEntity entity)
+        {
+            return this.ReplaceIntoAsync(entity).Result;
+        }
 
-        #region Update
+        public virtual int ReplaceIntoBatch(IEnumerable<TEntity> entities, bool useTransaction = false)
+        {
+            return this.ReplaceIntoBatchAsync(entities, useTransaction).Result;
+        }
 
-        /// <inheritdoc />
+        public virtual int ReplaceIntoBatchByTableName(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false)
+        {
+            return this.ReplaceIntoBatchByTableNameAsync(tableName, entities, useTransaction).Result;
+        }
+
+        public virtual int ReplaceIntoByTableName(string tableName, TEntity entity)
+        {
+            return this.ReplaceIntoByTableNameAsync(tableName, entity).Result;
+        }
+
         public virtual int Update(string setClause, string whereBy, object param, bool useTransaction = false)
         {
-            string sql = string.Format("UPDATE {0} SET {1} {2}", TableName, setClause, whereBy == null ? string.Empty : "WHERE " + whereBy);
-            return base.Execute(sql, param, useTransaction);
+            return this.UpdateAsync(setClause, whereBy, param, useTransaction).Result;
         }
 
-        /// <inheritdoc />
         public virtual int Update(TEntity entity)
         {
-            string sql = string.Format("UPDATE {0} SET {1} WHERE {2}", TableName, UpdateSet_Statement, KeyNameWhereBy);
-            return base.Execute(sql, entity);
+            return this.UpdateAsync(entity).Result;
         }
 
-        /// <inheritdoc />
         public virtual int UpdateBatch(IEnumerable<TEntity> entities, bool useTransaction = false)
         {
-            string sql = string.Format("UPDATE {0} SET {1} WHERE {2}", TableName, UpdateSet_Statement, KeyNameWhereBy);
-            return base.Execute(sql, entities, useTransaction);
+            return this.UpdateBatchAsync(entities, useTransaction).Result;
         }
 
-        /// <inheritdoc />
+        public virtual int UpdateBatchByTableName(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false)
+        {
+            return this.UpdateBatchByTableNameAsync(tableName, entities, useTransaction).Result;
+        }
+
         public virtual int UpdateById(string idColumnName, TEntity entity)
         {
-            string sql = string.Format("UPDATE {0} SET {1} WHERE {2}=@{2}", TableName, UpdateSet_Statement, idColumnName);
-            return base.Execute(sql, entity);
+            return this.UpdateByIdAsync(idColumnName, entity).Result;
         }
 
-        /// <inheritdoc />
+        public virtual int UpdateByTableName(string tableName, string setClause, string whereBy, object param, bool useTransaction = false)
+        {
+            return this.UpdateByTableNameAsync(tableName, setClause, whereBy, param, useTransaction).Result;
+        }
+
+        public virtual int UpdateByTableName(string tableName, TEntity entity)
+        {
+            return this.UpdateByTableNameAsync(tableName, entity).Result;
+        }
+
         public virtual int UpdateColumnById<TId, TValue>(string idColumnName, TId id, string valueColumnName, TValue value)
         {
-            string sql = string.Format("UPDATE {0} SET {1}=@Value WHERE {2}=@Id", TableName, valueColumnName, idColumnName);
-            return base.Execute(sql, new { Id = id, Value = value });
+            return this.UpdateColumnByIdAsync(idColumnName, id, valueColumnName, value).Result;
         }
-
-        #endregion Update
-
-        #region Other
-        /// <inheritdoc />
-        public abstract int ReplaceInto(TEntity entity);
-
-        /// <inheritdoc />
-        public abstract int ReplaceIntoBatch(IEnumerable<TEntity> entities, bool useTransaction = false);
-
-        /// <inheritdoc />
-        public abstract int InsertIgnoreBatch(IEnumerable<TEntity> entities, bool useTransaction = false);
-
-        /// <inheritdoc />
-        public abstract int ReplaceInto(string tableName, TEntity entity);
-
-        /// <inheritdoc />
-        public abstract int ReplaceIntoBatch(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false);
-
-        /// <inheritdoc />
-        public abstract int InsertIgnoreBatch(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false);
-        #endregion
     }
 }

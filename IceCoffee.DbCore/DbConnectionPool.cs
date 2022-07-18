@@ -1,6 +1,5 @@
 ﻿using IceCoffee.Common.Pools;
 using IceCoffee.DbCore.ExceptionCatch;
-using System;
 using System.Data;
 
 namespace IceCoffee.DbCore

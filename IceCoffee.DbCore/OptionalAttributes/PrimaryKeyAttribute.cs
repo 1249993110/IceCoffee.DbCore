@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace IceCoffee.DbCore.OptionalAttributes
+﻿namespace IceCoffee.DbCore.OptionalAttributes
 {
     /// <summary>
     /// 标识主键特性

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Configuration;
+﻿using System.Configuration;
 
 namespace IceCoffee.DbCore
 {
@@ -108,7 +107,7 @@ namespace IceCoffee.DbCore
         /// <inheritdoc/>
         public override int GetHashCode()
         {
-            if(ConnectionString == null)
+            if (ConnectionString == null)
             {
                 throw new ArgumentNullException(nameof(ConnectionString));
             }

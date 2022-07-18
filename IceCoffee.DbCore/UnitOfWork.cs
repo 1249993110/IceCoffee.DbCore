@@ -1,7 +1,5 @@
 ﻿using IceCoffee.DbCore.ExceptionCatch;
-using System;
 using System.Data;
-using System.Threading;
 
 namespace IceCoffee.DbCore
 {
@@ -17,10 +15,13 @@ namespace IceCoffee.DbCore
 
         /// <inheritdoc />
         public bool IsExplicitSubmit => _isExplicitSubmit;
+
         /// <inheritdoc />
         public IDbConnection? DbConnection => _dbConnection;
+
         /// <inheritdoc />
         public IDbTransaction? DbTransaction => _dbTransaction;
+
         /// <inheritdoc />
         public DbConnectionInfo? DbConnectionInfo => _dbConnectionInfo;
 
@@ -102,6 +103,7 @@ namespace IceCoffee.DbCore
                 throw new DbCoreException(string.Format("设计错误, 多次执行 {0} 或 跨线程使用工作单元", nameof(SaveChanges)));
             }
         }
+
         /// <inheritdoc />
         public virtual void Rollback()
         {
@@ -147,6 +149,7 @@ namespace IceCoffee.DbCore
         }
 
         #region 默认实现
+
         private static readonly object _singleton_Lock = new object();
         private static ThreadLocal<IUnitOfWork>? _threadLocal;
 
@@ -183,6 +186,7 @@ namespace IceCoffee.DbCore
         {
             _threadLocal = new ThreadLocal<IUnitOfWork>(func);
         }
-        #endregion
+
+        #endregion 默认实现
     }
 }

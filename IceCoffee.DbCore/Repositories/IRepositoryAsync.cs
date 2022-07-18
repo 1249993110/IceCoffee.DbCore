@@ -1,6 +1,4 @@
 ﻿using IceCoffee.DbCore.Dtos;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace IceCoffee.DbCore.Repositories
 {
@@ -20,12 +18,29 @@ namespace IceCoffee.DbCore.Repositories
         Task<int> InsertAsync(TEntity entity);
 
         /// <summary>
+        /// 通过表名插入一条记录
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        Task<int> InsertByTableNameAsync(string tableName, TEntity entity);
+
+        /// <summary>
         /// 插入多条记录
         /// </summary>
         /// <param name="entities"></param>
         /// <param name="useTransaction"></param>
         /// <returns></returns>
         Task<int> InsertBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false);
+
+        /// <summary>
+        /// 通过表名插入多条记录
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <param name="entities"></param>
+        /// <param name="useTransaction"></param>
+        /// <returns></returns>
+        Task<int> InsertBatchByTableNameAsync(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false);
 
         #endregion Insert
 
@@ -41,11 +56,29 @@ namespace IceCoffee.DbCore.Repositories
         Task<int> DeleteAsync(string whereBy, object? param = null, bool useTransaction = false);
 
         /// <summary>
+        /// 通过表名通过条件和匿名对象执行任意删除语句
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <param name="whereBy"></param>
+        /// <param name="param"></param>
+        /// <param name="useTransaction"></param>
+        /// <returns></returns>
+        Task<int> DeleteByTableNameAsync(string tableName, string whereBy, object? param = null, bool useTransaction = false);
+
+        /// <summary>
         /// 通过默认主键删除记录
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
         Task<int> DeleteAsync(TEntity entity);
+
+        /// <summary>
+        /// 通过表名和默认主键删除记录
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        Task<int> DeleteByTableNameAsync(string tableName, TEntity entity);
 
         /// <summary>
         /// 通过默认主键删除多条记录
@@ -54,6 +87,15 @@ namespace IceCoffee.DbCore.Repositories
         /// <param name="useTransaction"></param>
         /// <returns></returns>
         Task<int> DeleteBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false);
+
+        /// <summary>
+        /// 通过表名和默认主键删除多条记录
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <param name="entities"></param>
+        /// <param name="useTransaction"></param>
+        /// <returns></returns>
+        Task<int> DeleteBatchByTableNameAsync(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false);
 
         /// <summary>
         /// 通过ID删除记录
@@ -86,6 +128,16 @@ namespace IceCoffee.DbCore.Repositories
         /// <param name="param"></param>
         /// <returns></returns>
         Task<IEnumerable<TEntity>> QueryAsync(string? whereBy = null, string? orderBy = null, object? param = null);
+
+        /// <summary>
+        /// 通过表名、条件、顺序字符串和匿名对象执行任意查询语句
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <param name="whereBy"></param>
+        /// <param name="orderBy"></param>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        Task<IEnumerable<TEntity>> QueryByTableNameAsync(string tableName, string? whereBy = null, string? orderBy = null, object? param = null);
 
         /// <summary>
         /// 查询关联表的所有记录
@@ -123,20 +175,33 @@ namespace IceCoffee.DbCore.Repositories
         Task<IEnumerable<TEntity>> QueryPagedAsync(int pageIndex, int pageSize, string? whereBy = null, string? orderBy = null, object? param = null);
 
         /// <summary>
-        /// 获取与条件匹配的所有记录的分页列表
+        /// 通过表名获取与条件匹配的所有记录的分页列表
         /// </summary>
-        /// <param name="dto"></param>
-        /// <param name="keywordMappedPropName">关键词对应的属性名称</param>
+        /// <param name="tableName">页码</param>
+        /// <param name="pageIndex">页码</param>
+        /// <param name="pageSize">每页数量, 值小于 0 时返回所有记录</param>
+        /// <param name="whereBy">where条件字符串, 不能为空字符串""</param>
+        /// <param name="orderBy">顺序字符串</param>
+        /// <param name="param">带参数的匿名对象</param>
         /// <returns></returns>
-        Task<PaginationResultDto<TEntity>> QueryPagedAsync(PaginationQueryDto dto, string keywordMappedPropName);
+        Task<IEnumerable<TEntity>> QueryPagedByTableNameAsync(string tableName, int pageIndex, int pageSize, string? whereBy = null, string? orderBy = null, object? param = null);
 
         /// <summary>
         /// 获取与条件匹配的所有记录的分页列表
         /// </summary>
         /// <param name="dto"></param>
-        /// <param name="keywordMappedPropNames">关键词对应的属性名称数组</param>
+        /// <param name="keywordMappedColumnNames">关键词对应的字段名称数组</param>
         /// <returns></returns>
-        Task<PaginationResultDto<TEntity>> QueryPagedAsync(PaginationQueryDto dto, string[] keywordMappedPropNames);
+        Task<PaginationResultDto<TEntity>> QueryPagedAsync(PaginationQueryDto dto, params string[] keywordMappedColumnNames);
+
+        /// <summary>
+        /// 通过表名获取与条件匹配的所有记录的分页列表
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <param name="dto"></param>
+        /// <param name="keywordMappedColumnNames">关键词对应的字段名称数组</param>
+        /// <returns></returns>
+        Task<PaginationResultDto<TEntity>> QueryPagedByTableNameAsync(string tableName, PaginationQueryDto dto, params string[] keywordMappedColumnNames);
 
         /// <summary>
         /// 获取与条件匹配的所有记录的计数
@@ -145,6 +210,15 @@ namespace IceCoffee.DbCore.Repositories
         /// <param name="param"></param>
         /// <returns></returns>
         Task<int> QueryRecordCountAsync(string? whereBy = null, object? param = null);
+
+        /// <summary>
+        /// 通过表名获取与条件匹配的所有记录的计数
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <param name="whereBy"></param>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        Task<int> QueryRecordCountByTableNameAsync(string tableName, string? whereBy = null, object? param = null);
 
         #endregion Query
 
@@ -161,11 +235,30 @@ namespace IceCoffee.DbCore.Repositories
         Task<int> UpdateAsync(string setClause, string whereBy, object param, bool useTransaction = false);
 
         /// <summary>
+        /// 通过表名、set子句、条件和匿名对象执行任意更新语句
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <param name="setClause"></param>
+        /// <param name="whereBy"></param>
+        /// <param name="param"></param>
+        /// <param name="useTransaction"></param>
+        /// <returns></returns>
+        Task<int> UpdateByTableNameAsync(string tableName, string setClause, string whereBy, object param, bool useTransaction = false);
+
+        /// <summary>
         /// 通过默认主键更新记录
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
         Task<int> UpdateAsync(TEntity entity);
+
+        /// <summary>
+        /// 通过表名和默认主键更新记录
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        Task<int> UpdateByTableNameAsync(string tableName, TEntity entity);
 
         /// <summary>
         /// 通过默认主键更新多条记录
@@ -174,6 +267,15 @@ namespace IceCoffee.DbCore.Repositories
         /// <param name="useTransaction"></param>
         /// <returns></returns>
         Task<int> UpdateBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false);
+
+        /// <summary>
+        /// 通过表名和默认主键更新多条记录
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <param name="entities"></param>
+        /// <param name="useTransaction"></param>
+        /// <returns></returns>
+        Task<int> UpdateBatchByTableNameAsync(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false);
 
         /// <summary>
         /// 通过ID更新记录
@@ -198,6 +300,7 @@ namespace IceCoffee.DbCore.Repositories
         #endregion Update
 
         #region Other
+
         /// <summary>
         /// 插入或更新一条记录
         /// </summary>
@@ -207,7 +310,6 @@ namespace IceCoffee.DbCore.Repositories
 
         /// <summary>
         /// 插入或更新多条记录
-        /// 先尝试更新, 如结果为 0, 则进行批量插入
         /// </summary>
         /// <param name="entities"></param>
         /// <param name="useTransaction"></param>
@@ -216,7 +318,6 @@ namespace IceCoffee.DbCore.Repositories
 
         /// <summary>
         /// 插入多条记录, 忽略已经存在的冲突记录
-        /// 先通过主键过滤已存在再批量插入
         /// </summary>
         /// <param name="entities"></param>
         /// <param name="useTransaction"></param>
@@ -229,27 +330,26 @@ namespace IceCoffee.DbCore.Repositories
         /// <param name="tableName"></param>
         /// <param name="entity"></param>
         /// <returns></returns>
-        Task<int> ReplaceIntoAsync(string tableName, TEntity entity);
+        Task<int> ReplaceIntoByTableNameAsync(string tableName, TEntity entity);
 
         /// <summary>
         /// 插入或更新多条记录
-        /// 先尝试更新, 如结果为 0, 则进行批量插入
         /// </summary>
         /// <param name="tableName"></param>
         /// <param name="entities"></param>
         /// <param name="useTransaction"></param>
         /// <returns></returns>
-        Task<int> ReplaceIntoBatchAsync(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false);
+        Task<int> ReplaceIntoBatchByTableNameAsync(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false);
 
         /// <summary>
         /// 插入多条记录, 忽略已经存在的冲突记录
-        /// 先通过主键过滤已存在再批量插入
         /// </summary>
         /// <param name="tableName"></param>
         /// <param name="entities"></param>
         /// <param name="useTransaction"></param>
         /// <returns></returns>
-        Task<int> InsertIgnoreBatchAsync(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false);
-        #endregion
+        Task<int> InsertIgnoreBatchByTableNameAsync(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false);
+
+        #endregion Other
     }
 }

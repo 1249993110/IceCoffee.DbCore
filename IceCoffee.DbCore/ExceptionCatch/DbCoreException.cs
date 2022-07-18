@@ -1,7 +1,4 @@
-﻿using IceCoffee.Common;
-using System;
-
-namespace IceCoffee.DbCore.ExceptionCatch
+﻿namespace IceCoffee.DbCore.ExceptionCatch
 {
     /// <summary>
     /// 数据库核心异常
@@ -15,6 +12,7 @@ namespace IceCoffee.DbCore.ExceptionCatch
         public DbCoreException(string message) : base(message)
         {
         }
+
         /// <summary>
         /// 实例化
         /// </summary>

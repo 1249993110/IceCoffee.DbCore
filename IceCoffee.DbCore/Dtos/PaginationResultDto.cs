@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-
-namespace IceCoffee.DbCore.Dtos
+﻿namespace IceCoffee.DbCore.Dtos
 {
     public class PaginationResultDto<T>
     {

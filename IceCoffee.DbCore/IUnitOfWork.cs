@@ -1,15 +1,4 @@
-﻿
-/* 项目“IceCoffee.DbCore (netcoreapp3.1)”的未合并的更改
-在此之前:
-using System.Data;
-在此之后:
-using IceCoffee;
-using IceCoffee.DbCore;
-using IceCoffee.DbCore;
-using IceCoffee.DbCore.UnitWork;
-using System.Data;
-*/
-using System.Data;
+﻿using System.Data;
 
 namespace IceCoffee.DbCore
 {

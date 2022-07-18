@@ -1,7 +1,5 @@
 ﻿using Dapper;
 using IceCoffee.DbCore.ExceptionCatch;
-using System;
-using System.Collections.Generic;
 using System.Data;
 
 namespace IceCoffee.DbCore.Utils

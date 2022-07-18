@@ -1,14 +1,6 @@
 ﻿using Dapper;
 using IceCoffee.DbCore.ExceptionCatch;
-using IceCoffee.DbCore.OptionalAttributes;
-using IceCoffee.DbCore.Dtos;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IceCoffee.DbCore.Repositories
 {
@@ -78,7 +70,7 @@ namespace IceCoffee.DbCore.Repositories
 
                 return result;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 if (useTransaction && unitOfWork.IsExplicitSubmit == false)
                 {
@@ -120,7 +112,7 @@ namespace IceCoffee.DbCore.Repositories
 
                 return result;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 if (useTransaction && unitOfWork.IsExplicitSubmit == false)
                 {
@@ -163,7 +155,7 @@ namespace IceCoffee.DbCore.Repositories
 
                 return result;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 if (useTransaction && unitOfWork.IsExplicitSubmit == false)
                 {
@@ -205,7 +197,7 @@ namespace IceCoffee.DbCore.Repositories
 
                 return result;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 if (useTransaction && unitOfWork.IsExplicitSubmit == false)
                 {

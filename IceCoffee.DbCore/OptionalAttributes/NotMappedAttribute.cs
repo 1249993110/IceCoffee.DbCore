@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace IceCoffee.DbCore.OptionalAttributes
+﻿namespace IceCoffee.DbCore.OptionalAttributes
 {
     /// <summary>
     /// 标识不映射字段特性

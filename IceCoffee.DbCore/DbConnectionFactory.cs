@@ -2,11 +2,11 @@
 using Microsoft.Data.SqlClient;
 using MySql.Data.MySqlClient;
 using Npgsql;
-using System;
 using System.Collections.Concurrent;
 using System.Data;
 using System.Data.Common;
 using System.Data.SQLite;
+
 #pragma warning disable
 
 namespace IceCoffee.DbCore
@@ -49,13 +49,16 @@ namespace IceCoffee.DbCore
                 case DatabaseType.SQLServer:
                     factory = SqlClientFactory.Instance;
                     break;
+
                 case DatabaseType.Aceess:
                 case DatabaseType.PostgreSQL:
                     factory = NpgsqlFactory.Instance;
                     break;
+
                 case DatabaseType.MySQL:
                     factory = MySqlClientFactory.Instance;
                     break;
+
                 case DatabaseType.Oracle:
                 default:
                     throw new ExceptionCatch.DbCoreException("未定义的数据库类型");
