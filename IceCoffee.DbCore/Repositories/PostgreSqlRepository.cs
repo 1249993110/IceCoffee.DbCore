@@ -1,5 +1,6 @@
 ﻿using IceCoffee.DbCore.Dtos;
 using IceCoffee.DbCore.ExceptionCatch;
+using System.Collections;
 using System.Reflection;
 
 namespace IceCoffee.DbCore.Repositories
@@ -23,6 +24,7 @@ namespace IceCoffee.DbCore.Repositories
         /// 插入或更新 SQL 语句
         /// </summary>
         public const string ReplaceInto_Statement = "INSERT INTO {0} {3} ON CONFLICT WHERE {1} DO UPDATE {0} SET {2}";
+
         /// <summary>
         /// 实例化 PostgreSqlRepository
         /// </summary>
@@ -33,6 +35,18 @@ namespace IceCoffee.DbCore.Repositories
             {
                 throw new DbCoreException("数据库类型不匹配");
             }
+        }
+
+        #region Async
+
+        public override Task<int> DeleteBatchByIdsAsync<TId>(string idColumnName, IEnumerable<TId> ids, bool useTransaction = false)
+        {
+            if (ids is not IList)
+            {
+                ids = ids.ToArray();
+            }
+            string sql = string.Format("DELETE FROM {0} WHERE {1}=ANY(@Ids)", TableName, idColumnName);
+            return base.ExecuteAsync(sql, new { Ids = ids }, useTransaction);
         }
 
         public override Task<int> InsertIgnoreBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false)
@@ -47,18 +61,26 @@ namespace IceCoffee.DbCore.Repositories
                 useTransaction);
         }
 
+        public override Task<IEnumerable<TEntity>> QueryByIdsAsync<TId>(string idColumnName, IEnumerable<TId> ids)
+        {
+            if (ids is not IList)
+            {
+                ids = ids.ToArray();
+            }
+            string sql = string.Format("SELECT {0} FROM {1} WHERE {2}=ANY(@Ids)", Select_Statement, TableName, idColumnName);
+            return base.QueryAsync<TEntity>(sql, new { Ids = ids });
+        }
+
         public override Task<IEnumerable<TEntity>> QueryPagedAsync(int pageIndex, int pageSize,
-            string? whereBy = null, string? orderBy = null, object? param = null)
+                    string? whereBy = null, string? orderBy = null, object? param = null)
         {
             return this.QueryPagedByTableNameAsync(TableName, pageIndex, pageSize, whereBy, orderBy, param);
         }
 
-        
         public override Task<PaginationResultDto<TEntity>> QueryPagedAsync(PaginationQueryDto dto, params string[] keywordMappedColumnNames)
         {
             return this.QueryPagedByTableNameAsync(TableName, dto, keywordMappedColumnNames);
         }
-
 
         public override Task<IEnumerable<TEntity>> QueryPagedByTableNameAsync(string tableName, int pageIndex, int pageSize, string? whereBy = null, string? orderBy = null, object? param = null)
         {
@@ -121,11 +143,11 @@ namespace IceCoffee.DbCore.Repositories
             return this.ReplaceIntoByTableNameAsync(TableName, entity);
         }
 
-        
         public override Task<int> ReplaceIntoBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false)
         {
             return this.ReplaceIntoBatchByTableNameAsync(TableName, entities, useTransaction);
         }
+
         public override Task<int> ReplaceIntoBatchByTableNameAsync(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false)
         {
             return base.ExecuteAsync(string.Format(ReplaceInto_Statement, tableName, KeyNameWhereBy, UpdateSet_Statement, Insert_Statement),
@@ -138,5 +160,133 @@ namespace IceCoffee.DbCore.Repositories
             return base.ExecuteAsync(string.Format(ReplaceInto_Statement, tableName, KeyNameWhereBy, UpdateSet_Statement, Insert_Statement),
                 entity);
         }
+
+        #endregion
+
+        #region Sync
+
+        public override int DeleteBatchByIds<TId>(string idColumnName, IEnumerable<TId> ids, bool useTransaction = false)
+        {
+            if (ids is not IList)
+            {
+                ids = ids.ToArray();
+            }
+            string sql = string.Format("DELETE FROM {0} WHERE {1}=ANY(@Ids)", TableName, idColumnName);
+            return base.Execute(sql, new { Ids = ids }, useTransaction);
+        }
+
+        public override int InsertIgnoreBatch(IEnumerable<TEntity> entities, bool useTransaction = false)
+        {
+            return this.InsertIgnoreBatchByTableName(TableName, entities, useTransaction);
+        }
+
+        public override int InsertIgnoreBatchByTableName(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false)
+        {
+            return base.Execute(string.Format(InsertIgnore_Statement, tableName, KeyNameWhereBy, Insert_Statement),
+                entities,
+                useTransaction);
+        }
+
+        public override IEnumerable<TEntity> QueryByIds<TId>(string idColumnName, IEnumerable<TId> ids)
+        {
+            if (ids is not IList)
+            {
+                ids = ids.ToArray();
+            }
+            string sql = string.Format("SELECT {0} FROM {1} WHERE {2}=ANY(@Ids)", Select_Statement, TableName, idColumnName);
+            return base.Query<TEntity>(sql, new { Ids = ids });
+        }
+
+        public override IEnumerable<TEntity> QueryPaged(int pageIndex, int pageSize,
+                    string? whereBy = null, string? orderBy = null, object? param = null)
+        {
+            return this.QueryPagedByTableName(TableName, pageIndex, pageSize, whereBy, orderBy, param);
+        }
+
+        public override PaginationResultDto<TEntity> QueryPaged(PaginationQueryDto dto, params string[] keywordMappedColumnNames)
+        {
+            return this.QueryPagedByTableName(TableName, dto, keywordMappedColumnNames);
+        }
+
+        public override IEnumerable<TEntity> QueryPagedByTableName(string tableName, int pageIndex, int pageSize, string? whereBy = null, string? orderBy = null, object? param = null)
+        {
+            if (pageSize < 0)
+            {
+                return base.Query(whereBy, orderBy, param);
+            }
+
+            string sql = string.Format(
+                QueryPaged_Statement,
+                Select_Statement,
+                tableName,
+                whereBy == null ? string.Empty : "WHERE " + whereBy,
+                orderBy ?? ((KeyNames == null || KeyNames.Length == 0) ? "1" : string.Join(",", KeyNames)),
+                pageSize,
+                (pageIndex - 1) * pageSize);
+            return base.Query<TEntity>(sql, param);
+        }
+
+        public override PaginationResultDto<TEntity> QueryPagedByTableName(string tableName, PaginationQueryDto dto, params string[] keywordMappedColumnNames)
+        {
+            string? orderBy = null;
+
+            if (string.IsNullOrEmpty(dto.Order) == false)
+            {
+                // 避免sql注入
+                if (typeof(TEntity).GetProperty(dto.Order, BindingFlags.Instance | BindingFlags.Public) != null)
+                {
+                    orderBy = dto.Order + (dto.Desc ? " DESC" : " ASC");
+                }
+            }
+
+            string? whereBy = null;
+            if (string.IsNullOrEmpty(dto.Keyword) == false)
+            {
+                whereBy = $"{keywordMappedColumnNames[0]} ILIKE CONCAT('%',@Keyword,'%')";
+                for (int i = 1, len = keywordMappedColumnNames.Length; i < len; ++i)
+                {
+                    whereBy += $" OR {keywordMappedColumnNames[i]} ILIKE CONCAT('%',@Keyword,'%')";
+                }
+            }
+
+            IEnumerable<TEntity> items;
+            int total = this.QueryRecordCountByTableName(tableName, whereBy, dto);
+
+            if (total == 0)
+            {
+                items = Enumerable.Empty<TEntity>();
+            }
+            else
+            {
+                items = this.QueryPagedByTableName(tableName, dto.PageIndex, dto.PageSize, whereBy, orderBy, dto);
+            }
+
+            return new PaginationResultDto<TEntity>() { Items = items, Total = total };
+        }
+
+        public override int ReplaceInto(TEntity entity)
+        {
+            return this.ReplaceIntoByTableName(TableName, entity);
+        }
+
+        public override int ReplaceIntoBatch(IEnumerable<TEntity> entities, bool useTransaction = false)
+        {
+            return this.ReplaceIntoBatchByTableName(TableName, entities, useTransaction);
+        }
+
+        public override int ReplaceIntoBatchByTableName(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false)
+        {
+            return base.Execute(string.Format(ReplaceInto_Statement, tableName, KeyNameWhereBy, UpdateSet_Statement, Insert_Statement),
+                entities,
+                useTransaction);
+        }
+
+        public override int ReplaceIntoByTableName(string tableName, TEntity entity)
+        {
+            return base.Execute(string.Format(ReplaceInto_Statement, tableName, KeyNameWhereBy, UpdateSet_Statement, Insert_Statement),
+                entity);
+        }
+
+        #endregion
     }
 }
