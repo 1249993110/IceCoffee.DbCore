@@ -5,16 +5,16 @@ using System.Text;
 
 namespace IceCoffee.DbCore.CodeGenerator.UserControls
 {
-    public partial class UC_PostgresSQL : UserControl, IView
+    public partial class UC_SQLServer : UserControl, IView
     {
         private DbConnectionInfo _dbConnectionInfo;
 
-        public UC_PostgresSQL()
+        public UC_SQLServer()
         {
             InitializeComponent();
         }
 
-        public string Label => "PostgresSQL";
+        public string Label => "SQLServer";
 
         public int Sort => 0;
 
@@ -53,33 +53,39 @@ namespace IceCoffee.DbCore.CodeGenerator.UserControls
 
             switch (typeName)
             {
+                case "bigint":
+                    return "long" + nullable;
                 case "binary":
                 case "varbinary":
                 case "image":
                     return "byte[]";
-
-                case "bool":
+                case "bit":
                     return "bool" + nullable;
-
                 case "char":
-                case "bpchar":
+                case "nchar":
                 case "varchar":
+                case "nvarchar":
                 case "text":
+                case "ntext":
                     return "string";
-
-                case "timestamp":
+                case "date":
+                case "datetime":
                     return "DateTime" + nullable;
-
+                case "datetimeoffset":
+                    return "DateTimeOffset" + nullable;
                 case "decimal":
                 case "numeric":
                     return "decimal" + nullable;
-
-                case "int4":
+                case "float":
+                    return "float" + nullable;
+                case "int":
                     return "int" + nullable;
-
-                case "uuid":
+                case "smallint":
+                    return "short" + nullable;
+                case "tinyint":
+                    return "byte" + nullable;
+                case "uniqueidentifier":
                     return "Guid" + nullable;
-
                 default:
                     throw new Exception("未定义的类型" + typeName);
             }
@@ -205,7 +211,7 @@ namespace IceCoffee.DbCore.CodeGenerator.UserControls
                 .AppendLine("    /// <summary>")
                 .AppendLine("    /// ")
                 .AppendLine("    /// </summary>")
-                .AppendLine($"    [Table(\"{es.EntityName}\")]")
+                //.AppendLine($"    [Table(\"{es.EntityName}\")]")
                 .AppendLine($"    public class {GetClassName(es)}")
                 .AppendLine("    {");
 
@@ -219,7 +225,7 @@ namespace IceCoffee.DbCore.CodeGenerator.UserControls
                     sb.AppendLine("        [PrimaryKey]");
                 }
 
-                sb.AppendLine($"        [Column(\"{field.ColumnName}\")]");
+                //sb.AppendLine($"        [Column(\"{field.ColumnName}\")]");
 
                 string cSharpType = GetCSharpType(field.TypeName, field.IsNullable);
                 sb.AppendFormat("        public {0} {1} {2}", cSharpType, GetPropName(field.ColumnName), "{ get; set; }")
@@ -252,7 +258,7 @@ namespace IceCoffee.DbCore.CodeGenerator.UserControls
         private string GenerateRepository(EntityStructure es)
         {
             string namespacePrefix = this.textBox_namespacePrefix.Text;
-            string basicRepository = "PostgreSqlRepository";
+            string basicRepository = "SqlServerRepository";
             string repositoryName = GetRepositoryName(es);
 
             StringBuilder sb = new StringBuilder(256)
@@ -274,21 +280,32 @@ namespace IceCoffee.DbCore.CodeGenerator.UserControls
 
         private IEnumerable<FieldInfo> GetFieldsInfo(string tableName)
         {
-            var fields = DBHelper.QueryAny<FieldInfo>(_dbConnectionInfo, $"SELECT column_name AS ColumnName,udt_name AS TypeName,(CASE is_nullable WHEN 'NO' THEN FALSE ELSE TRUE END) AS IsNullable FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '{tableName}'");
+            List<FieldInfo> result = new List<FieldInfo>();
 
-            var primaryKeys = DBHelper.QueryAny<FieldInfo>(_dbConnectionInfo, $"SELECT a.attname AS ColumnName FROM pg_index AS i JOIN pg_attribute AS a ON a.attrelid = i.indrelid AND a.attnum = ANY(i.indkey) WHERE i.indrelid = '{tableName}'::regclass AND i.indisprimary").Select(s => s.ColumnName);
+            var fields = DBHelper.QueryAny<T_SqlServerColumns>(_dbConnectionInfo, $"EXEC SP_COLUMNS {tableName}");
+
+            var primaryKeys = DBHelper.QueryAny<T_SqlServerColumns>(_dbConnectionInfo, $"EXEC SP_PKEYS {tableName}").Select(s => s.Column_Name);
 
             foreach (var field in fields)
             {
-                string columnName = field.ColumnName;
+                string columnName = field.Column_Name;
+
+                var f = new FieldInfo()
+                {
+                    ColumnName = columnName,
+                    IsNullable = field.Nullable,
+                    TypeName = field.Type_Name
+                };
 
                 if (primaryKeys.Contains(columnName))
                 {
-                    field.IsPrimaryKey = true;
+                    f.IsPrimaryKey = true;
                 }
+
+                result.Add(f);
             }
 
-            return fields;
+            return result;
         }
 
         private void GetTablesAndViews()
@@ -302,11 +319,11 @@ namespace IceCoffee.DbCore.CodeGenerator.UserControls
             _dbConnectionInfo = new DbConnectionInfo()
             {
                 ConnectionString = connStr,
-                DatabaseType = DatabaseType.PostgreSQL
+                DatabaseType = DatabaseType.SQLServer
             };
 
-            var tables = DBHelper.QueryAny<T_Entity>(_dbConnectionInfo, "SELECT tablename AS Name FROM pg_tables WHERE schemaname='public'");
-            var views = DBHelper.QueryAny<T_Entity>(_dbConnectionInfo, "SELECT viewname AS Name FROM pg_views WHERE schemaname='public'");
+            var tables = DBHelper.QueryAny<T_Entity>(_dbConnectionInfo, "SELECT [name] FROM SYS.TABLES ORDER BY [name]");
+            var views = DBHelper.QueryAny<T_Entity>(_dbConnectionInfo, "SELECT [name] FROM SYS.VIEWS ORDER BY [name]");
 
             this.listView_entities.BeginUpdate();
             this.listView_entities.Items.Clear();

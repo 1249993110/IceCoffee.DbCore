@@ -2,6 +2,7 @@
 using IceCoffee.DbCore.Dtos;
 using IceCoffee.DbCore.ExceptionCatch;
 using IceCoffee.DbCore.OptionalAttributes;
+using IceCoffee.DbCore.Utils;
 using System.Data;
 using System.Reflection;
 using System.Text;
@@ -56,8 +57,7 @@ namespace IceCoffee.DbCore.Repositories
         {
             try
             {
-                PropertyInfo[] properties = typeof(TEntity).GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                    .Where(p => p.GetCustomAttribute<NotMappedAttribute>(true) == null).ToArray();
+                IEnumerable<PropertyInfo> properties = DBHelper.SetTypeMap<TEntity>();
 
                 IEnumerable<PropertyInfo> keyPropInfos = properties.Where(p => p.GetCustomAttribute<PrimaryKeyAttribute>(true) != null);
 
@@ -129,25 +129,6 @@ namespace IceCoffee.DbCore.Repositories
                     stringBuilder2.Remove(stringBuilder2.Length - 1, 1).ToString());
                 Select_Statement = stringBuilder3.Remove(stringBuilder3.Length - 1, 1).ToString();
                 UpdateSet_Statement = stringBuilder4.Remove(stringBuilder4.Length - 1, 1).ToString();
-
-                var propertyMap = new CustomPropertyTypeMap(typeof(TEntity),
-                    (type, columnName) =>
-                    {
-                        // 过滤定义了Column特性的属性
-                        var result = properties.FirstOrDefault(prop => prop
-                                .GetCustomAttributes(false)
-                                .OfType<ColumnAttribute>()
-                                .Any(attr => attr.Name == columnName));
-                        if (result != null)
-                        {
-                            return result;
-                        }
-                        // Column特性为空则返回默认对应列名的属性
-                        return properties.FirstOrDefault(prop => prop.Name == columnName);
-                    }
-                );
-
-                SqlMapper.SetTypeMap(typeof(TEntity), propertyMap);
             }
             catch (Exception ex)
             {

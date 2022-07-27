@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace IceCoffee.DbCore.Tools.Models.CodeGenerator
+namespace IceCoffee.DbCore.CodeGenerator.Models
 {
-    class T_Columns
+    class T_SqlServerColumns
     {
         public string Column_Name { get; set; }
 

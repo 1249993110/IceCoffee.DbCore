@@ -1,6 +1,8 @@
 ﻿using Dapper;
 using IceCoffee.DbCore.ExceptionCatch;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
+using System.Reflection;
 
 namespace IceCoffee.DbCore.Utils
 {
@@ -9,6 +11,33 @@ namespace IceCoffee.DbCore.Utils
     /// </summary>
     public static class DBHelper
     {
+        public static IEnumerable<PropertyInfo> SetTypeMap<TEntity>()
+        {
+            var properties = typeof(TEntity).GetProperties(BindingFlags.Instance | BindingFlags.Public)
+                    .Where(p => p.GetCustomAttribute<NotMappedAttribute>(true) == null);
+
+            var propertyMap = new CustomPropertyTypeMap(typeof(TEntity),
+                    (type, columnName) =>
+                    {
+                        // 过滤定义了Column特性的属性
+                        var result = properties.FirstOrDefault(prop => prop
+                                .GetCustomAttributes(false)
+                                .OfType<ColumnAttribute>()
+                                .Any(attr => attr.Name == columnName));
+                        if (result != null)
+                        {
+                            return result;
+                        }
+                        // Column特性为空则返回默认对应列名的属性
+                        return properties.FirstOrDefault(prop => prop.Name == columnName);
+                    }
+                );
+
+            SqlMapper.SetTypeMap(typeof(TEntity), propertyMap);
+
+            return properties;
+        }
+
         /// <summary>
         /// 从连接池中获取数据库连接, 以执行任意sql语句
         /// </summary>
