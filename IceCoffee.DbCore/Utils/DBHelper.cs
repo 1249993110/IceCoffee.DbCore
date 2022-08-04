@@ -1,6 +1,6 @@
 ﻿using Dapper;
 using IceCoffee.DbCore.ExceptionCatch;
-using System.ComponentModel.DataAnnotations.Schema;
+using IceCoffee.DbCore.OptionalAttributes;
 using System.Data;
 using System.Reflection;
 
