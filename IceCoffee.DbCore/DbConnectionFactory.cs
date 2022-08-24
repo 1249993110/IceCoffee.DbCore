@@ -22,22 +22,28 @@ namespace IceCoffee.DbCore
         private static readonly ConcurrentDictionary<string, IObjectPool<IDbConnection>> _connectionPoolDict;
 
         /// <summary>
-        /// 覆盖数据库连接池生成器委托
+        /// 数据库连接池生成器委托
         /// </summary>
-        private static Func<string, DbProviderFactory, IObjectPool<IDbConnection>> _dbConnectionPoolGenerator;
+        private static Func<DbConnectionInfo, IObjectPool<IDbConnection>> _dbConnectionPoolGenerator;
+
+        /// <summary>
+        /// 数据库连接提供者委托
+        /// </summary>
+        private static Func<DatabaseType, Func<IDbConnection>> _dbConnectionProvider;
 
         static DbConnectionFactory()
         {
             _connectionPoolDict = new ConcurrentDictionary<string, IObjectPool<IDbConnection>>();
             _dbConnectionPoolGenerator = DefaultDbConnectionPoolGenerator;
+            _dbConnectionProvider = DefaultDbConnectionProvider;
         }
 
-        private static IObjectPool<IDbConnection> DefaultDbConnectionPoolGenerator(string connStr, DbProviderFactory factory)
+        private static IObjectPool<IDbConnection> DefaultDbConnectionPoolGenerator(DbConnectionInfo dbConnectionInfo)
         {
-            return new DbConnectionPool(connStr, factory.CreateConnection);
+            return new DbConnectionPool(dbConnectionInfo.ConnectionString, _dbConnectionProvider.Invoke(dbConnectionInfo.DatabaseType));
         }
 
-        private static DbProviderFactory GetProvider(DatabaseType databaseType)
+        private static Func<IDbConnection> DefaultDbConnectionProvider(DatabaseType databaseType)
         {
             DbProviderFactory factory;
             switch (databaseType)
@@ -50,7 +56,7 @@ namespace IceCoffee.DbCore
                     factory = SqlClientFactory.Instance;
                     break;
 
-                case DatabaseType.Aceess:
+                //case DatabaseType.Aceess:
                 case DatabaseType.PostgreSQL:
                     factory = NpgsqlFactory.Instance;
                     break;
@@ -59,21 +65,30 @@ namespace IceCoffee.DbCore
                     factory = MySqlClientFactory.Instance;
                     break;
 
-                case DatabaseType.Oracle:
+                //case DatabaseType.Oracle:
                 default:
                     throw new ExceptionCatch.DbCoreException("未定义的数据库类型");
             }
 
-            return factory;
+            return factory.CreateConnection;
         }
 
         /// <summary>
         /// 覆盖数据库连接池生成器
         /// </summary>
         /// <param name="func"></param>
-        public static void OverrideDbConnectionPoolGenerator(Func<string, DbProviderFactory, IObjectPool<IDbConnection>> func)
+        public static void OverrideDbConnectionPoolGenerator(Func<DbConnectionInfo, IObjectPool<IDbConnection>> func)
         {
             _dbConnectionPoolGenerator = func;
+        }
+
+        /// <summary>
+        /// 覆盖数据库连接提供者委托
+        /// </summary>
+        /// <param name="func"></param>
+        public static void OverrideDbConnectionProvider(Func<DatabaseType, Func<IDbConnection>> func)
+        {
+            _dbConnectionProvider = func;
         }
 
         /// <summary>
@@ -91,7 +106,7 @@ namespace IceCoffee.DbCore
             }
             else
             {
-                IObjectPool<IDbConnection> newPool = _dbConnectionPoolGenerator(connStr, GetProvider(dbConnectionInfo.DatabaseType));
+                IObjectPool<IDbConnection> newPool = _dbConnectionPoolGenerator(dbConnectionInfo);
                 _connectionPoolDict.TryAdd(connStr, newPool);
 
                 return newPool;
@@ -130,7 +145,7 @@ namespace IceCoffee.DbCore
             }
             else
             {
-                IObjectPool<IDbConnection> newPool = _dbConnectionPoolGenerator(connStr, GetProvider(dbConnectionInfo.DatabaseType));
+                IObjectPool<IDbConnection> newPool = _dbConnectionPoolGenerator(dbConnectionInfo);
                 _connectionPoolDict.TryAdd(connStr, newPool);
 
                 return newPool.Get();
