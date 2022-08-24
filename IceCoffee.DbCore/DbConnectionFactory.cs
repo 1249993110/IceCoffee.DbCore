@@ -22,12 +22,12 @@ namespace IceCoffee.DbCore
         private static readonly ConcurrentDictionary<string, IObjectPool<IDbConnection>> _connectionPoolDict;
 
         /// <summary>
-        /// 数据库连接池生成器委托
+        /// 数据库连接池生成器
         /// </summary>
         private static Func<DbConnectionInfo, IObjectPool<IDbConnection>> _dbConnectionPoolGenerator;
 
         /// <summary>
-        /// 数据库连接提供者委托
+        /// 数据库连接提供者
         /// </summary>
         private static Func<DatabaseType, Func<IDbConnection>> _dbConnectionProvider;
 
@@ -83,7 +83,7 @@ namespace IceCoffee.DbCore
         }
 
         /// <summary>
-        /// 覆盖数据库连接提供者委托
+        /// 覆盖数据库连接提供者
         /// </summary>
         /// <param name="func"></param>
         public static void OverrideDbConnectionProvider(Func<DatabaseType, Func<IDbConnection>> func)
