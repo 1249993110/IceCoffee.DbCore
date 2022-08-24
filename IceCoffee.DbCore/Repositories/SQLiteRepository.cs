@@ -1,5 +1,6 @@
 ﻿using IceCoffee.DbCore.Dtos;
 using IceCoffee.DbCore.ExceptionCatch;
+using IceCoffee.DbCore.SqliteTypeHandlers;
 using System.Reflection;
 
 namespace IceCoffee.DbCore.Repositories
@@ -7,7 +8,7 @@ namespace IceCoffee.DbCore.Repositories
     /// <summary>
     /// SQLite 数据库仓储
     /// </summary>
-    public class SQLiteRepository<TEntity> : RepositoryBase<TEntity>
+    public class SqliteRepository<TEntity> : RepositoryBase<TEntity>
     {
         /// <summary>
         /// 分页查询 SQL 语句
@@ -18,7 +19,7 @@ namespace IceCoffee.DbCore.Repositories
         /// 实例化 SQLiteRepository
         /// </summary>
         /// <param name="dbConnectionInfo"></param>
-        public SQLiteRepository(DbConnectionInfo dbConnectionInfo) : base(dbConnectionInfo)
+        public SqliteRepository(DbConnectionInfo dbConnectionInfo) : base(dbConnectionInfo)
         {
             if (dbConnectionInfo.DatabaseType != DatabaseType.SQLite)
             {

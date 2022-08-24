@@ -1,1 +1,2 @@
-﻿global using IceCoffee.Common;
+﻿global using Dapper;
+global using IceCoffee.Common;

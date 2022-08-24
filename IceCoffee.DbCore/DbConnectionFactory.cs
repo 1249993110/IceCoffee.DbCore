@@ -5,7 +5,7 @@ using Npgsql;
 using System.Collections.Concurrent;
 using System.Data;
 using System.Data.Common;
-using System.Data.SQLite;
+using Microsoft.Data.Sqlite;
 
 #pragma warning disable
 
@@ -49,7 +49,7 @@ namespace IceCoffee.DbCore
             switch (databaseType)
             {
                 case DatabaseType.SQLite:
-                    factory = SQLiteFactory.Instance;
+                    factory = SqliteFactory.Instance;
                     break;
 
                 case DatabaseType.SQLServer:
