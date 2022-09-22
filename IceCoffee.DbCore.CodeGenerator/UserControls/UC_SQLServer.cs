@@ -79,6 +79,7 @@ namespace IceCoffee.DbCore.CodeGenerator.UserControls
                 case "float":
                     return "float" + nullable;
                 case "int":
+                case "int identity":
                     return "int" + nullable;
                 case "smallint":
                     return "short" + nullable;
