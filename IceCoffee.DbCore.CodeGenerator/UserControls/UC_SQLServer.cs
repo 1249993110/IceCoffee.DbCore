@@ -212,7 +212,7 @@ namespace IceCoffee.DbCore.CodeGenerator.UserControls
                 .AppendLine("    /// <summary>")
                 .AppendLine("    /// ")
                 .AppendLine("    /// </summary>")
-                //.AppendLine($"    [Table(\"{es.EntityName}\")]")
+                .AppendLine($"    [Table(\"{es.EntityName}\")]")
                 .AppendLine($"    public class {GetClassName(es)}")
                 .AppendLine("    {");
 
