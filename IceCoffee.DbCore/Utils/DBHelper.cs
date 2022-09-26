@@ -14,7 +14,7 @@ namespace IceCoffee.DbCore.Utils
         public static IEnumerable<PropertyInfo> SetTypeMap<TEntity>()
         {
             var properties = typeof(TEntity).GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                    .Where(p => p.GetCustomAttribute<NotMappedAttribute>(true) == null);
+                    .Where(p => p.CanWrite && p.GetCustomAttribute<NotMappedAttribute>(true) == null);
 
             var propertyMap = new CustomPropertyTypeMap(typeof(TEntity),
                     (type, columnName) =>
