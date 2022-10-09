@@ -16,7 +16,7 @@ namespace IceCoffee.DbCore.CodeGenerator.UserControls
 
         public string Label => "PostgresSQL";
 
-        public int Sort => 0;
+        public int Sort => 1;
 
         private static string GetClassName(EntityStructure es)
         {

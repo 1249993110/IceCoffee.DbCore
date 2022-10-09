@@ -15,11 +15,6 @@ namespace IceCoffee.DbCore
         }
 
         /// <summary>
-        /// 连接名
-        /// </summary>
-        public string? ConnectionName { get; set; }
-
-        /// <summary>
         /// 连接串
         /// </summary>
         public string? ConnectionString { get; set; }
@@ -68,7 +63,6 @@ namespace IceCoffee.DbCore
 
             return new DbConnectionInfo()
             {
-                ConnectionName = connectionStringKey,
                 ConnectionString = connStrSetting.ConnectionString,
                 DatabaseType = databaseType
             };
@@ -83,8 +77,7 @@ namespace IceCoffee.DbCore
         /// <inheritdoc/>
         public static bool operator ==(DbConnectionInfo? left, DbConnectionInfo? right)
         {
-            return left?.ConnectionName == right?.ConnectionName
-                && left?.ConnectionString == right?.ConnectionString
+            return left?.ConnectionString == right?.ConnectionString
                 && left?.DatabaseType == right?.DatabaseType;
         }
 

@@ -31,10 +31,10 @@
 	<ItemGroup>
 		<PackageReference Include="IceCoffee.Common" Version="1.0.2.5" />
 		<PackageReference Include="Mapster" Version="7.3.0" />
-		<PackageReference Include="Microsoft.Data.SqlClient" Version="5.0.0" />
-		<PackageReference Include="Microsoft.Data.Sqlite" Version="6.0.8" />
+		<PackageReference Include="Microsoft.Data.SqlClient" Version="5.0.1" />
+		<PackageReference Include="Microsoft.Data.Sqlite" Version="6.0.9" />
 		<PackageReference Include="MySql.Data" Version="8.0.30" />
-		<PackageReference Include="Npgsql" Version="6.0.6" />
+		<PackageReference Include="Npgsql" Version="6.0.7" />
 		<PackageReference Include="Dapper" Version="2.0.123" />
 	</ItemGroup>
 
