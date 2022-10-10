@@ -226,10 +226,14 @@ namespace IceCoffee.DbCore.CodeGenerator.UserControls
                     sb.AppendLine("        [PrimaryKey]");
                 }
 
-                //sb.AppendLine($"        [Column(\"{field.ColumnName}\")]");
+                string propName = GetPropName(field.ColumnName);
+                if(propName != field.ColumnName)
+                {
+                    sb.AppendLine($"        [Column(\"{field.ColumnName}\")]");
+                }
 
                 string cSharpType = GetCSharpType(field.TypeName, field.IsNullable);
-                sb.AppendFormat("        public {0} {1} {2}", cSharpType, GetPropName(field.ColumnName), "{ get; set; }")
+                sb.AppendFormat("        public {0} {1} {2}", cSharpType, propName, "{ get; set; }")
                     .AppendLine();
                 sb.AppendLine();
             }
