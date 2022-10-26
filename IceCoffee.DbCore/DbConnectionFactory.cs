@@ -78,7 +78,7 @@ namespace IceCoffee.DbCore
                     break;
 
                 default:
-                    throw new ExceptionCatch.DbCoreException("未定义的数据库类型");
+                    throw new ExceptionCatch.DbCoreException("Undefined database type");
             }
 
             return factory.CreateConnection;
