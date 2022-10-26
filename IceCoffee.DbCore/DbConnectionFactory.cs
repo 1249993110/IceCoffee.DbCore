@@ -1,11 +1,9 @@
 ﻿using IceCoffee.Common.Pools;
-using Microsoft.Data.SqlClient;
-using MySql.Data.MySqlClient;
-using Npgsql;
+using IceCoffee.DbCore.ExceptionCatch;
 using System.Collections.Concurrent;
 using System.Data;
 using System.Data.Common;
-using Microsoft.Data.Sqlite;
+using System.Reflection;
 
 #pragma warning disable
 
@@ -43,29 +41,42 @@ namespace IceCoffee.DbCore
             return new DbConnectionPool(dbConnectionInfo.ConnectionString, _dbConnectionProvider.Invoke(dbConnectionInfo.DatabaseType));
         }
 
+        private static DbProviderFactory GetDbProviderFactory(string assemblyName, string @namespace)
+        {
+            try
+            {
+                return (DbProviderFactory)Assembly.LoadFrom(assemblyName)
+                        .GetType(@namespace)
+                        .GetField("Instance", BindingFlags.Static | BindingFlags.Public)
+                        .GetValue(null);
+            }
+            catch (Exception ex)
+            {
+                throw new DbCoreException($"Load DbProviderFactory failed, assembly name: {assemblyName}, namespace: {@namespace}", ex);
+            }
+        }
+
         private static Func<IDbConnection> DefaultDbConnectionProvider(DatabaseType databaseType)
         {
             DbProviderFactory factory;
             switch (databaseType)
             {
                 case DatabaseType.SQLite:
-                    factory = SqliteFactory.Instance;
+                    factory = GetDbProviderFactory("Microsoft.Data.Sqlite.dll", "Microsoft.Data.Sqlite.SqliteFactory");
                     break;
 
                 case DatabaseType.SQLServer:
-                    factory = SqlClientFactory.Instance;
+                    factory = GetDbProviderFactory("Microsoft.Data.SqlClient.dll", "Microsoft.Data.Sqlite.SqlClientFactory");
                     break;
 
-                //case DatabaseType.Aceess:
                 case DatabaseType.PostgreSQL:
-                    factory = NpgsqlFactory.Instance;
+                    factory = GetDbProviderFactory("Npgsql.dll", "Npgsql.NpgsqlFactory");
                     break;
 
                 case DatabaseType.MySQL:
-                    factory = MySqlClientFactory.Instance;
+                    factory = GetDbProviderFactory("MySql.Data.dll", "MySql.Data.MySqlClient.MySqlClientFactory");
                     break;
 
-                //case DatabaseType.Oracle:
                 default:
                     throw new ExceptionCatch.DbCoreException("未定义的数据库类型");
             }
