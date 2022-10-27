@@ -45,7 +45,7 @@ namespace IceCoffee.DbCore
         {
             try
             {
-                return (DbProviderFactory)Assembly.LoadFrom(assemblyName)
+                return (DbProviderFactory)Assembly.LoadFrom(Path.Combine(AppContext.BaseDirectory, assemblyName))
                         .GetType(@namespace)
                         .GetField("Instance", BindingFlags.Static | BindingFlags.Public)
                         .GetValue(null);
@@ -66,7 +66,7 @@ namespace IceCoffee.DbCore
                     break;
 
                 case DatabaseType.SQLServer:
-                    factory = GetDbProviderFactory("Microsoft.Data.SqlClient.dll", "Microsoft.Data.Sqlite.SqlClientFactory");
+                    factory = GetDbProviderFactory("Microsoft.Data.SqlClient.dll", "Microsoft.Data.SqlClient.SqlClientFactory");
                     break;
 
                 case DatabaseType.PostgreSQL:
