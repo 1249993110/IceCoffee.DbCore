@@ -6,6 +6,7 @@ using IceCoffee.DbCore.Utils;
 using System.Data;
 using System.Reflection;
 using System.Text;
+using static Dapper.SqlMapper;
 
 namespace IceCoffee.DbCore.Repositories
 {
@@ -50,6 +51,77 @@ namespace IceCoffee.DbCore.Repositories
         public static string UpdateSet_Statement { get; private set; }
 
         #endregion 公共静态属性
+
+        #region 分页查询
+        /// <summary>
+        /// 关键词模糊查询字句
+        /// </summary>
+        protected abstract string KeywordLikeClause { get; }
+
+        public abstract IEnumerable<TEntity> QueryPagedByTableName(string tableName, int pageIndex, int pageSize,
+           string? whereBy = null, string? orderBy = null, object? param = null);
+
+        public virtual IEnumerable<TEntity> QueryPaged(int pageIndex, int pageSize,
+           string? whereBy = null, string? orderBy = null, object? param = null)
+        {
+            return this.QueryPagedByTableName(TableName, pageIndex, pageSize, whereBy, orderBy, param);
+        }
+
+        public virtual PaginationResultDto<TEntity> QueryPagedByTableName(string tableName, PaginationQueryDto dto)
+        {
+            string? orderBy = null;
+
+            if (string.IsNullOrEmpty(dto.Order) == false)
+            {
+                // 避免sql注入
+                if (typeof(TEntity).GetProperty(dto.Order, BindingFlags.Instance | BindingFlags.Public) != null)
+                {
+                    orderBy = dto.Order + (dto.Desc ? " DESC" : " ASC");
+                }
+            }
+
+            string? whereBy = null;
+
+            if (string.IsNullOrEmpty(dto.PreWhereBy) == false)
+            {
+                whereBy = dto.PreWhereBy + " AND ";
+            }
+
+            if (string.IsNullOrEmpty(dto.Keyword) == false)
+            {
+                var keywordMappedColumnNames = dto.KeywordMappedColumnNames;
+                if (keywordMappedColumnNames != null && keywordMappedColumnNames.Length > 0)
+                {
+                    whereBy += $"({keywordMappedColumnNames[0]} {KeywordLikeClause}";
+                    for (int i = 1, len = keywordMappedColumnNames.Length; i < len; ++i)
+                    {
+                        whereBy += $" OR {keywordMappedColumnNames[i]} {KeywordLikeClause}";
+                    }
+                    whereBy += ")";
+                }
+            }
+
+            IEnumerable<TEntity> items;
+            int total = this.QueryRecordCountByTableName(tableName, whereBy, dto);
+
+            if (total == 0)
+            {
+                items = Enumerable.Empty<TEntity>();
+            }
+            else
+            {
+                items = this.QueryPagedByTableName(tableName, dto.PageIndex, dto.PageSize, whereBy, orderBy, dto);
+            }
+
+            return new PaginationResultDto<TEntity>() { Items = items, Total = total };
+        }
+
+        public virtual PaginationResultDto<TEntity> QueryPaged(PaginationQueryDto dto)
+        {
+            return this.QueryPagedByTableName(TableName, dto);
+        }
+        
+        #endregion
 
         #region 构造
 
@@ -214,7 +286,10 @@ namespace IceCoffee.DbCore.Repositories
             return base.Execute(string.Format("INSERT INTO {0} {1}", tableName, Insert_Statement), entity);
         }
 
-        public abstract int InsertIgnoreBatch(IEnumerable<TEntity> entities, bool useTransaction = false);
+        public virtual int InsertIgnoreBatch(IEnumerable<TEntity> entities, bool useTransaction = false)
+        {
+            return this.InsertIgnoreBatchByTableName(TableName, entities, useTransaction);
+        }
 
         public abstract int InsertIgnoreBatchByTableName(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false);
 
@@ -253,16 +328,6 @@ namespace IceCoffee.DbCore.Repositories
             return base.Query<TEntity>(sql, param);
         }
 
-        public abstract IEnumerable<TEntity> QueryPaged(int pageIndex, int pageSize,
-           string? whereBy = null, string? orderBy = null, object? param = null);
-
-        public abstract IEnumerable<TEntity> QueryPagedByTableName(string tableName, int pageIndex, int pageSize,
-           string? whereBy = null, string? orderBy = null, object? param = null);
-
-        public abstract PaginationResultDto<TEntity> QueryPaged(PaginationQueryDto dto, params string[] keywordMappedColumnNames);
-
-        public abstract PaginationResultDto<TEntity> QueryPagedByTableName(string tableName, PaginationQueryDto dto, params string[] keywordMappedColumnNames);
-
         public virtual int QueryRecordCount(string? whereBy = null, object? param = null)
         {
             return this.QueryRecordCountByTableName(TableName, whereBy, param);
@@ -274,9 +339,15 @@ namespace IceCoffee.DbCore.Repositories
             return base.ExecuteScalar<int>(sql, param);
         }
 
-        public abstract int ReplaceInto(TEntity entity);
+        public virtual int ReplaceInto(TEntity entity)
+        {
+            return this.ReplaceIntoByTableName(TableName, entity);
+        }
 
-        public abstract int ReplaceIntoBatch(IEnumerable<TEntity> entities, bool useTransaction = false);
+        public virtual int ReplaceIntoBatch(IEnumerable<TEntity> entities, bool useTransaction = false)
+        {
+            return this.ReplaceIntoBatchByTableName(TableName, entities, useTransaction);
+        }
 
         public abstract int ReplaceIntoBatchByTableName(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false);
 

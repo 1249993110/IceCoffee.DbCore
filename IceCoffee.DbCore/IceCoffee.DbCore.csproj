@@ -16,7 +16,7 @@
 		<Product>IceCoffee</Product>
 		<RepositoryUrl>https://github.com/1249993110/IceCoffee.DbCore</RepositoryUrl>
 		<TargetFrameworks>net6.0;netcoreapp3.1;net462</TargetFrameworks>
-		<Version>1.0.5.9</Version>
+		<Version>1.0.6.0</Version>
 		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
 
@@ -29,7 +29,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="IceCoffee.Common" Version="1.0.2.9" />
+		<PackageReference Include="IceCoffee.Common" Version="1.0.2.10" />
 		<PackageReference Include="Dapper" Version="2.0.123" />
 
 		<!--<PackageReference Include="Mapster" Version="7.3.0" />-->

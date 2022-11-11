@@ -190,18 +190,16 @@ namespace IceCoffee.DbCore.Repositories
         /// 获取与条件匹配的所有记录的分页列表
         /// </summary>
         /// <param name="dto"></param>
-        /// <param name="keywordMappedColumnNames">关键词对应的字段名称数组</param>
         /// <returns></returns>
-        Task<PaginationResultDto<TEntity>> QueryPagedAsync(PaginationQueryDto dto, params string[] keywordMappedColumnNames);
+        Task<PaginationResultDto<TEntity>> QueryPagedAsync(PaginationQueryDto dto);
 
         /// <summary>
         /// 通过表名获取与条件匹配的所有记录的分页列表
         /// </summary>
         /// <param name="tableName"></param>
         /// <param name="dto"></param>
-        /// <param name="keywordMappedColumnNames">关键词对应的字段名称数组</param>
         /// <returns></returns>
-        Task<PaginationResultDto<TEntity>> QueryPagedByTableNameAsync(string tableName, PaginationQueryDto dto, params string[] keywordMappedColumnNames);
+        Task<PaginationResultDto<TEntity>> QueryPagedByTableNameAsync(string tableName, PaginationQueryDto dto);
 
         /// <summary>
         /// 获取与条件匹配的所有记录的计数

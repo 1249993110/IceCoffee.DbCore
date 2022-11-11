@@ -26,5 +26,15 @@
         /// 关键词
         /// </summary>
         public string? Keyword { get; set; }
+
+        /// <summary>
+        /// 关键词对应的字段名称数组
+        /// </summary>
+        public string[]? KeywordMappedColumnNames { get; set; }
+
+        /// <summary>
+        /// 前置 where 条件字符串
+        /// </summary>
+        public string? PreWhereBy { get; set; }
     }
 }

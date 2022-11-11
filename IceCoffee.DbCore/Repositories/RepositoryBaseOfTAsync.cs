@@ -1,9 +1,74 @@
 ﻿using IceCoffee.DbCore.Dtos;
+using System.Reflection;
 
 namespace IceCoffee.DbCore.Repositories
 {
     public abstract partial class RepositoryBase<TEntity> : RepositoryBase, IRepository<TEntity>
     {
+        #region 分页查询
+        public virtual async Task<PaginationResultDto<TEntity>> QueryPagedByTableNameAsync(string tableName, PaginationQueryDto dto)
+        {
+            string? orderBy = null;
+
+            if (string.IsNullOrEmpty(dto.Order) == false)
+            {
+                // 避免sql注入
+                if (typeof(TEntity).GetProperty(dto.Order, BindingFlags.Instance | BindingFlags.Public) != null)
+                {
+                    orderBy = dto.Order + (dto.Desc ? " DESC" : " ASC");
+                }
+            }
+
+            string? whereBy = null;
+
+            if (string.IsNullOrEmpty(dto.PreWhereBy) == false)
+            {
+                whereBy = dto.PreWhereBy + " AND ";
+            }
+
+            if (string.IsNullOrEmpty(dto.Keyword) == false)
+            {
+                var keywordMappedColumnNames = dto.KeywordMappedColumnNames;
+                if (keywordMappedColumnNames != null && keywordMappedColumnNames.Length > 0)
+                {
+                    whereBy += $"({keywordMappedColumnNames[0]} {KeywordLikeClause}";
+                    for (int i = 1, len = keywordMappedColumnNames.Length; i < len; ++i)
+                    {
+                        whereBy += $" OR {keywordMappedColumnNames[i]} {KeywordLikeClause}";
+                    }
+                    whereBy += ")";
+                }
+            }
+
+            IEnumerable<TEntity> items;
+            int total = await this.QueryRecordCountByTableNameAsync(tableName, whereBy, dto);
+
+            if (total == 0)
+            {
+                items = Enumerable.Empty<TEntity>();
+            }
+            else
+            {
+                items = await this.QueryPagedByTableNameAsync(tableName, dto.PageIndex, dto.PageSize, whereBy, orderBy, dto);
+            }
+
+            return new PaginationResultDto<TEntity>() { Items = items, Total = total };
+        }
+        public virtual Task<IEnumerable<TEntity>> QueryPagedAsync(int pageIndex, int pageSize,
+         string? whereBy = null, string? orderBy = null, object? param = null)
+        {
+            return this.QueryPagedByTableNameAsync(TableName, pageIndex, pageSize, whereBy, orderBy, param);
+        }
+
+        public abstract Task<IEnumerable<TEntity>> QueryPagedByTableNameAsync(string tableName, int pageIndex, int pageSize,
+           string? whereBy = null, string? orderBy = null, object? param = null);
+
+        public virtual Task<PaginationResultDto<TEntity>> QueryPagedAsync(PaginationQueryDto dto)
+        {
+            return this.QueryPagedByTableNameAsync(TableName, dto);
+        }
+        #endregion
+
         public virtual Task<int> DeleteAsync(string whereBy, object? param = null, bool useTransaction = false)
         {
             string sql = string.Format("DELETE FROM {0} {1}", TableName, whereBy == null ? string.Empty : "WHERE " + whereBy);
@@ -72,7 +137,10 @@ namespace IceCoffee.DbCore.Repositories
             return base.ExecuteAsync(string.Format("INSERT INTO {0} {1}", tableName, Insert_Statement), entity);
         }
 
-        public abstract Task<int> InsertIgnoreBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false);
+        public virtual Task<int> InsertIgnoreBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false)
+        {
+            return this.InsertIgnoreBatchByTableNameAsync(TableName, entities, useTransaction);
+        }
 
         public abstract Task<int> InsertIgnoreBatchByTableNameAsync(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false);
 
@@ -110,17 +178,7 @@ namespace IceCoffee.DbCore.Repositories
                orderBy == null ? string.Empty : "ORDER BY " + orderBy);
             return base.QueryAsync<TEntity>(sql, param);
         }
-
-        public abstract Task<IEnumerable<TEntity>> QueryPagedAsync(int pageIndex, int pageSize,
-           string? whereBy = null, string? orderBy = null, object? param = null);
-
-        public abstract Task<IEnumerable<TEntity>> QueryPagedByTableNameAsync(string tableName, int pageIndex, int pageSize,
-           string? whereBy = null, string? orderBy = null, object? param = null);
-
-        public abstract Task<PaginationResultDto<TEntity>> QueryPagedAsync(PaginationQueryDto dto, params string[] keywordMappedColumnNames);
-
-        public abstract Task<PaginationResultDto<TEntity>> QueryPagedByTableNameAsync(string tableName, PaginationQueryDto dto, params string[] keywordMappedColumnNames);
-
+      
         public virtual Task<int> QueryRecordCountAsync(string? whereBy = null, object? param = null)
         {
             return this.QueryRecordCountByTableNameAsync(TableName, whereBy, param);
@@ -132,9 +190,15 @@ namespace IceCoffee.DbCore.Repositories
             return base.ExecuteScalarAsync<int>(sql, param);
         }
 
-        public abstract Task<int> ReplaceIntoAsync(TEntity entity);
+        public virtual Task<int> ReplaceIntoAsync(TEntity entity)
+        {
+            return this.ReplaceIntoByTableNameAsync(TableName, entity);
+        }
 
-        public abstract Task<int> ReplaceIntoBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false);
+        public virtual Task<int> ReplaceIntoBatchAsync(IEnumerable<TEntity> entities, bool useTransaction = false)
+        {
+            return this.ReplaceIntoBatchByTableNameAsync(TableName, entities, useTransaction);
+        }
 
         public abstract Task<int> ReplaceIntoBatchByTableNameAsync(string tableName, IEnumerable<TEntity> entities, bool useTransaction = false);
 
