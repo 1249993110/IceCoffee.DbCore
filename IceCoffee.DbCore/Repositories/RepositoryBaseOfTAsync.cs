@@ -20,10 +20,9 @@ namespace IceCoffee.DbCore.Repositories
             }
 
             string? whereBy = null;
-
             if (string.IsNullOrEmpty(dto.PreWhereBy) == false)
             {
-                whereBy = dto.PreWhereBy + " AND ";
+                whereBy = dto.PreWhereBy;
             }
 
             if (string.IsNullOrEmpty(dto.Keyword) == false)
@@ -31,7 +30,13 @@ namespace IceCoffee.DbCore.Repositories
                 var keywordMappedColumnNames = dto.KeywordMappedColumnNames;
                 if (keywordMappedColumnNames != null && keywordMappedColumnNames.Length > 0)
                 {
-                    whereBy += $"({keywordMappedColumnNames[0]} {KeywordLikeClause}";
+                    if (whereBy != null)
+                    {
+                        whereBy += " AND ";
+                    }
+
+                    whereBy += "(";
+                    whereBy += $"{keywordMappedColumnNames[0]} {KeywordLikeClause}";
                     for (int i = 1, len = keywordMappedColumnNames.Length; i < len; ++i)
                     {
                         whereBy += $" OR {keywordMappedColumnNames[i]} {KeywordLikeClause}";
