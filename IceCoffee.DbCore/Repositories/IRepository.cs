@@ -2,7 +2,11 @@
 
 namespace IceCoffee.DbCore.Repositories
 {
-    public partial interface IRepository<TEntity>
+    public interface IRepository
+    {
+    }
+
+    public partial interface IRepository<TEntity> : IRepository
     {
         #region Insert
 

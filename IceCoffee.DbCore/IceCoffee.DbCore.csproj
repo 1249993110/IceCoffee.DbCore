@@ -4,7 +4,13 @@
 		<Authors>IceCoffee</Authors>
 		<Company>LuoShuiTianYi</Company>
 		<Copyright>Copyright (c) 2022 IceCoffee</Copyright>
-		<Description>一个简单的数据库CRUD操作封装库</Description>
+		<Description>
+			一个简单的数据库CRUD操作封装库
+			Microsoft.Data.SqlClient
+			Microsoft.Data.Sqlite
+			MySql.Data
+			Npgsql
+		</Description>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 		<LangVersion>10.0</LangVersion>
@@ -16,8 +22,9 @@
 		<Product>IceCoffee</Product>
 		<RepositoryUrl>https://github.com/1249993110/IceCoffee.DbCore</RepositoryUrl>
 		<TargetFrameworks>net6.0;netcoreapp3.1;net462</TargetFrameworks>
-		<Version>1.0.6.2</Version>
+		<Version>1.0.6.3</Version>
 		<ImplicitUsings>enable</ImplicitUsings>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -25,7 +32,10 @@
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
 		</None>
-		<None Include="..\README.md" />
+		<None Include="..\README.md" >
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
 	</ItemGroup>
 
 	<ItemGroup>
