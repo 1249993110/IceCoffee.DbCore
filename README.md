@@ -5,4 +5,4 @@
 Microsoft.Data.SqlClient 或
 Microsoft.Data.Sqlite 或
 MySql.Data 或
-Npgsql 或
+Npgsql
