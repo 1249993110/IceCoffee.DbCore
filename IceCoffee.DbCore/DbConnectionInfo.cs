@@ -1,6 +1,4 @@
-﻿using System.Configuration;
-
-namespace IceCoffee.DbCore
+﻿namespace IceCoffee.DbCore
 {
     /// <summary>
     /// 数据库连接信息
@@ -23,50 +21,6 @@ namespace IceCoffee.DbCore
         /// 数据库类型
         /// </summary>
         public DatabaseType DatabaseType { get; set; }
-
-        /// <summary>
-        /// 由ConfigurationManager通过key得到ConnectionString和ProviderName
-        /// </summary>
-        /// <param name="connectionStringKey">数据库连接串的key</param>
-        public static DbConnectionInfo FromConnectionStringKey(string connectionStringKey)
-        {
-            var connStrSetting = ConfigurationManager.ConnectionStrings[connectionStringKey];
-
-            DatabaseType databaseType = DatabaseType.Unknown;
-
-            switch (connStrSetting.ProviderName)
-            {
-                case "System.Data.SQLite":
-                    databaseType = DatabaseType.SQLite;
-                    break;
-
-                case "System.Data.SqlClient":
-                    databaseType = DatabaseType.SQLServer;
-                    break;
-
-                case "System.Data.Odbc":
-                    databaseType = DatabaseType.MySQL;
-                    break;
-
-                case "System.Data.OracleClient":
-                case "Oracle.DataAccess.Client":
-                    databaseType = DatabaseType.Oracle;
-                    break;
-
-                case "System.Data.OleDb":
-                    databaseType = DatabaseType.Aceess;
-                    break;
-
-                default:
-                    break;
-            }
-
-            return new DbConnectionInfo()
-            {
-                ConnectionString = connStrSetting.ConnectionString,
-                DatabaseType = databaseType
-            };
-        }
 
         /// <inheritdoc/>
         public static bool operator !=(DbConnectionInfo? left, DbConnectionInfo? right)

@@ -12,7 +12,7 @@
 			Npgsql
 		</Description>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
 		<LangVersion>10.0</LangVersion>
 		<NoWarn>$(NoWarn);1591</NoWarn>
 		<Nullable>enable</Nullable>
@@ -22,7 +22,7 @@
 		<Product>IceCoffee</Product>
 		<RepositoryUrl>https://github.com/1249993110/IceCoffee.DbCore</RepositoryUrl>
 		<TargetFrameworks>net6.0;netcoreapp3.1;net462</TargetFrameworks>
-		<Version>1.0.6.4</Version>
+		<Version>1.0.6.5</Version>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
@@ -32,14 +32,18 @@
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
 		</None>
-		<None Include="..\README.md" >
+		<None Include="..\README.md">
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
 		</None>
 	</ItemGroup>
-
+	
 	<ItemGroup>
-		<PackageReference Include="IceCoffee.Common" Version="1.0.2.10" />
+		<Using Remove="System.Net.Http" />
+	</ItemGroup>
+			
+	<ItemGroup>
+		<PackageReference Include="IceCoffee.Common" Version="1.0.3" />
 		<PackageReference Include="Dapper" Version="2.0.123" />
 
 		<!--<PackageReference Include="Mapster" Version="7.3.0" />-->
