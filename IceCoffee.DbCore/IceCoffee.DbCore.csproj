@@ -22,7 +22,7 @@
 		<Product>IceCoffee</Product>
 		<RepositoryUrl>https://github.com/1249993110/IceCoffee.DbCore</RepositoryUrl>
 		<TargetFrameworks>net6.0;net462</TargetFrameworks>
-		<Version>1.0.6.5</Version>
+		<Version>1.0.6.6</Version>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>

@@ -40,7 +40,7 @@ namespace IceCoffee.DbCore.Repositories
         {
             if (pageSize < 0)
             {
-                return base.QueryAsync(whereBy, orderBy, param);
+                return base.QueryByTableNameAsync(tableName, whereBy, orderBy, param);
             }
 
             string sql = string.Format(
@@ -77,7 +77,7 @@ namespace IceCoffee.DbCore.Repositories
         {
             if (pageSize < 0)
             {
-                return base.Query(whereBy, orderBy, param);
+                return base.QueryByTableName(tableName, whereBy, orderBy, param);
             }
 
             string sql = string.Format(
