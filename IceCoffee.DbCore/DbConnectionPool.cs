@@ -46,7 +46,7 @@ namespace IceCoffee.DbCore
             }
             catch (Exception ex)
             {
-                throw new DbCoreException("数据库连接打开失败！请检查驱动是否正常", ex);
+                throw new DbCoreException("Database connection opening failed! Please check network links and drivers.", ex);
             }
         }
 
