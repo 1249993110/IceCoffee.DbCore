@@ -68,14 +68,17 @@ namespace IceCoffee.DbCore.CodeGenerator.UserControls
                 DatabaseType = DatabaseType.SQLite
             };
 
-            var tables = DBHelper.QueryAny<EntityInfo>(_dbConnectionInfo, "SELECT name AS Name FROM sqlite_master WHERE type='table' ORDER BY name")
-                .Where(p => p.Name != "sqlite_sequence");
+            var tables = DBHelper.QueryAny<EntityInfo>(_dbConnectionInfo, "SELECT name AS Name FROM sqlite_master WHERE type='table' ORDER BY name");
             var views = DBHelper.QueryAny<EntityInfo>(_dbConnectionInfo, "SELECT name AS Name FROM sqlite_master WHERE type='view' ORDER BY name");
 
             this.listView_entities.BeginUpdate();
             this.listView_entities.Items.Clear();
             foreach (var item in tables)
             {
+                if(item.Name == "sqlite_sequence")
+                {
+                    continue;
+                }
                 this.listView_entities.Items.Add(new ListViewItem(item.Name, this.listView_entities.Groups[0]) { Checked = true });
             }
             foreach (var item in views)
