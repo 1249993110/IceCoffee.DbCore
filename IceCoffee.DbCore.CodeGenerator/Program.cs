@@ -1,9 +1,9 @@
+using IceCoffee.Common.WinForm;
+
 namespace IceCoffee.DbCore.CodeGenerator
 {
     internal static class Program
     {
-        internal static SynchronizationContext MainThreadSyncContext { get; private set; }
-
         /// <summary>
         ///  The main entry point for the application.
         /// </summary>
@@ -15,7 +15,7 @@ namespace IceCoffee.DbCore.CodeGenerator
             ApplicationConfiguration.Initialize();
 
             var mainFrom = new MainForm();
-            MainThreadSyncContext = SynchronizationContext.Current;
+            CrossThreadCallHelper.Init(SynchronizationContext.Current);
             Application.Run(mainFrom);
         }
     }

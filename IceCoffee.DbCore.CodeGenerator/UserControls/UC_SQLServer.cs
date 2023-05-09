@@ -1,4 +1,5 @@
-﻿using IceCoffee.DbCore.CodeGenerator.Models;
+﻿using IceCoffee.Common.WinForm;
+using IceCoffee.DbCore.CodeGenerator.Models;
 using IceCoffee.DbCore.Utils;
 using System.Data;
 using System.Text;
@@ -18,9 +19,9 @@ namespace IceCoffee.DbCore.CodeGenerator.UserControls
 
         public int Sort => 0;
 
-        private static string GetClassName(EntityStructure es)
+        private static string GetClassName(EntityInfo es)
         {
-            string entityName = es.EntityName;
+            string entityName = es.Name;
 
             int len = entityName.Length;
             var sb = new StringBuilder(len);
@@ -92,7 +93,7 @@ namespace IceCoffee.DbCore.CodeGenerator.UserControls
             }
         }
 
-        private static string GetIRepositoryName(EntityStructure es)
+        private static string GetIRepositoryName(EntityInfo es)
         {
             string className = GetClassName(es);
             return $"I{(es.IsView ? "V" : string.Empty)}{className.Substring(2)}Repository";
@@ -130,7 +131,7 @@ namespace IceCoffee.DbCore.CodeGenerator.UserControls
             return sb.ToString();
         }
 
-        private static string GetRepositoryName(EntityStructure es)
+        private static string GetRepositoryName(EntityInfo es)
         {
             string className = GetClassName(es);
             return $"{(es.IsView ? "V" : string.Empty)}{className.Substring(2)}Repository";
@@ -181,9 +182,9 @@ namespace IceCoffee.DbCore.CodeGenerator.UserControls
             {
                 string entityName = item.Text;
                 bool isView = item.Group.Header == "视图";
-                var es = new EntityStructure()
+                var es = new EntityInfo()
                 {
-                    EntityName = entityName,
+                    Name = entityName,
                     FieldInfos = GetFieldsInfo(entityName),
                     IsView = isView
                 };
@@ -204,7 +205,7 @@ namespace IceCoffee.DbCore.CodeGenerator.UserControls
             MessageBox.Show("生成成功");
         }
 
-        private string GenerateEntityClass(EntityStructure es)
+        private string GenerateEntityClass(EntityInfo es)
         {
             var sb = new StringBuilder(2048)
                 .AppendLine($"namespace {this.textBox_namespacePrefix.Text}.Entities")
@@ -212,7 +213,7 @@ namespace IceCoffee.DbCore.CodeGenerator.UserControls
                 .AppendLine("    /// <summary>")
                 .AppendLine("    /// ")
                 .AppendLine("    /// </summary>")
-                .AppendLine($"    [Table(\"{es.EntityName}\")]")
+                .AppendLine($"    [Table(\"{es.Name}\")]")
                 .AppendLine($"    public class {GetClassName(es)}")
                 .AppendLine("    {");
 
@@ -227,7 +228,7 @@ namespace IceCoffee.DbCore.CodeGenerator.UserControls
                 }
 
                 string propName = GetPropName(field.ColumnName);
-                if(propName != field.ColumnName)
+                if (propName != field.ColumnName)
                 {
                     sb.AppendLine($"        [Column(\"{field.ColumnName}\")]");
                 }
@@ -244,7 +245,7 @@ namespace IceCoffee.DbCore.CodeGenerator.UserControls
             return sb.ToString();
         }
 
-        private string GenerateIRepository(EntityStructure es)
+        private string GenerateIRepository(EntityInfo es)
         {
             string namespacePrefix = this.textBox_namespacePrefix.Text;
             StringBuilder sb = new StringBuilder(256)
@@ -260,7 +261,7 @@ namespace IceCoffee.DbCore.CodeGenerator.UserControls
             return sb.ToString();
         }
 
-        private string GenerateRepository(EntityStructure es)
+        private string GenerateRepository(EntityInfo es)
         {
             string namespacePrefix = this.textBox_namespacePrefix.Text;
             string basicRepository = "SqlServerRepository";
@@ -283,13 +284,22 @@ namespace IceCoffee.DbCore.CodeGenerator.UserControls
             return sb.ToString();
         }
 
+        internal class TableColumns
+        {
+            public string Column_Name { get; set; }
+
+            public string Type_Name { get; set; }
+
+            public bool Nullable { get; set; }
+        }
+
         private IEnumerable<FieldInfo> GetFieldsInfo(string tableName)
         {
             List<FieldInfo> result = new List<FieldInfo>();
 
-            var fields = DBHelper.QueryAny<T_SqlServerColumns>(_dbConnectionInfo, $"EXEC SP_COLUMNS {tableName}");
+            var fields = DBHelper.QueryAny<TableColumns>(_dbConnectionInfo, $"EXEC SP_COLUMNS {tableName}");
 
-            var primaryKeys = DBHelper.QueryAny<T_SqlServerColumns>(_dbConnectionInfo, $"EXEC SP_PKEYS {tableName}").Select(s => s.Column_Name);
+            var primaryKeys = DBHelper.QueryAny<TableColumns>(_dbConnectionInfo, $"EXEC SP_PKEYS {tableName}").Select(s => s.Column_Name);
 
             foreach (var field in fields)
             {
@@ -327,8 +337,8 @@ namespace IceCoffee.DbCore.CodeGenerator.UserControls
                 DatabaseType = DatabaseType.SQLServer
             };
 
-            var tables = DBHelper.QueryAny<T_Entity>(_dbConnectionInfo, "SELECT [name] FROM SYS.TABLES ORDER BY [name]");
-            var views = DBHelper.QueryAny<T_Entity>(_dbConnectionInfo, "SELECT [name] FROM SYS.VIEWS ORDER BY [name]");
+            var tables = DBHelper.QueryAny<EntityInfo>(_dbConnectionInfo, "SELECT [name] AS Name FROM SYS.TABLES ORDER BY [name]");
+            var views = DBHelper.QueryAny<EntityInfo>(_dbConnectionInfo, "SELECT [name] AS Name FROM SYS.VIEWS ORDER BY [name]");
 
             this.listView_entities.BeginUpdate();
             this.listView_entities.Items.Clear();
@@ -390,9 +400,9 @@ namespace IceCoffee.DbCore.CodeGenerator.UserControls
 
         private void Preview(string entityName, IEnumerable<FieldInfo> fieldInfos, bool isView)
         {
-            var entityStructure = new EntityStructure()
+            var entityStructure = new EntityInfo()
             {
-                EntityName = entityName,
+                Name = entityName,
                 FieldInfos = fieldInfos,
                 IsView = isView
             };

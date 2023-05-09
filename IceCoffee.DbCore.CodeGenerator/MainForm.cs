@@ -1,3 +1,5 @@
+using IceCoffee.Common.WinForm;
+using IceCoffee.DbCore.CodeGenerator.UserControls;
 using System.Reflection;
 
 namespace IceCoffee.DbCore.CodeGenerator
@@ -12,13 +14,13 @@ namespace IceCoffee.DbCore.CodeGenerator
 
         private void LoadUserControl()
         {
-            var types = Assembly.GetExecutingAssembly().GetExportedTypes().Where(type => typeof(IView).IsAssignableFrom(type));
+            var types = Assembly.GetExecutingAssembly().GetExportedTypes().Where(type => type.IsSubclassOf(typeof(UserControlBase)));
 
             var views = new List<IView>();
 
             foreach (var type in types)
             {
-                if(Activator.CreateInstance(type) is IView view)
+                if (Activator.CreateInstance(type) is IView view)
                 {
                     views.Add(view);
                 }

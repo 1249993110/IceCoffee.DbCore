@@ -1,4 +1,5 @@
-﻿using IceCoffee.DbCore.CodeGenerator.Models;
+﻿using IceCoffee.Common.WinForm;
+using IceCoffee.DbCore.CodeGenerator.Models;
 using IceCoffee.DbCore.Utils;
 using System.Data;
 using System.Text;
@@ -16,11 +17,11 @@ namespace IceCoffee.DbCore.CodeGenerator.UserControls
 
         public string Label => "PostgresSQL";
 
-        public int Sort => 1;
+        public int Sort => 2;
 
-        private static string GetClassName(EntityStructure es)
+        private static string GetClassName(EntityInfo es)
         {
-            string entityName = es.EntityName;
+            string entityName = es.Name;
 
             int len = entityName.Length;
             var sb = new StringBuilder(len);
@@ -85,7 +86,7 @@ namespace IceCoffee.DbCore.CodeGenerator.UserControls
             }
         }
 
-        private static string GetIRepositoryName(EntityStructure es)
+        private static string GetIRepositoryName(EntityInfo es)
         {
             string className = GetClassName(es);
             return $"I{(es.IsView ? "V" : string.Empty)}{className.Substring(2)}Repository";
@@ -123,7 +124,7 @@ namespace IceCoffee.DbCore.CodeGenerator.UserControls
             return sb.ToString();
         }
 
-        private static string GetRepositoryName(EntityStructure es)
+        private static string GetRepositoryName(EntityInfo es)
         {
             string className = GetClassName(es);
             return $"{(es.IsView ? "V" : string.Empty)}{className.Substring(2)}Repository";
@@ -174,9 +175,9 @@ namespace IceCoffee.DbCore.CodeGenerator.UserControls
             {
                 string entityName = item.Text;
                 bool isView = item.Group.Header == "视图";
-                var es = new EntityStructure()
+                var es = new EntityInfo()
                 {
-                    EntityName = entityName,
+                    Name = entityName,
                     FieldInfos = GetFieldsInfo(entityName),
                     IsView = isView
                 };
@@ -197,7 +198,7 @@ namespace IceCoffee.DbCore.CodeGenerator.UserControls
             MessageBox.Show("生成成功");
         }
 
-        private string GenerateEntityClass(EntityStructure es)
+        private string GenerateEntityClass(EntityInfo es)
         {
             var sb = new StringBuilder(2048)
                 .AppendLine($"namespace {this.textBox_namespacePrefix.Text}.Entities")
@@ -205,7 +206,7 @@ namespace IceCoffee.DbCore.CodeGenerator.UserControls
                 .AppendLine("    /// <summary>")
                 .AppendLine("    /// ")
                 .AppendLine("    /// </summary>")
-                .AppendLine($"    [Table(\"{es.EntityName}\")]")
+                .AppendLine($"    [Table(\"{es.Name}\")]")
                 .AppendLine($"    public class {GetClassName(es)}")
                 .AppendLine("    {");
 
@@ -237,7 +238,7 @@ namespace IceCoffee.DbCore.CodeGenerator.UserControls
             return sb.ToString();
         }
 
-        private string GenerateIRepository(EntityStructure es)
+        private string GenerateIRepository(EntityInfo es)
         {
             string namespacePrefix = this.textBox_namespacePrefix.Text;
             StringBuilder sb = new StringBuilder(256)
@@ -253,7 +254,7 @@ namespace IceCoffee.DbCore.CodeGenerator.UserControls
             return sb.ToString();
         }
 
-        private string GenerateRepository(EntityStructure es)
+        private string GenerateRepository(EntityInfo es)
         {
             string namespacePrefix = this.textBox_namespacePrefix.Text;
             string basicRepository = "PostgreSqlRepository";
@@ -309,8 +310,8 @@ namespace IceCoffee.DbCore.CodeGenerator.UserControls
                 DatabaseType = DatabaseType.PostgreSQL
             };
 
-            var tables = DBHelper.QueryAny<T_Entity>(_dbConnectionInfo, "SELECT tablename AS Name FROM pg_tables WHERE schemaname='public'");
-            var views = DBHelper.QueryAny<T_Entity>(_dbConnectionInfo, "SELECT viewname AS Name FROM pg_views WHERE schemaname='public'");
+            var tables = DBHelper.QueryAny<EntityInfo>(_dbConnectionInfo, "SELECT tablename AS Name FROM pg_tables WHERE schemaname='public'");
+            var views = DBHelper.QueryAny<EntityInfo>(_dbConnectionInfo, "SELECT viewname AS Name FROM pg_views WHERE schemaname='public'");
 
             this.listView_entities.BeginUpdate();
             this.listView_entities.Items.Clear();
@@ -372,9 +373,9 @@ namespace IceCoffee.DbCore.CodeGenerator.UserControls
 
         private void Preview(string entityName, IEnumerable<FieldInfo> fieldInfos, bool isView)
         {
-            var entityStructure = new EntityStructure()
+            var entityStructure = new EntityInfo()
             {
-                EntityName = entityName,
+                Name = entityName,
                 FieldInfos = fieldInfos,
                 IsView = isView
             };
