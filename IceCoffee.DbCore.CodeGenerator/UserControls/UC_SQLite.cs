@@ -1,4 +1,5 @@
-﻿using IceCoffee.DbCore.CodeGenerator.Models;
+﻿using IceCoffee.Common.WinForm;
+using IceCoffee.DbCore.CodeGenerator.Models;
 using IceCoffee.DbCore.OptionalAttributes;
 using IceCoffee.DbCore.Utils;
 using System.Data;
@@ -7,13 +8,13 @@ using System.Text;
 
 namespace IceCoffee.DbCore.CodeGenerator.UserControls
 {
-    public partial class UC_SQLite : UserControlBase
+    public partial class UC_SQLite : UserControl, IView
     {
         private DbConnectionInfo _dbConnectionInfo;
 
-        public override string Label => "SQLite";
+        public string Label => "SQLite";
 
-        public override int Sort => 1;
+        public int Sort => 1;
 
         public UC_SQLite()
         {
@@ -44,7 +45,7 @@ namespace IceCoffee.DbCore.CodeGenerator.UserControls
         {
             try
             {
-                InitDirectory(this.textBox_rootDir.Text);
+                Utils.InitDirectory(this.textBox_rootDir.Text);
 
                 GenerateCode();
             }

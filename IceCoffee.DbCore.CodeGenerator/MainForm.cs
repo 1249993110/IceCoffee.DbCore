@@ -14,7 +14,7 @@ namespace IceCoffee.DbCore.CodeGenerator
 
         private void LoadUserControl()
         {
-            var types = Assembly.GetExecutingAssembly().GetExportedTypes().Where(type => type.IsSubclassOf(typeof(UserControlBase)));
+            var types = Assembly.GetExecutingAssembly().GetExportedTypes().Where(type => typeof(IView).IsAssignableFrom(type));
 
             var views = new List<IView>();
 
