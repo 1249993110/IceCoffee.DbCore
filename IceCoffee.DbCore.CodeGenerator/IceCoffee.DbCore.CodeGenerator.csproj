@@ -17,10 +17,5 @@
 		<ProjectReference Include="..\IceCoffee.DbCore\IceCoffee.DbCore.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<Compile Update="UserControls\UC_SQLServer.cs">
-			<SubType>UserControl</SubType>
-		</Compile>
-	</ItemGroup>
 
 </Project>
