@@ -117,19 +117,22 @@ namespace IceCoffee.DbCore.CodeGenerator
         public virtual string GetCSharpType(FieldInfo fieldInfo)
         {
             string typeName = fieldInfo.TypeName.ToLower();
-            string prefix = fieldInfo.IsNullable ? "?" : string.Empty;
 
+            string cSharpType;
             switch (typeName)
             {
                 case "bigint":
-                    return "long" + prefix;
+                    cSharpType = "long";
+                    break;
                 case "binary":
                 case "varbinary":
                 case "image":
-                    return "byte[]";
+                    cSharpType = "byte[]";
+                    break;
                 case "bool":
                 case "bit":
-                    return "bool" + prefix;
+                    cSharpType = "bool";
+                    break;
                 case "char":
                 case "bpchar":
                 case "nchar":
@@ -137,36 +140,51 @@ namespace IceCoffee.DbCore.CodeGenerator
                 case "nvarchar":
                 case "text":
                 case "ntext":
-                    return "string";
+                    cSharpType = "string";
+                    break;
                 case "date":
                 case "datetime":
                 case "timestamp":
-                    return "DateTime" + prefix;
+                    cSharpType = "DateTime";
+                    break;
                 case "datetimeoffset":
-                    return "DateTimeOffset" + prefix;
+                    cSharpType = "DateTimeOffset";
+                    break;
                 case "decimal":
                 case "numeric":
-                    return "decimal" + prefix;
+                    cSharpType = "decimal";
+                    break;
                 case "float":
-                    return "float" + prefix;
+                    cSharpType = "float";
+                    break;
                 case "real":
-                    return "double" + prefix;
+                    cSharpType = "double";
+                    break;
                 case "int":
                 case "int4":
                 case "int identity":
                 case "integer":
-                    return "int" + prefix;
+                    cSharpType = "int";
+                    break;
                 case "smallint":
-                    return "short" + prefix;
+                    cSharpType = "short";
+                    break;
                 case "tinyint":
-                    return "byte" + prefix;
+                    cSharpType = "byte";
+                    break;
                 case "uniqueidentifier":
                 case "uuid":
-                    return "Guid" + prefix;
-
+                    cSharpType = "Guid";
+                    break;
                 default:
                     throw new Exception("Undefined type: " + typeName);
             }
+
+            if (fieldInfo.IsNullable)
+            {
+                return cSharpType + "?";
+            }
+            return cSharpType;
         }
 
         public virtual string GetPropertyName(FieldInfo fieldInfo)

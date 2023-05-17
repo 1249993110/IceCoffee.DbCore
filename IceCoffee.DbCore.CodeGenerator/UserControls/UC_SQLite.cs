@@ -80,11 +80,11 @@ namespace IceCoffee.DbCore.CodeGenerator.UserControls
                 {
                     continue;
                 }
-                this.listView_entities.Items.Add(new ListViewItem(item.Name, this.listView_entities.Groups[0]) { Checked = true });
+                this.listView_entities.Items.Add(new ListViewItem(item.Name, this.listView_entities.Groups[0]) { Checked = false });
             }
             foreach (var item in views)
             {
-                this.listView_entities.Items.Add(new ListViewItem(item.Name, this.listView_entities.Groups[1]) { Checked = true });
+                this.listView_entities.Items.Add(new ListViewItem(item.Name, this.listView_entities.Groups[1]) { Checked = false });
             }
 
             this.listView_entities.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
