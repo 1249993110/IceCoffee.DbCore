@@ -140,6 +140,7 @@ namespace IceCoffee.DbCore.CodeGenerator
                 case "nvarchar":
                 case "text":
                 case "ntext":
+                case "":
                     cSharpType = "string";
                     break;
                 case "date":
