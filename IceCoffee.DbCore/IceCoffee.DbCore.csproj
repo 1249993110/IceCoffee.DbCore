@@ -22,7 +22,7 @@
 		<Product>IceCoffee</Product>
 		<RepositoryUrl>https://github.com/1249993110/IceCoffee.DbCore</RepositoryUrl>
 		<TargetFrameworks>net6.0;net462</TargetFrameworks>
-		<Version>1.0.6.10</Version>
+		<Version>1.0.7</Version>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
@@ -43,8 +43,8 @@
 	</ItemGroup>
 			
 	<ItemGroup>
-		<PackageReference Include="IceCoffee.Common" Version="1.0.3.8" />
-		<PackageReference Include="Dapper" Version="2.0.123" />
+		<PackageReference Include="IceCoffee.Common" Version="1.0.10" />
+		<PackageReference Include="Dapper" Version="2.1.28" />
 
 		<!--<PackageReference Include="Mapster" Version="7.3.0" />-->
 		<!--<PackageReference Include="Microsoft.Data.SqlClient" Version="5.0.1" />-->
